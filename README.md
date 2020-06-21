@@ -78,5 +78,11 @@ Use to run macfand as daemon. In daemon mode, syslog is used for all messages (s
 
 Use to set poll time of (how often temperature is checked and fans adjusted). **Must be whole number bigger than 0.**
 
+#### Low temp
+*Low temp option will be added.*
+
+#### High temp
+*High temp option will be added.*
+
 #### Verbose
 *Verbose mode will be added.*
