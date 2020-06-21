@@ -33,10 +33,10 @@ $(EXECDIR)/$(EXEC): $(OBJFILES)
 	$(LD) $(LDFLAGS) $^ -o $@
 
 install:
-	cp -f $(EXECDIR)/$(EXEC) /usr/bin
+	cp $(EXECDIR)/$(EXEC) /usr/bin
 	chown root:root /usr/bin/$(EXEC)
 	chmod 755 /usr/bin/$(EXEC)
-	cp -f macfand.service /etc/systemd/systemd
+	cp macfand.service /etc/systemd/system
 	systemctl daemon-reload
 	systemctl enable --now macfand.service
 
