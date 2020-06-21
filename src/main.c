@@ -18,7 +18,7 @@
 #include "control.h"
 #include "daemonize.h"
 
-const char *argp_program_version = "version 0.1";
+const char *argp_program_version = "macfand - version 0.1";
 
 static struct argp_option options[] = { 
     {"daemon", 'd', 0, 0, "Run in daemon mode"},
