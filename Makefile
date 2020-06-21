@@ -32,7 +32,20 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c
 $(EXECDIR)/$(EXEC): $(OBJFILES)
 	$(LD) $(LDFLAGS) $^ -o $@
 
+install:
+	cp -f $(EXECDIR)/$(EXEC) /usr/bin
+	chown root:root /usr/bin/$(EXEC)
+	chmod 755 /usr/bin/$(EXEC)
+	cp -f macfand.service /etc/systemd/systemd
+	systemctl daemon-reload
+	systemctl enable --now macfand.service
+
+uninstall:
+	systemctl disable --now macfand.service
+	systemctl daemon-reload
+	rm -f /usr/bin/$(EXEC)
+
 clean:
 	rm -rf $(OBJDIR) $(EXECDIR)
 
-.PHONY: clean make_dirs
+.PHONY: clean make_dirs install uninstall
