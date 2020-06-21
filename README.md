@@ -52,6 +52,16 @@ $ make
 
 This will install macfand to `/usr/bin` and enable the included `macfand.service` unit to start with your system.
 
+## Uninstall
+
+You can uninstall macfand by running 
+
+```bash
+# make uninstall
+```
+
+from inside of the cloned directory if you did not change the executable name.
+
 ## Configuration
 
 No configuration file is currently used. All configuration is done using command line options.
