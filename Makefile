@@ -32,6 +32,12 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c
 $(EXECDIR)/$(EXEC): $(OBJFILES)
 	$(LD) $(LDFLAGS) $^ -o $@
 
+run:
+	$(EXECDIR)/./$(EXEC)
+
+run_valgrind:
+	valgrind --leak-check=full --show-leak-kinds=all --track-origin=yes $(EXECDIR)/./$(EXEC)
+
 install:
 	cp $(EXECDIR)/$(EXEC) /usr/bin
 	chown root:root /usr/bin/$(EXEC)
@@ -48,4 +54,4 @@ uninstall:
 clean:
 	rm -rf $(OBJDIR) $(EXECDIR)
 
-.PHONY: clean install uninstall
+.PHONY: clean install uninstall run run_valgrind
