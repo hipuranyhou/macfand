@@ -8,9 +8,9 @@
 #
 
 CC := gcc
-CFLAGS := -w -O2
+CFLAGS := -Wall -Wextra -pedantic -g
 LD := gcc
-LDFLAGS := -w -O2
+LDFLAGS := -Wall -Wextra -pedantic -g
 SRCDIR := src
 SRCFILES := $(wildcard $(SRCDIR)/*.c)
 OBJDIR := obj
