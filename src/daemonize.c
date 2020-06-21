@@ -92,7 +92,7 @@ void daemonize(void) {
     openlog("mac_fan_control", LOG_PID, LOG_DAEMON);
 
     // Write PID file
-    pid_file = fopen("/run/mac_fan_control.pid", "w+");
+    pid_file = fopen("/run/macfand.pid", "w+");
     if (pid_file == NULL) {
         syslog(LOG_ERR, "Unable to open pid file.");
         return;
