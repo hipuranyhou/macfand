@@ -4,7 +4,7 @@
  * Daemon for controlling fans on linux systems using
  * applesmc and coretemp.
  * 
- * https://github.com
+ * https://github.com/Hipuranyhou/macfand
  */
 
 #include <stdio.h>

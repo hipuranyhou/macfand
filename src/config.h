@@ -1,6 +1,11 @@
-//
-// Created by hipuranyhou on 21.06.20.
-//
+/**
+ * macfand - hipuranyhou - 21.06.2020
+ * 
+ * Daemon for controlling fans on linux systems using
+ * applesmc and coretemp.
+ * 
+ * https://github.com/Hipuranyhou/macfand
+ */
 
 #ifndef MAC_FAN_CONTROL_CONFIG_H_jkdhfasjkf
 #define MAC_FAN_CONTROL_CONFIG_H_jkdhfasjkf

@@ -4,7 +4,7 @@
 # Daemon for controlling fans on systems using
 # applesmc and coretemp.
 # 
-# https://github.com
+# https://github.com/Hipuranyhou/macfand
 #
 
 CC := gcc
