@@ -46,7 +46,7 @@ $ make
 
 3. Install using:
 
-```
+```bash
 # make install
 ```
 
