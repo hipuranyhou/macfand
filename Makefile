@@ -43,9 +43,9 @@ install:
 uninstall:
 	systemctl disable --now macfand.service
 	systemctl daemon-reload
-	rm -f /usr/bin/$(EXEC)
+	rm -f /etc/systemd/system/macfand.service /usr/bin/$(EXEC)
 
 clean:
 	rm -rf $(OBJDIR) $(EXECDIR)
 
-.PHONY: clean make_dirs install uninstall
+.PHONY: clean install uninstall
