@@ -71,7 +71,7 @@ Use to get quick info about available options.
 #### Daemon
 `--daemon` or `-d`
 
-Use to run macfand as daemon. In daemon mode, syslog is used for all messages (stdout and stderr otherwise)and pidfile is located at `/run/macfand.pid`.
+Use to run macfand as daemon. In daemon mode, syslog is used for all messages (stdout and stderr otherwise)and pid file is located at `/run/macfand.pid`.
 
 #### Poll time
 `--poll=NUM` or `-p NUM`
