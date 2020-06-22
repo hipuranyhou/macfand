@@ -7,8 +7,8 @@
  * https://github.com/Hipuranyhou/macfand
  */
 
-#ifndef MAC_FAN_CONTROL_DAEMONIZE_H_dhsafkjjkf
-#define MAC_FAN_CONTROL_DAEMONIZE_H_dhsafkjjkf
+#ifndef MACFAND_DAEMONIZE_H_dhsafkjjkf
+#define MACFAND_DAEMONIZE_H_dhsafkjjkf
 
 /**
  * 
@@ -27,4 +27,4 @@ void prepare_signals(void);
  */
 void daemonize(void);
 
-#endif //MAC_FAN_CONTROL_DAEMONIZE_H_dhsafkjjkf
+#endif //MACFAND_DAEMONIZE_H_dhsafkjjkf

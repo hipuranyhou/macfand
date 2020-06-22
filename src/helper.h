@@ -7,8 +7,8 @@
  * https://github.com/Hipuranyhou/macfand
  */
 
-#ifndef MAC_FAN_CONTROL_HELPER_H_pifiohaods
-#define MAC_FAN_CONTROL_HELPER_H_pifiohaods
+#ifndef MACFAND_HELPER_H_pifiohaods
+#define MACFAND_HELPER_H_pifiohaods
 
 /**
  *
@@ -21,4 +21,4 @@ char* concatenate_format(const char* format, ...);
 int max(int a, int b);
 int min(int a, int b);
 
-#endif //MAC_FAN_CONTROL_HELPER_H_pifiohaods
+#endif //MACFAND_HELPER_H_pifiohaods

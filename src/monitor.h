@@ -7,8 +7,8 @@
  * https://github.com/Hipuranyhou/macfand
  */
 
-#ifndef MAC_FAN_CONTROL_MONITOR_H_fajkdsfbua
-#define MAC_FAN_CONTROL_MONITOR_H_fajkdsfbua
+#ifndef MACFAND_MONITOR_H_fajkdsfbua
+#define MACFAND_MONITOR_H_fajkdsfbua
 
 #include "config.h"
 
@@ -58,4 +58,4 @@ void free_monitors(t_monitor *monitors);
  */
 int get_current_temp(t_monitor *monitors);
 
-#endif //MAC_FAN_CONTROL_MONITOR_H_fajkdsfbua
+#endif //MACFAND_MONITOR_H_fajkdsfbua

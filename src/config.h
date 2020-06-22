@@ -7,8 +7,8 @@
  * https://github.com/Hipuranyhou/macfand
  */
 
-#ifndef MAC_FAN_CONTROL_CONFIG_H_jkdhfasjkf
-#define MAC_FAN_CONTROL_CONFIG_H_jkdhfasjkf
+#ifndef MACFAND_CONFIG_H_jkdhfasjkf
+#define MACFAND_CONFIG_H_jkdhfasjkf
 
 typedef struct settings {
     int low_temp;
@@ -20,4 +20,4 @@ typedef struct settings {
 
 void load_default_settings(t_settings *settings);
 
-#endif //MAC_FAN_CONTROL_CONFIG_H_jkdhfasjkf
+#endif //MACFAND_CONFIG_H_jkdhfasjkf

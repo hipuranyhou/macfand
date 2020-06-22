@@ -7,8 +7,8 @@
  * https://github.com/Hipuranyhou/macfand
  */
 
-#ifndef MAC_FAN_CONTROL_FAN_H_qwewqiorhq
-#define MAC_FAN_CONTROL_FAN_H_qwewqiorhq
+#ifndef MACFAND_FAN_H_qwewqiorhq
+#define MACFAND_FAN_H_qwewqiorhq
 
 #include "config.h"
 
@@ -67,4 +67,4 @@ void free_fans(t_fan *fans);
  */
 int set_fan_speed(t_fan *fan, int speed);
 
-#endif //MAC_FAN_CONTROL_FAN_H_qwewqiorhq
+#endif //MACFAND_FAN_H_qwewqiorhq

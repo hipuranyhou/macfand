@@ -7,8 +7,8 @@
  * https://github.com/Hipuranyhou/macfand
  */
 
-#ifndef MAC_FAN_CONTROL_CONTROL_H_fsdfdsfsdf
-#define MAC_FAN_CONTROL_CONTROL_H_fsdfdsfsdf
+#ifndef MACFAND_CONTROL_H_fsdfdsfsdf
+#define MACFAND_CONTROL_H_fsdfdsfsdf
 
 #include "config.h"
 #include "fan.h"
@@ -19,4 +19,4 @@
  */
 void start_control(t_settings *settings, t_fan *fans, t_monitor *monitors);
 
-#endif //MAC_FAN_CONTROL_CONTROL_H_fsdfdsfsdf
+#endif //MACFAND_CONTROL_H_fsdfdsfsdf
