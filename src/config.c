@@ -17,4 +17,5 @@ void load_default_settings(t_settings *settings) {
     settings->max_temp = 84;
     settings->poll_time = 1;
     settings->daemon = 0;
+    settings->verbose = 0;
 }

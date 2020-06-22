@@ -24,6 +24,9 @@ const char *argp_program_version = "macfand - version 0.1";
 static struct argp_option options[] = { 
     {"daemon", 'd', 0, 0, "Run in daemon mode"},
     {"poll", 'p', "NUM", 0, "Set poll time in seconds (whole number bigger than 0)"},
+    {"low", 'l', "NUM", 0, "Set temperature under which fans run on min speed (whole number 55 < NUM)"},
+    {"high", 'h', "NUM", 0, "Set temperature used for determining the aggresivity of speed adjustment (whole number 55 < NUM)"},
+    {"verbose", 'v', 0, 0, "Enables verbose mode. Not allowed in daemon mode!"},
     {0}
 };
 
@@ -37,6 +40,19 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
             if (atoi(arg) < 1)
                 argp_failure(state, 1, 0, "Poll time must be a whole number bigger than 0");
             settings->poll_time = atoi(arg);
+            break;
+        case 'l':
+            if (atoi(arg) < 56)
+                argp_failure(state, 1, 0, "Low temp must be bigger than 55");
+            settings->low_temp = atoi(arg);
+            break;
+        case 'h':
+            if (atoi(arg) < 56)
+                argp_failure(state, 1, 0, "High temp must be bigger than 55");
+            settings->high_temp = atoi(arg);
+            break;
+        case 'v':
+            settings->verbose = 1;
             break;
     }
     return 0;
