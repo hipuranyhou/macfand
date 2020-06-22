@@ -40,16 +40,15 @@ run_valgrind:
 
 install:
 	cp $(EXECDIR)/$(EXEC) /usr/bin
-	chown root:root /usr/bin/$(EXEC)
 	chmod 755 /usr/bin/$(EXEC)
-	cp macfand.service /etc/systemd/system
+	cp macfand.service /usr/lib/systemd/system
 	systemctl daemon-reload
 	systemctl enable --now macfand.service
 
 uninstall:
 	systemctl disable --now macfand.service
 	systemctl daemon-reload
-	rm -f /etc/systemd/system/macfand.service /usr/bin/$(EXEC)
+	rm -f /usr/lib/systemd/system/macfand.service /usr/bin/$(EXEC)
 
 clean:
 	rm -rf $(OBJDIR) $(EXECDIR)
