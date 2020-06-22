@@ -25,6 +25,9 @@ const char *argp_program_version = "macfand - version 0.1";
 static struct argp_option options[] = { 
     {"daemon", 'd', 0, 0, "Run in daemon mode"},
     {"poll", 'p', "NUM", 0, "Set poll time in seconds (whole number bigger than 0)"},
+    {"low", 'l', "NUM", 0, "Set temperature under which fans run on min speed (whole number 55 < NUM)"},
+    {"high", 'h', "NUM", 0, "Set temperature used for determining the aggresivity of speed adjustment (whole number 55 < NUM)"},
+    {"verbose", 'v', 0, 0, "Enables verbose mode. Not allowed in daemon mode!"},
     {0}
 };
 
