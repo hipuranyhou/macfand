@@ -17,11 +17,6 @@
 /**
  * 
  */
-void exit_gracefully(t_settings *settings);
-
-/**
- * 
- */
 void start_control(t_settings *settings, t_fan *fans, t_monitor *monitors);
 
 #endif //MAC_FAN_CONTROL_CONTROL_H_fsdfdsfsdf

@@ -25,19 +25,8 @@ void start_control(t_settings *settings, t_fan *fans, t_monitor *monitors) {
     for(;;) {
 
         // Exit after catched signal
-        if (termination_flag) {
-            if (!set_fans_mode(fans, FAN_AUTO)) {
-                switch (settings->daemon) {
-                    case 0:
-                        fprintf(stderr, "Error while resetting fans to automatic mode.");
-                        break;
-                    case 1:
-                        syslog(LOG_ERR, "Error while resetting fans to automatic mode.");
-                        break;
-                }
-            }
+        if (termination_flag)
             return;
-        }
 
         // Prepare loop
         fan = fans;

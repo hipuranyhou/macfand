@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <argp.h>
+#include <syslog.h>
 
 #include "fan.h"
 #include "monitor.h"
@@ -65,6 +66,7 @@ int main(int argc, char **argv) {
     // Load fans
     t_fan *fans = load_fans(&settings);
     if (fans == NULL) {
+        free_monitors(monitors);
         fprintf(stderr, "%s\n", "Error encountered while loading fans!");
         return 1;
     }
@@ -74,6 +76,8 @@ int main(int argc, char **argv) {
         // Set fans back to auto if enabling manual mode failed 
         // (those we were unable to set to manual mode are already in automatic mode)
         set_fans_mode(fans, FAN_AUTO);
+        free_monitors(monitors);
+        free_fans(fans);
         fprintf(stderr, "%s\n", "Error encountered while setting fans to manual mode!");
         return 1;
     }
@@ -82,6 +86,17 @@ int main(int argc, char **argv) {
     start_control(&settings, fans, monitors);
 
     // Free memory on exit
+
+    if (!set_fans_mode(fans, FAN_AUTO)) {
+        switch (settings.daemon) {
+            case 0:
+                fprintf(stderr, "Error while resetting fans to automatic mode.");
+                break;
+            case 1:
+                syslog(LOG_ERR, "Error while resetting fans to automatic mode.");
+                break;
+        }
+    }
     free_monitors(monitors);
     free_fans(fans);
     return 0;
