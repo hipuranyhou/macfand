@@ -11,18 +11,20 @@
 #define MACFAND_DAEMONIZE_H_dhsafkjjkf
 
 /**
+ * @brief Set the termination flag object
  * 
+ * @param sig 
  */
 void set_termination_flag(int sig);
 
 /**
- * 
+ * @brief 
  * 
  */
 void prepare_signals(void);
 
 /**
- * 
+ * @brief 
  * 
  */
 void daemonize(void);

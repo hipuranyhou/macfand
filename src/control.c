@@ -15,9 +15,9 @@
 
 volatile int termination_flag = 0;
 
-void start_control(t_settings *settings, t_node *fans, t_node *monitors) {
-    int prev_temp, cur_temp = 0, speed, steps, delta_temp;
-    t_node *fan = NULL;
+void start_control(const t_settings *settings, t_node **fans, const t_node *monitors) {
+    int prev_temp = 0, cur_temp = 0, speed = 0, steps = 0, delta_temp = 0;
+    t_fan *fan = NULL;
     struct timespec ts;
     ts.tv_sec = settings->poll_time;
     ts.tv_nsec = 0;
@@ -29,20 +29,21 @@ void start_control(t_settings *settings, t_node *fans, t_node *monitors) {
             return;
 
         // Prepare loop
-        fan = fans;
+        *fans = fans;
+        fan = (*fans)->data;
         prev_temp = cur_temp;
         cur_temp = get_current_temp(monitors);
         delta_temp = cur_temp - prev_temp;
 
         // Set speed of each fan
         while (fan) {
-            speed = fan->data->speed;
+            speed = fan->speed;
 
             // Extremes
             if (cur_temp >= settings->max_temp)
-                speed = (t_fan *)(fan->data)->max;
+                speed = fan->max;
             if (cur_temp <= settings->low_temp)
-                speed = fan->data->min;
+                speed = fan->min;
 
             // Set lower or higher
             if (delta_temp > 0 && cur_temp > settings->high_temp && cur_temp < settings->max_temp) {
@@ -65,7 +66,8 @@ void start_control(t_settings *settings, t_node *fans, t_node *monitors) {
                         break;
                 }
             }
-            fan = fan->next;
+            *fans = (*fans)->next;
+            fan = (*fans)->data;
         }
 
         nanosleep(&ts, NULL);

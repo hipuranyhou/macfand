@@ -13,6 +13,7 @@
 #include <stdlib.h>
 
 /**
+ * @brief 
  * 
  */
 typedef struct node {
@@ -21,17 +22,27 @@ typedef struct node {
 } t_node;
 
 /**
+ * @brief 
  * 
+ * @param head 
+ * @param data 
+ * @param data_size 
+ * @return int 
  */
 int list_push_front(t_node **head, const void *data, size_t data_size);
 
 /**
+ * @brief 
  * 
+ * @param head 
+ * @param free_node 
  */
 void list_free(t_node *head, void (*free_node)(void *));
 
 /**
+ * @brief 
  * 
+ * @param head 
  */
 void list_print(const t_node *head);
 

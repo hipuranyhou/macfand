@@ -11,9 +11,11 @@
 #define MACFAND_FAN_H_qwewqiorhq
 
 #include "config.h"
+#include "linked.h"
 
 /**
- * Struct holding all information about one cooling fan.
+ * @brief 
+ * 
  */
 typedef struct fan {
     short int id;
@@ -22,11 +24,11 @@ typedef struct fan {
     int speed;
     int step;
     char *write_path;
-    struct fan *next;
 } t_fan;
 
 /**
- * Enum holding types of fan modes from applesmc.
+ * @brief 
+ * 
  */
 enum fan_mode {
     FAN_AUTO,
@@ -34,37 +36,45 @@ enum fan_mode {
 };
 
 /**
- * Loads max and min speed of each fan from appropriate files and counts step for each fan.
- * @param[in] fans Pointer to head of linked list of all fans.
- * @return 1 on success, 0 on error
+ * @brief 
+ * 
+ * @param settings 
+ * @param fans 
+ * @return int 
  */
-int load_fans_default_speed(t_settings *settings, t_fan *fans);
+int load_fans_defaults(const t_settings *settings, t_node *fans);
 
 /**
- * Constructs linked list of all accessible fans in /sys/devices/platform/applesmc.768/.
- * @return Pointer to first fan in linked list, NULL on error
+ * @brief 
+ * 
+ * @param settings 
+ * @return t_node* 
  */
-t_fan *load_fans(t_settings *settings);
+t_node *load_fans(const t_settings *settings);
 
 /**
- * Sets all fans to either auto or manual mode.
- * @param[in] fans Pointer to head of linked list of all fans.
- * @param[in] mode Fans mode (FAN_AUTO/FAN_MANUAL).
- * @return 1 on succes, 0 on error
+ * @brief Set the fans mode object
+ * 
+ * @param fans 
+ * @param mode 
+ * @return int 
  */
-int set_fans_mode(t_fan *fans, enum fan_mode mode);
+int set_fans_mode(t_node *fans, const enum fan_mode mode);
 
 /**
- * Frees all fans in linked list.
- * @param[in] fans Pointer to head of linked list of all fans.
+ * @brief 
+ * 
+ * @param fan 
  */
 void free_fan(t_fan *fan);
 
 /**
- *
- * @param fan
- * @param speed
+ * @brief Set the fan speed object
+ * 
+ * @param fan 
+ * @param speed 
+ * @return int 
  */
-int set_fan_speed(t_fan *fan, int speed);
+int set_fan_speed(t_fan *fan, const int speed);
 
 #endif //MACFAND_FAN_H_qwewqiorhq

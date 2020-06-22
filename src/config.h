@@ -10,6 +10,10 @@
 #ifndef MACFAND_CONFIG_H_jkdhfasjkf
 #define MACFAND_CONFIG_H_jkdhfasjkf
 
+/**
+ * @brief 
+ * 
+ */
 typedef struct settings {
     int low_temp;
     int high_temp;
@@ -18,6 +22,12 @@ typedef struct settings {
     int daemon;
 } t_settings;
 
+
+/**
+ * @brief 
+ * 
+ * @param settings 
+ */
 void load_default_settings(t_settings *settings);
 
 #endif //MACFAND_CONFIG_H_jkdhfasjkf

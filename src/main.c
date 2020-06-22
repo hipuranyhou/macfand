@@ -58,14 +58,14 @@ int main(int argc, char **argv) {
         daemonize();
 
     // Load temperature monitors and max temperature
-    t_monitor *monitors = load_monitors(&settings);
+    t_node *monitors = load_monitors(&settings);
     if (monitors == NULL) {
         fprintf(stderr, "%s\n", "Error encountered while loading temperature monitors!");
         return 1;
     }
 
     // Load fans
-    t_fan *fans = load_fans(&settings);
+    t_node *fans = load_fans(&settings);
     if (fans == NULL) {
         free_list(monitors, (void (*)(void *))&free_monitor);
         fprintf(stderr, "%s\n", "Error encountered while loading fans!");
@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
     }
 
     // Start main control loop
-    start_control(&settings, fans, monitors);
+    start_control(&settings, &fans, monitors);
 
     // Reset fans to automatic mode when exiting
     if (!set_fans_mode(fans, FAN_AUTO)) {
@@ -98,6 +98,7 @@ int main(int argc, char **argv) {
         }
     }
 
+    // Free memory and exit
     free_list(monitors, (void (*)(void *))&free_monitor);
     free_list(fans, (void (*)(void *))&free_fan);
     return 0;

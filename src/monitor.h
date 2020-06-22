@@ -11,51 +11,57 @@
 #define MACFAND_MONITOR_H_fajkdsfbua
 
 #include "config.h"
+#include "linked.h"
 
 /**
- * Struct holding all information about one temp monitor.
+ * @brief 
+ * 
  */
 typedef struct monitor {
     short int id;
     int temp;
     char *read_path;
-    struct monitor *next;
 } t_monitor;
 
-
 /**
+ * @brief Set the max temp object
  * 
- * @param[in]
- * @param[in]
- * @param[in]
+ * @param settings 
+ * @param cnt_hw 
+ * @param cnt_mon 
  */
-void set_max_temp(t_settings *settings, int cnt_hw, int cnt_mon);
+void set_max_temp(t_settings *settings, const int cnt_hw, const int cnt_mon);
 
 /**
+ * @brief 
  * 
- * @param[in]
- * @paran[in]
- * @return
+ * @param cnt_hw 
+ * @param cnt_temp 
+ * @return int 
  */
-int monitor_exists(int cnt_hw, int cnt_temp);
+int monitor_exists(const int cnt_hw, const int cnt_temp);
 
 /**
- *
- * @return
+ * @brief 
+ * 
+ * @param settings 
+ * @return t_node* 
  */
-t_monitor *load_monitors(t_settings *settings);
+t_node *load_monitors(t_settings *settings);
 
 /**
- * Frees all monitors in linked list.
- * @param[in] monitors Pointer to head of linked list of all monitors.
+ * @brief 
+ * 
+ * @param monitor 
  */
 void free_monitor(t_monitor *monitor);
 
 /**
- *
- * @param monitors
- * @return
+ * @brief Get the current temp object
+ * 
+ * @param monitors 
+ * @return int 
  */
-int get_current_temp(t_monitor *monitors);
+int get_current_temp(const t_node *monitors);
 
 #endif //MACFAND_MONITOR_H_fajkdsfbua
