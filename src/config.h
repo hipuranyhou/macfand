@@ -20,6 +20,7 @@ typedef struct settings {
     int max_temp;
     int poll_time;
     int daemon;
+    int verbose;
 } t_settings;
 
 
