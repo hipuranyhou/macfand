@@ -1,7 +1,7 @@
 /**
  * macfand - hipuranyhou - 21.06.2020
  * 
- * Daemon for controlling fans on linux systems using
+ * Daemon for controlling fans on Linux systems using
  * applesmc and coretemp.
  * 
  * https://github.com/Hipuranyhou/macfand
@@ -24,6 +24,7 @@ void start_control(t_settings *settings, t_fan *fans, t_monitor *monitors) {
 
     for(;;) {
 
+        // Exit after catched signal
         if (termination_flag) {
             if (!set_fans_mode(fans, FAN_AUTO)) {
                 switch (settings->daemon) {
