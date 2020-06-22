@@ -58,7 +58,7 @@ int set_fans_mode(t_fan *fans, enum fan_mode mode);
  * Frees all fans in linked list.
  * @param[in] fans Pointer to head of linked list of all fans.
  */
-void free_fans(t_fan *fans);
+void free_fan(t_fan *fan);
 
 /**
  *

@@ -122,14 +122,9 @@ int set_fans_mode(t_fan *fans, enum fan_mode mode) {
     return state;
 }
 
-void free_fans(t_fan *fans) {
-    t_fan *tmp = NULL;
-    while (fans) {
-        tmp = fans->next;
-        free(fans->write_path);
-        free(fans);
-        fans = tmp;
-    }
+void free_fan(t_fan *fan) {
+    free(fan->write_path);
+    free(fan);
 }
 
 int set_fan_speed(t_fan *fan, int speed) {

@@ -15,9 +15,9 @@
 
 volatile int termination_flag = 0;
 
-void start_control(t_settings *settings, t_fan *fans, t_monitor *monitors) {
+void start_control(t_settings *settings, t_node *fans, t_node *monitors) {
     int prev_temp, cur_temp = 0, speed, steps, delta_temp;
-    t_fan *fan = NULL;
+    t_node *fan = NULL;
     struct timespec ts;
     ts.tv_sec = settings->poll_time;
     ts.tv_nsec = 0;
@@ -36,13 +36,13 @@ void start_control(t_settings *settings, t_fan *fans, t_monitor *monitors) {
 
         // Set speed of each fan
         while (fan) {
-            speed = fan->speed;
+            speed = fan->data->speed;
 
             // Extremes
             if (cur_temp >= settings->max_temp)
-                speed = fan->max;
+                speed = (t_fan *)(fan->data)->max;
             if (cur_temp <= settings->low_temp)
-                speed = fan->min;
+                speed = fan->data->min;
 
             // Set lower or higher
             if (delta_temp > 0 && cur_temp > settings->high_temp && cur_temp < settings->max_temp) {

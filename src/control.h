@@ -13,10 +13,11 @@
 #include "config.h"
 #include "fan.h"
 #include "monitor.h"
+#include "linked.h"
 
 /**
  * 
  */
-void start_control(t_settings *settings, t_fan *fans, t_monitor *monitors);
+void start_control(t_settings *settings, t_node *fans, t_node *monitors);
 
 #endif //MACFAND_CONTROL_H_fsdfdsfsdf

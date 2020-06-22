@@ -49,7 +49,7 @@ t_monitor *load_monitors(t_settings *settings);
  * Frees all monitors in linked list.
  * @param[in] monitors Pointer to head of linked list of all monitors.
  */
-void free_monitors(t_monitor *monitors);
+void free_monitor(t_monitor *monitor);
 
 /**
  *

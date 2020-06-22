@@ -15,16 +15,18 @@
 char* concatenate_format(const char* format, ...) {
     va_list ap;
     int cnt = 0;
-    char* string = NULL;
+    char *string = NULL;
 
     // Get length of string
     va_start(ap, format);
     cnt = vsnprintf(NULL, 0, format, ap);
     va_end(ap);
-
     if (cnt < 0)
         return NULL;
+
     string = (char*)malloc(cnt + 1);
+    if (!string)
+        return NULL;
 
     // Concatenate
     va_start(ap, format);

@@ -87,14 +87,9 @@ t_monitor *load_monitors(t_settings *settings) {
     return head;
 }
 
-void free_monitors(t_monitor *monitors) {
-    t_monitor *tmp = NULL;
-    while (monitors) {
-        tmp = monitors->next;
-        free(monitors->read_path);
-        free(monitors);
-        monitors = tmp;
-    }
+void free_monitor(t_monitor *monitor) {
+    free(monitor->read_path);
+    free(monitor);
 }
 
 int get_current_temp(t_monitor *monitors) {
