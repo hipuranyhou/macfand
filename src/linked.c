@@ -12,7 +12,7 @@
 
 #include "linked.h"
 
-int list_push_front(t_node **head, const void *data, size_t data_size) {
+int list_push_front(t_node **head, const void *data, const size_t data_size) {
     t_node *new_node = (t_node*)malloc(sizeof(*new_node));
     if (!new_node)
         return 0;
@@ -26,24 +26,24 @@ int list_push_front(t_node **head, const void *data, size_t data_size) {
     }
 
     memcpy(new_node->data, data, data_size);
-
     *head = new_node;
     return 1;
 }
 
-void list_free(t_node *head, void (*free_node)(void *)) {
+void list_free(t_node *head, void (*node_free)(void *)) {
     t_node *tmp = NULL;
     while (head) {
         tmp = head->next;
-        free_node(head->data);
+        // TODO
+        //node_free(head->data);
         free(head);
         head = tmp;
     }
 }
 
-void list_print(const t_node *head) {
+void list_print(const t_node *head, void (*node_print)(void *)) {
     while (head) {
-        printf("%p\n", (void *)head);
+        node_print(head->data);
         head = head->next;
     }
 }

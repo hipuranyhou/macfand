@@ -18,7 +18,7 @@
  * 
  */
 typedef struct fan {
-    short int id;
+    int id;
     int min;
     int max;
     int speed;
@@ -43,7 +43,7 @@ enum fan_mode {
  * @param fans 
  * @return int 
  */
-int fan_load_defaults(const t_settings *settings, t_fan *fan, const int fan_cnt);
+int fan_load_defaults(const t_settings *settings, t_fan *fan);
 
 /**
  * @brief 
@@ -51,7 +51,7 @@ int fan_load_defaults(const t_settings *settings, t_fan *fan, const int fan_cnt)
  * @param fan 
  * @return int 
  */
-int fan_exists(const t_fan *fan);
+int fan_id_exists(const int fan_cnt);
 
 /**
  * @brief 
@@ -85,5 +85,12 @@ void fan_free(t_fan *fan);
  * @return int 
  */
 int fan_set_speed(t_fan *fan, const int speed);
+
+/**
+ * @brief 
+ * 
+ * @param fan 
+ */
+void fan_print(const t_fan *fan);
 
 #endif //MACFAND_FAN_H_qwewqiorhq

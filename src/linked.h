@@ -29,21 +29,22 @@ typedef struct node {
  * @param data_size 
  * @return int 
  */
-int list_push_front(t_node **head, const void *data, size_t data_size);
+int list_push_front(t_node **head, const void *data, const size_t data_size);
 
 /**
  * @brief 
  * 
  * @param head 
- * @param free_node 
+ * @param node_free
  */
-void list_free(t_node *head, void (*free_node)(void *));
+void list_free(t_node *head, void (*node_free)(void *));
 
 /**
  * @brief 
  * 
  * @param head 
+ * @param node_print 
  */
-void list_print(const t_node *head);
+void list_print(const t_node *head, void (*node_print)(void *));
 
 #endif //MACFAND_LINKED_H_retoeroioi

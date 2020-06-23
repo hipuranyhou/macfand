@@ -18,7 +18,7 @@
  * 
  */
 typedef struct monitor {
-    short int id;
+    int id;
     int temp;
     char *read_path;
 } t_monitor;

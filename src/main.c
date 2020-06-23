@@ -13,11 +13,11 @@
 #include <syslog.h>
 
 #include "fan.h"
-#include "monitor.h"
-#include "helper.h"
+//#include "monitor.h"
+//#include "helper.h"
 #include "config.h"
-#include "control.h"
-#include "daemonize.h"
+//#include "control.h"
+//#include "daemonize.h"
 #include "linked.h"
 
 const char *argp_program_version = "macfand - version 0.1";
@@ -85,14 +85,12 @@ int main(int argc, char **argv) {
     */
 
     // Load fans
-    t_node *fans = load_fans(&settings);
+    t_node *fans = fans_load(&settings);
     if (fans == NULL) {
         //free_list(monitors, (void (*)(void *))&free_monitor);
         fprintf(stderr, "%s\n", "Error encountered while loading fans!");
         return 1;
     }
-
-    list_print(fans);
 
     /*
 
@@ -123,10 +121,12 @@ int main(int argc, char **argv) {
     }
 
     // Free memory and exit
-    free_list(monitors, (void (*)(void *))&free_monitor);
+    list_free(monitors, (void (*)(void *))&free_monitor);
 
     */
 
-    free_list(fans, (void (*)(void *))&free_fan);
+    //list_print(fans, (void (*)(void *))&fan_print);
+
+    list_free(fans, (void (*)(void *))&fan_free);
     return 0;
 }
