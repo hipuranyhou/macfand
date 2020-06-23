@@ -125,6 +125,8 @@ int main(int argc, char **argv) {
 
     */
 
+    list_print(fans, (void (*)(void *))fan_print);
+
     list_free(fans, (void (*)(void *))fan_free);
 
     return 0;

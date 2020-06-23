@@ -25,6 +25,7 @@ typedef struct fan {
     int step;
     char *path_write;
     char *path_manual;
+    char *label;
 } t_fan;
 
 /**
@@ -35,6 +36,24 @@ enum fan_mode {
     FAN_AUTO,
     FAN_MANUAL
 };
+
+/**
+ * @brief 
+ * 
+ * @param fan 
+ * @return int 
+ */
+int fan_load_label(t_fan *fan);
+
+/**
+ * @brief 
+ * 
+ * @param fan 
+ * @param destination 
+ * @param speed 
+ * @return int 
+ */ 
+int fan_load_speed(t_fan *fan, int *destination, const char *speed);
 
 /**
  * @brief 
@@ -85,5 +104,12 @@ void fan_free(t_fan *fan);
  * @return int 
  */
 int fan_set_speed(t_fan *fan, const int speed);
+
+/**
+ * @brief 
+ * 
+ * @param fan 
+ */
+void fan_print(t_fan *fan);
 
 #endif //MACFAND_FAN_H_qwewqiorhq

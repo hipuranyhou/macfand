@@ -17,14 +17,14 @@
 #define MONITOR_PATH_BASE "/sys/devices/platform/coretemp.0/hwmon/hwmon"
 #define MONITOR_PATH_READ "_input"
 #define MONITOR_PATH_MAX "_max"
-#define MONITOR_FORMAT "%s%d/temp%d%s"
+#define MONITOR_PATH_FORMAT "%s%d/temp%d%s"
 
 void set_max_temp(t_settings *settings, int cnt_hw, int cnt_mon) {
     int max_temp = 0;
     FILE *max_ptr = NULL;
     char *max_path = NULL;
 
-    max_path = concatenate_format(MONITOR_FORMAT, MONITOR_PATH_BASE, cnt_hw, cnt_mon, MONITOR_PATH_MAX);
+    max_path = concatenate_format(MONITOR_PATH_FORMAT, MONITOR_PATH_BASE, cnt_hw, cnt_mon, MONITOR_PATH_MAX);
     max_ptr = fopen(max_path, "r");
     free(max_path);
 
@@ -41,7 +41,7 @@ int monitor_exists(int cnt_hw, int cnt_mon) {
     FILE *read_ptr = NULL;
     char *read_path = NULL;
 
-    read_path = concatenate_format(MONITOR_FORMAT, MONITOR_PATH_BASE, cnt_hw, cnt_mon, MONITOR_PATH_READ);
+    read_path = concatenate_format(MONITOR_PATH_FORMAT, MONITOR_PATH_BASE, cnt_hw, cnt_mon, MONITOR_PATH_READ);
     read_ptr = fopen(read_path, "r");
     free(read_path);
 
@@ -67,7 +67,7 @@ t_monitor *load_monitors(t_settings *settings) {
             
             // Set monitor defaults
             monitor->id = cnt_mon;
-            monitor->read_path = concatenate_format(MONITOR_FORMAT, MONITOR_PATH_BASE, cnt_hw, cnt_mon, MONITOR_PATH_READ);
+            monitor->read_path = concatenate_format(MONITOR_PATH_FORMAT, MONITOR_PATH_BASE, cnt_hw, cnt_mon, MONITOR_PATH_READ);
             monitor->next = (t_monitor*)malloc(sizeof(*monitor));
 
             // Move to next monitor
