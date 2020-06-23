@@ -67,6 +67,8 @@ int main(int argc, char **argv) {
     t_settings settings;
     load_default_settings(&settings);
 
+    /*
+
     // Parse command line arguments
     argp_parse(&argp, argc, argv, 0, 0, &settings);
 
@@ -80,13 +82,19 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    */
+
     // Load fans
     t_node *fans = load_fans(&settings);
     if (fans == NULL) {
-        free_list(monitors, (void (*)(void *))&free_monitor);
+        //free_list(monitors, (void (*)(void *))&free_monitor);
         fprintf(stderr, "%s\n", "Error encountered while loading fans!");
         return 1;
     }
+
+    list_print(fans);
+
+    /*
 
     // Set fans to manual mode
     if (!set_fans_mode(fans, FAN_MANUAL)) {
@@ -116,6 +124,9 @@ int main(int argc, char **argv) {
 
     // Free memory and exit
     free_list(monitors, (void (*)(void *))&free_monitor);
+
+    */
+
     free_list(fans, (void (*)(void *))&free_fan);
     return 0;
 }

@@ -7,6 +7,7 @@
  * https://github.com/Hipuranyhou/macfand
  */
 
+#include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 

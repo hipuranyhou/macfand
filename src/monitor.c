@@ -48,6 +48,7 @@ int monitor_exists(int cnt_hw, int cnt_mon) {
     if (read_ptr == NULL)
         return 0;
 
+    // We just really want to know that it exists, since we do not write to it, fclose should not fail
     fclose(read_ptr);
     return 1;
 }
@@ -88,26 +89,28 @@ t_monitor *load_monitors(t_settings *settings) {
 }
 
 void free_monitor(t_monitor *monitor) {
+    if (!monitor)
+        return;
     free(monitor->read_path);
     free(monitor);
 }
 
-int get_current_temp(t_monitor *monitors) {
-    int temp = 0, monitor_temp;
-    FILE *temp_ptr = NULL;
+int get_current_temp(const t_monitor *monitors) {
+    int temp = 0, monitor_temp = 0;
+    FILE *monitor_file_input = NULL;
 
     while (monitors) {
-        temp_ptr = fopen(monitors->read_path, "r");
-        if (temp_ptr == NULL) {
+        monitor_file_input = fopen(monitors->read_path, "r");
+        if (monitor_file_input == NULL) {
             monitors = monitors->next;
             continue;
         }
-        if (fscanf(temp_ptr, "%d", &monitor_temp) == EOF) {
-            fclose(temp_ptr);
+        if (fscanf(monitor_file_input, "%d", &monitor_temp) == EOF) {
+            fclose(monitor_file_input);
             monitors = monitors->next;
             continue;
         }
-        fclose(temp_ptr);
+        fclose(monitor_file_input);
         temp = (monitor_temp > temp) ? monitor_temp : temp;
         monitors = monitors->next;
     }

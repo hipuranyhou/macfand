@@ -23,7 +23,8 @@ typedef struct fan {
     int max;
     int speed;
     int step;
-    char *write_path;
+    char *path_write;
+    char *path_manual;
 } t_fan;
 
 /**
@@ -42,7 +43,15 @@ enum fan_mode {
  * @param fans 
  * @return int 
  */
-int load_fans_defaults(const t_settings *settings, t_node *fans);
+int fan_load_defaults(const t_settings *settings, t_fan *fan, const int fan_cnt);
+
+/**
+ * @brief 
+ * 
+ * @param fan 
+ * @return int 
+ */
+int fan_exists(const t_fan *fan);
 
 /**
  * @brief 
@@ -50,7 +59,7 @@ int load_fans_defaults(const t_settings *settings, t_node *fans);
  * @param settings 
  * @return t_node* 
  */
-t_node *load_fans(const t_settings *settings);
+t_node *fans_load(const t_settings *settings);
 
 /**
  * @brief Set the fans mode object
@@ -59,14 +68,14 @@ t_node *load_fans(const t_settings *settings);
  * @param mode 
  * @return int 
  */
-int set_fans_mode(t_node *fans, const enum fan_mode mode);
+int fans_set_mode(const t_node *fans, const enum fan_mode mode);
 
 /**
  * @brief 
  * 
  * @param fan 
  */
-void free_fan(t_fan *fan);
+void fan_free(t_fan *fan);
 
 /**
  * @brief Set the fan speed object
@@ -75,6 +84,6 @@ void free_fan(t_fan *fan);
  * @param speed 
  * @return int 
  */
-int set_fan_speed(t_fan *fan, const int speed);
+int fan_set_speed(t_fan *fan, const int speed);
 
 #endif //MACFAND_FAN_H_qwewqiorhq
