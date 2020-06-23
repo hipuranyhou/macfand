@@ -75,6 +75,8 @@ int main(int argc, char **argv) {
     if (settings.daemon)
         daemonize();
 
+    */
+
     // Load temperature monitors and max temperature
     t_node *monitors = load_monitors(&settings);
     if (monitors == NULL) {
@@ -82,25 +84,23 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    */
+    /*
 
     // Load fans
     t_node *fans = fans_load(&settings);
     if (fans == NULL) {
-        //free_list(monitors, (void (*)(void *))&free_monitor);
+        list_free(monitors, (void (*)(void *))monitor_free);
         fprintf(stderr, "%s\n", "Error encountered while loading fans!");
         return 1;
     }
-
-    /*
 
     // Set fans to manual mode
     if (!set_fans_mode(fans, FAN_MANUAL)) {
         // Set fans back to auto if enabling manual mode failed 
         // (those we were unable to set to manual mode are already in automatic mode)
         set_fans_mode(fans, FAN_AUTO);
-        free_list(monitors, (void (*)(void *))free_monitor);
-        free_list(fans, (void (*)(void *))free_fan);
+        list_free(monitors, (void (*)(void *))monitor_free);
+        list_free(fans, (void (*)(void *))fan_free);
         fprintf(stderr, "%s\n", "Error encountered while setting fans to manual mode!");
         return 1;
     }
@@ -121,13 +121,14 @@ int main(int argc, char **argv) {
     }
 
     // Free memory and exit
-    list_free(monitors, (void (*)(void *))free_monitor);
+    list_free(monitors, (void (*)(void *))monitor_free);
+    list_free(fans, (void (*)(void *))fan_free);
 
     */
 
-    list_print(fans, (void (*)(void *))fan_print);
+    list_print(monitors, (void (*)(void *))monitor_print);
 
-    list_free(fans, (void (*)(void *))fan_free);
+    list_free(monitors, (void (*)(void *))monitor_free);
 
     return 0;
 }
