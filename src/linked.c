@@ -34,8 +34,7 @@ void list_free(t_node *head, void (*node_free)(void *)) {
     t_node *tmp = NULL;
     while (head) {
         tmp = head->next;
-        // TODO
-        //node_free(head->data);
+        node_free(head->data);
         free(head);
         head = tmp;
     }

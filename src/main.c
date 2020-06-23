@@ -99,8 +99,8 @@ int main(int argc, char **argv) {
         // Set fans back to auto if enabling manual mode failed 
         // (those we were unable to set to manual mode are already in automatic mode)
         set_fans_mode(fans, FAN_AUTO);
-        free_list(monitors, (void (*)(void *))&free_monitor);
-        free_list(fans, (void (*)(void *))&free_fan);
+        free_list(monitors, (void (*)(void *))free_monitor);
+        free_list(fans, (void (*)(void *))free_fan);
         fprintf(stderr, "%s\n", "Error encountered while setting fans to manual mode!");
         return 1;
     }
@@ -121,12 +121,11 @@ int main(int argc, char **argv) {
     }
 
     // Free memory and exit
-    list_free(monitors, (void (*)(void *))&free_monitor);
+    list_free(monitors, (void (*)(void *))free_monitor);
 
     */
 
-    //list_print(fans, (void (*)(void *))&fan_print);
+    list_free(fans, (void (*)(void *))fan_free);
 
-    list_free(fans, (void (*)(void *))&fan_free);
     return 0;
 }

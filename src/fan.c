@@ -144,13 +144,13 @@ t_node *fans_load(const t_settings *settings) {
             !fan_load_defaults(settings, fan)           ||
             !list_push_front(&fans, fan, sizeof(*fan)))
         {
-            list_free(fans, (void (*)(void *))&fan_free);
+            list_free(fans, (void (*)(void *))fan_free);
             fans = NULL;
             break;
         }
     }
 
-    fan_free(fan);
+    free(fan);
     return fans;
 }
 
@@ -222,11 +222,4 @@ int fan_set_speed(t_fan *fan, const int speed) {
     fan->speed = speed;
 
     return 1;
-}
-
-void fan_print(const t_fan *fan) {
-    printf("Fan %d\n", fan->id);
-    printf("WRITE: %p\n", (void*)fan->path_write);
-    printf("MANUAL: %p\n", (void*)fan->path_manual);
-    printf("\n");
 }

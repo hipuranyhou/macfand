@@ -86,11 +86,4 @@ void fan_free(t_fan *fan);
  */
 int fan_set_speed(t_fan *fan, const int speed);
 
-/**
- * @brief 
- * 
- * @param fan 
- */
-void fan_print(const t_fan *fan);
-
 #endif //MACFAND_FAN_H_qwewqiorhq

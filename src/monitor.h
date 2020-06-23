@@ -30,7 +30,7 @@ typedef struct monitor {
  * @param cnt_hw 
  * @param cnt_mon 
  */
-void set_max_temp(t_settings *settings, const int cnt_hw, const int cnt_mon);
+void settings_set_max(t_settings *settings, const int cnt_hw, const int cnt_mon);
 
 /**
  * @brief 
@@ -47,14 +47,14 @@ int monitor_exists(const int cnt_hw, const int cnt_temp);
  * @param settings 
  * @return t_node* 
  */
-t_node *load_monitors(t_settings *settings);
+t_node *monitors_load(t_settings *settings);
 
 /**
  * @brief 
  * 
  * @param monitor 
  */
-void free_monitor(t_monitor *monitor);
+void monitor_free(t_monitor *monitor);
 
 /**
  * @brief Get the current temp object
@@ -62,6 +62,6 @@ void free_monitor(t_monitor *monitor);
  * @param monitors 
  * @return int 
  */
-int get_current_temp(const t_node *monitors);
+int monitors_get_temp(const t_node *monitors);
 
 #endif //MACFAND_MONITOR_H_fajkdsfbua
