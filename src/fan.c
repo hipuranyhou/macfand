@@ -28,6 +28,9 @@ int fan_load_label(t_fan *fan) {
     int getline_return = 0;
     size_t buffer_size = 0;
 
+    if (!fan)
+        return 0;
+
     fan->label = NULL;
 
     fan_path_label = concatenate_format(FAN_PATH_FORMAT, FAN_PATH_BASE, fan->id, FAN_PATH_LABEL);
@@ -45,7 +48,7 @@ int fan_load_label(t_fan *fan) {
         return 0;
     }
 
-    // (read_count - 1) because line ends with "0x10_0x0A"
+    // (getline_return - 1) because line ends with "0x10_0x0A"
     fan->label[getline_return-1] = '\0';
 
     // We silently ignore return value of fclose() when just reading from it
@@ -136,6 +139,7 @@ t_node *fans_load(const t_settings *settings) {
     fan = (t_fan *)malloc(sizeof(*fan));
     if (!fan)
         return NULL;
+
     fan->speed = 0;
 
     for (;;) {
@@ -161,7 +165,7 @@ t_node *fans_load(const t_settings *settings) {
 }
 
 
-int fans_set_mode(const t_node *fans, const enum fan_mode mode) {
+int fans_set_mode(t_node *fans, const enum fan_mode mode) {
     int state = 1;
     FILE *fan_file_manual = NULL;
     t_fan *fan = NULL;
@@ -233,7 +237,9 @@ void fan_free(t_fan *fan) {
 }
 
 
-void fan_print(t_fan *fan) {
+void fan_print(const t_fan *fan) {
+    if (!fan)
+        return;
     printf("Fan %d - %s\n", fan->id, fan->label);
     printf("Min speed: %d   Max speed: %d\n", fan->min, fan->max);
     printf("Speed: %d   Step: %d\n", fan->speed, fan->step);

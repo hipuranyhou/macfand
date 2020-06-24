@@ -13,14 +13,16 @@
 #include <syslog.h>
 
 #include "fan.h"
-//#include "monitor.h"
-//#include "helper.h"
-#include "config.h"
+#include "monitor.h"
+#include "helper.h"
+#include "settings.h"
 //#include "control.h"
-//#include "daemonize.h"
+#include "daemonize.h"
 #include "linked.h"
 
+
 const char *argp_program_version = "macfand - version 0.1";
+
 
 static struct argp_option options[] = { 
     {"daemon", 'd', 0, 0, "Run in daemon mode"},
@@ -30,6 +32,7 @@ static struct argp_option options[] = {
     {"verbose", 'v', 0, 0, "Enables verbose mode. Not allowed in daemon mode!"},
     {0}
 };
+
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state) { 
     t_settings *settings = state->input;
@@ -59,15 +62,14 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
     return 0;
 }
 
+
 static struct argp argp = {options, parse_opt, 0, 0};
 
-int main(int argc, char **argv) {
 
+int main(int argc, char **argv) {
     // Load default settings
     t_settings settings;
-    load_default_settings(&settings);
-
-    /*
+    settings_load_defaults(&settings);
 
     // Parse command line arguments
     argp_parse(&argp, argc, argv, 0, 0, &settings);
@@ -75,16 +77,14 @@ int main(int argc, char **argv) {
     if (settings.daemon)
         daemonize();
 
-    */
-
     // Load temperature monitors and max temperature
-    t_node *monitors = load_monitors(&settings);
+    t_node *monitors = monitors_load();
     if (monitors == NULL) {
         fprintf(stderr, "%s\n", "Error encountered while loading temperature monitors!");
         return 1;
     }
 
-    /*
+    settings_set_max_temp(&settings, monitors);
 
     // Load fans
     t_node *fans = fans_load(&settings);
@@ -95,21 +95,25 @@ int main(int argc, char **argv) {
     }
 
     // Set fans to manual mode
-    if (!set_fans_mode(fans, FAN_MANUAL)) {
+    if (!fans_set_mode(fans, FAN_MANUAL)) {
         // Set fans back to auto if enabling manual mode failed 
         // (those we were unable to set to manual mode are already in automatic mode)
-        set_fans_mode(fans, FAN_AUTO);
+        fans_set_mode(fans, FAN_AUTO);
         list_free(monitors, (void (*)(void *))monitor_free);
         list_free(fans, (void (*)(void *))fan_free);
         fprintf(stderr, "%s\n", "Error encountered while setting fans to manual mode!");
         return 1;
     }
 
+    /*
+
     // Start main control loop
     start_control(&settings, &fans, monitors);
 
+    */
+
     // Reset fans to automatic mode when exiting
-    if (!set_fans_mode(fans, FAN_AUTO)) {
+    if (!fans_set_mode(fans, FAN_AUTO)) {
         switch (settings.daemon) {
             case 0:
                 fprintf(stderr, "Error while resetting fans to automatic mode.");
@@ -123,12 +127,6 @@ int main(int argc, char **argv) {
     // Free memory and exit
     list_free(monitors, (void (*)(void *))monitor_free);
     list_free(fans, (void (*)(void *))fan_free);
-
-    */
-
-    list_print(monitors, (void (*)(void *))monitor_print);
-
-    list_free(monitors, (void (*)(void *))monitor_free);
 
     return 0;
 }

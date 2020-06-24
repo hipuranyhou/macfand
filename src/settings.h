@@ -7,8 +7,10 @@
  * https://github.com/Hipuranyhou/macfand
  */
 
-#ifndef MACFAND_CONFIG_H_jkdhfasjkf
-#define MACFAND_CONFIG_H_jkdhfasjkf
+#ifndef MACFAND_SETTINGS_H_jkdhfasjkf
+#define MACFAND_SETTINGS_H_jkdhfasjkf
+
+#include "linked.h"
 
 /**
  * @brief 
@@ -23,12 +25,17 @@ typedef struct settings {
     int verbose;
 } t_settings;
 
-
 /**
  * @brief 
  * 
  * @param settings 
  */
-void load_default_settings(t_settings *settings);
+void settings_load_defaults(t_settings *settings);
 
-#endif //MACFAND_CONFIG_H_jkdhfasjkf
+/**
+ * @brief 
+ * 
+ */
+void settings_set_max_temp(t_settings *settings, const t_node *monitors);
+
+#endif //MACFAND_SETTINGS_H_jkdhfasjkf

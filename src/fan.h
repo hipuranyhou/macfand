@@ -10,7 +10,7 @@
 #ifndef MACFAND_FAN_H_qwewqiorhq
 #define MACFAND_FAN_H_qwewqiorhq
 
-#include "config.h"
+#include "settings.h"
 #include "linked.h"
 
 /**
@@ -87,7 +87,7 @@ t_node *fans_load(const t_settings *settings);
  * @param mode 
  * @return int 
  */
-int fans_set_mode(const t_node *fans, const enum fan_mode mode);
+int fans_set_mode(t_node *fans, const enum fan_mode mode);
 
 /**
  * @brief 
@@ -110,6 +110,6 @@ int fan_set_speed(t_fan *fan, const int speed);
  * 
  * @param fan 
  */
-void fan_print(t_fan *fan);
+void fan_print(const t_fan *fan);
 
 #endif //MACFAND_FAN_H_qwewqiorhq

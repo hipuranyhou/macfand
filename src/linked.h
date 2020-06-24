@@ -45,6 +45,6 @@ void list_free(t_node *head, void (*node_free)(void *));
  * @param head 
  * @param node_print 
  */
-void list_print(const t_node *head, void (*node_print)(void *));
+void list_print(const t_node *head, void (*node_print)(const void *));
 
 #endif //MACFAND_LINKED_H_retoeroioi

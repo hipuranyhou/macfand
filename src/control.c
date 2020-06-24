@@ -32,7 +32,7 @@ void start_control(const t_settings *settings, t_node **fans, const t_node *moni
         *fans = fans;
         fan = (*fans)->data;
         prev_temp = cur_temp;
-        cur_temp = get_current_temp(monitors);
+        cur_temp = monitors_get_temp(monitors);
         delta_temp = cur_temp - prev_temp;
 
         // Set speed of each fan
@@ -56,7 +56,7 @@ void start_control(const t_settings *settings, t_node **fans, const t_node *moni
             }
 
             // Set fan and move to next
-            if (!set_fan_speed(fan, speed)) {
+            if (!fan_set_speed(fan, speed)) {
                 switch (settings->daemon) {
                     case 0:
                         fprintf(stderr, "%s%d\n", "Error while settings speed of fan ", fan->id);
@@ -68,6 +68,8 @@ void start_control(const t_settings *settings, t_node **fans, const t_node *moni
             }
             *fans = (*fans)->next;
             fan = (*fans)->data;
+
+            printf("Fan %d -> %d (%d)\n", fan->id, fan->speed, cur_temp);
         }
 
         nanosleep(&ts, NULL);

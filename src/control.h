@@ -10,7 +10,7 @@
 #ifndef MACFAND_CONTROL_H_fsdfdsfsdf
 #define MACFAND_CONTROL_H_fsdfdsfsdf
 
-#include "config.h"
+#include "settings.h"
 #include "fan.h"
 #include "monitor.h"
 #include "linked.h"
