@@ -7,16 +7,46 @@
  * https://github.com/Hipuranyhou/macfand
  */
 
-#ifndef MAC_FAN_CONTROL_CONTROL_H_fsdfdsfsdf
-#define MAC_FAN_CONTROL_CONTROL_H_fsdfdsfsdf
+#ifndef MACFAND_CONTROL_H_fsdfdsfsdf
+#define MACFAND_CONTROL_H_fsdfdsfsdf
 
-#include "config.h"
+#include "settings.h"
 #include "fan.h"
 #include "monitor.h"
+#include "linked.h"
+
+typedef struct t_control {
+    int temp_previous;
+    int temp_current;
+    int temp_delta;
+    int speed;
+    int steps;
+} t_control;
 
 /**
+ * @brief 
  * 
+ * @param settings 
+ * @param control 
+ * @param fan 
  */
-void start_control(t_settings *settings, t_fan *fans, t_monitor *monitors);
+void control_calculate_speed(const t_settings *settings, t_control *control, const t_fan *fan);
 
-#endif //MAC_FAN_CONTROL_CONTROL_H_fsdfdsfsdf
+/**
+ * @brief 
+ * 
+ * @param control 
+ * @param monitors 
+ */
+void control_set_temps(t_control *control, const t_node *monitors);
+
+/**
+ * @brief 
+ * 
+ * @param settings 
+ * @param fans 
+ * @param monitors 
+ */
+void control_start(const t_settings *settings, t_node *fans, const t_node *monitors);
+
+#endif //MACFAND_CONTROL_H_fsdfdsfsdf

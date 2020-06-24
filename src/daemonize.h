@@ -7,24 +7,26 @@
  * https://github.com/Hipuranyhou/macfand
  */
 
-#ifndef MAC_FAN_CONTROL_DAEMONIZE_H_dhsafkjjkf
-#define MAC_FAN_CONTROL_DAEMONIZE_H_dhsafkjjkf
+#ifndef MACFAND_DAEMONIZE_H_dhsafkjjkf
+#define MACFAND_DAEMONIZE_H_dhsafkjjkf
 
 /**
+ * @brief Set the termination flag object
  * 
+ * @param sig 
  */
 void set_termination_flag(int sig);
 
 /**
- * 
+ * @brief 
  * 
  */
 void prepare_signals(void);
 
 /**
- * 
+ * @brief 
  * 
  */
 void daemonize(void);
 
-#endif //MAC_FAN_CONTROL_DAEMONIZE_H_dhsafkjjkf
+#endif //MACFAND_DAEMONIZE_H_dhsafkjjkf

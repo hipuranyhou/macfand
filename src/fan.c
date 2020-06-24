@@ -6,6 +6,7 @@
  * 
  * https://github.com/Hipuranyhou/macfand
  */
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -17,134 +18,231 @@
 #define FAN_PATH_MAX "_max"
 #define FAN_PATH_MIN "_min"
 #define FAN_PATH_MANUAL "_manual"
+#define FAN_PATH_LABEL "_label"
+#define FAN_PATH_FORMAT "%s%d%s"
 
-int load_fans_default_speed(t_settings *settings, t_fan* fans) {
-    char *max_path = NULL, *min_path = NULL;
-    FILE *max_ptr = NULL, *min_ptr = NULL;
 
-    while (fans) {
-        max_path = concatenate_format("%s%d%s", FAN_PATH_BASE, fans->id, FAN_PATH_MAX);
-        min_path = concatenate_format("%s%d%s", FAN_PATH_BASE, fans->id, FAN_PATH_MIN);
-        max_ptr = fopen(max_path, "r");
-        min_ptr = fopen(min_path, "r");
+int fan_load_label(t_fan *fan) {
+    char *fan_path_label = NULL;
+    FILE *fan_file_label = NULL;
+    int getline_return = 0;
+    size_t buffer_size = 0;
 
-        if (max_ptr == NULL || min_ptr == NULL) {
-            if (max_ptr != NULL)
-                fclose(max_ptr);
-            if (min_ptr != NULL)
-                fclose(min_ptr);
-            fclose(min_ptr);
-            free(max_path);
-            free(min_path);
-            return 0;
-        }
+    if (!fan)
+        return 0;
 
-        fscanf(max_ptr, "%d", &(fans->max));
-        fscanf(min_ptr, "%d", &(fans->min));
-        fans->step = (fans->max - fans->min) / ((settings->max_temp - settings->high_temp) * (settings->max_temp - settings->high_temp + 1) / 2);
+    fan->label = NULL;
 
-        fclose(max_ptr);
-        fclose(min_ptr);
-        free(max_path);
-        free(min_path);
-        fans = fans->next;
+    fan_path_label = concatenate_format(FAN_PATH_FORMAT, FAN_PATH_BASE, fan->id, FAN_PATH_LABEL);
+    if (!fan_path_label)
+        return 0;
+
+    fan_file_label = fopen(fan_path_label, "r");
+    free(fan_path_label);
+    if (!fan_file_label)
+        return 0;
+
+    getline_return = getline(&(fan->label), &buffer_size, fan_file_label);
+    if (getline_return == -1) {
+        fclose(fan_file_label);
+        return 0;
     }
+
+    // (getline_return - 1) because line ends with "0x10_0x0A"
+    fan->label[getline_return-1] = '\0';
+
+    // We silently ignore return value of fclose() when just reading from it
+    fclose(fan_file_label);
+    return 1;
+}
+
+
+int fan_load_speed(t_fan *fan, int *destination, const char *speed) {
+    char *fan_path_speed = NULL;
+    FILE *fan_file_speed = NULL;
+
+    if (!fan)
+        return 0;
+
+    fan_path_speed = concatenate_format(FAN_PATH_FORMAT, FAN_PATH_BASE, fan->id, speed);
+    if (!fan_path_speed)
+        return 0;
+
+    fan_file_speed = fopen(fan_path_speed, "r");
+    free(fan_path_speed);
+    if (!fan_file_speed)
+        return 0;
+
+    if (fscanf(fan_file_speed, " %d", destination) != 1) {
+        fclose(fan_file_speed);
+        return 0;
+    }
+
+    // We silently ignore return value of fclose() when just reading from it
+    fclose(fan_file_speed);
+    return 1;
+}
+
+
+int fan_load_defaults(const t_settings *settings, t_fan *fan) {
+    if (!fan || !settings)
+        return 0;
+
+    if (!fan_load_speed(fan, &(fan->min), FAN_PATH_MIN) || !fan_load_speed(fan, &(fan->max), FAN_PATH_MAX))
+        return 0;
+
+    // Calculate size of one unit of fan speed change
+    fan->step = (fan->max - fan->min) / ((settings->max_temp - settings->high_temp) * (settings->max_temp - settings->high_temp + 1) / 2);
+
+    fan->path_write = concatenate_format(FAN_PATH_FORMAT, FAN_PATH_BASE, fan->id, FAN_PATH_WRITE);
+    if (!fan->path_write)
+        return 0;
+
+    fan->path_manual = concatenate_format(FAN_PATH_FORMAT, FAN_PATH_BASE, fan->id, FAN_PATH_MANUAL);
+    if (!fan->path_manual)
+        return 0;
+
+    if (!fan_load_label(fan))
+        return 0;
 
     return 1;
 }
 
-t_fan *load_fans(t_settings *settings) {
-    short int cnt = 0;
-    t_fan *head = (t_fan*)malloc(sizeof(*head)), *fan = head, *previous = NULL;
-    FILE *fan_ptr = NULL;
-    char *fan_path = NULL;
 
-    for (;;) {
-        // Check if n-th fan exists
-        fan_path = concatenate_format("%s%d%s", FAN_PATH_BASE, ++cnt, FAN_PATH_MANUAL);
-        fan_ptr = fopen(fan_path, "r");
-        free(fan_path);
-        if (fan_ptr == NULL)
-            break;
-        fclose(fan_ptr);
+int fan_id_exists(const int fan_cnt) {
+    FILE *fan_file_manual = NULL;
+    char *fan_path_manual = NULL;
 
-        // Set fan defaults
-        fan->id = cnt;
-        fan->speed = 0;
-        fan->write_path = concatenate_format("%s%d%s", FAN_PATH_BASE, cnt, FAN_PATH_WRITE);
-        fan->next = (t_fan*)malloc(sizeof(*fan));
+    fan_path_manual = concatenate_format(FAN_PATH_FORMAT, FAN_PATH_BASE, fan_cnt, FAN_PATH_MANUAL);
+    if (!fan_path_manual)
+        return -1;
 
-        // Move to next fan
-        previous = fan;
-        fan = fan->next;
-    }
+    fan_file_manual = fopen(fan_path_manual, "r");
+    free(fan_path_manual);
+    if (fan_file_manual == NULL)
+        return 0;
 
-    // No fans found
-    if (previous == NULL) {
-        free(head);
-        return NULL;
-    }
-
-    // Set last fan in list
-    previous->next = NULL;
-    free(fan);
-
-    if (!load_fans_default_speed(settings, head)) {
-        free_fans(head);
-        return NULL;
-    }
-
-    return head;
+    // We silently ignore return value of fclose() when just reading from it
+    fclose(fan_file_manual);
+    return 1;
 }
 
-int set_fans_mode(t_fan *fans, enum fan_mode mode) {
+
+t_node *fans_load(const t_settings *settings) {
+    int fan_cnt = 0, fan_exists = 0;
+    t_fan *fan = NULL;
+    t_node *fans = NULL;
+
+    if (!settings)
+        return NULL;
+
+    fan = (t_fan *)malloc(sizeof(*fan));
+    if (!fan)
+        return NULL;
+
+    fan->speed = 0;
+
+    for (;;) {
+        fan->id = ++fan_cnt;
+        fan_exists = fan_id_exists(fan_cnt);
+
+        if (fan_exists == 0)
+            break;
+
+        if (fan_exists == -1                            ||
+            !fan_load_defaults(settings, fan)           ||
+            !list_push_front(&fans, fan, sizeof(*fan)))
+        {
+            list_free(fans, (void (*)(void *))fan_free);
+            fans = NULL;
+            free(fan);
+            break;
+        }
+    }
+
+    free(fan);
+    return fans;
+}
+
+
+int fans_set_mode(t_node *fans, const enum fan_mode mode) {
     int state = 1;
-    FILE *fan_ptr = NULL;
-    char *fan_path = NULL;
+    FILE *fan_file_manual = NULL;
+    t_fan *fan = NULL;
+
+    if (!fans)
+        state = 0;
 
     while (fans) {
-        fan_path = concatenate_format("%s%d%s", FAN_PATH_BASE, fans->id, FAN_PATH_MANUAL);
-        fan_ptr = fopen(fan_path, "w");
-        free(fan_path);
+        fan = fans->data;
 
-        if (fan_ptr == NULL) {
+        fan_file_manual = fopen(fan->path_manual, "w");
+        if (!fan_file_manual) {
             state = 0;
             fans = fans->next;
             continue;
         }
 
-        if (fprintf(fan_ptr, "%d\n", mode) == EOF)
+        if (fprintf(fan_file_manual, "%d\n", mode) == EOF)
             state = 0;
-        fclose(fan_ptr);
+
+        if (fclose(fan_file_manual) == EOF)
+            state = 0;
+
         fans = fans->next;
     }
 
     return state;
 }
 
-void free_fans(t_fan *fans) {
-    t_fan *tmp = NULL;
-    while (fans) {
-        tmp = fans->next;
-        free(fans->write_path);
-        free(fans);
-        fans = tmp;
+
+int fan_set_speed(t_fan *fan, const int speed) {
+    FILE *fan_file_write = NULL;
+
+    if (!fan)
+        return 0;
+
+    if (fan->speed == speed)
+        return 1;
+
+    fan_file_write = fopen(fan->path_write, "w");
+    if (!fan_file_write)
+        return 0;
+
+    if (fprintf(fan_file_write, "%d\n", speed) == EOF) {
+        fclose(fan_file_write);
+        return 0;
     }
+
+    if (fclose(fan_file_write) == EOF)
+        return 0;
+
+    fan->speed = speed;
+
+    return 1;
 }
 
-int set_fan_speed(t_fan *fan, int speed) {
-    if (fan->speed != speed) {
-        fan->speed = speed;
-        FILE *fan_ptr = fopen(fan->write_path, "w");
 
-        if (fan_ptr == NULL)
-            return 0;
-        if (fprintf(fan_ptr, "%d\n", speed) == EOF) {
-            fclose(fan_ptr);
-            return 0;
-        }
+void fan_free(t_fan *fan) {
+    if (!fan)
+        return;
+    if (fan->path_write)
+        free(fan->path_write);
+    if (fan->path_manual)
+        free(fan->path_manual);
+    if (fan->label)
+        free(fan->label);
+    free(fan);
+}
 
-        fclose(fan_ptr);
-    }
-    return 1;
+
+void fan_print(const t_fan *fan) {
+    if (!fan)
+        return;
+    printf("Fan %d - %s\n", fan->id, fan->label);
+    printf("Min speed: %d   Max speed: %d\n", fan->min, fan->max);
+    printf("Speed: %d   Step: %d\n", fan->speed, fan->step);
+    printf("Write: %s\n", fan->path_write);
+    printf("Manual: %s\n", fan->path_manual);
+    printf("\n");
 }

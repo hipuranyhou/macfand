@@ -7,55 +7,84 @@
  * https://github.com/Hipuranyhou/macfand
  */
 
-#ifndef MAC_FAN_CONTROL_MONITOR_H_fajkdsfbua
-#define MAC_FAN_CONTROL_MONITOR_H_fajkdsfbua
+#ifndef MACFAND_MONITOR_H_fajkdsfbua
+#define MACFAND_MONITOR_H_fajkdsfbua
 
-#include "config.h"
+#include "linked.h"
 
 /**
- * Struct holding all information about one temp monitor.
+ * @brief 
+ * 
  */
 typedef struct monitor {
-    short int id;
-    int temp;
-    char *read_path;
-    struct monitor *next;
+    int id;
+    int id_hw;
+    int temp_current;
+    int temp_max;
+    char *path_read;
+    char *label;
 } t_monitor;
 
-
 /**
+ * @brief 
  * 
- * @param[in]
- * @param[in]
- * @param[in]
+ * @param monitor 
+ * @return int 
  */
-void set_max_temp(t_settings *settings, int cnt_hw, int cnt_mon);
+int monitor_load_label(t_monitor *monitor);
 
 /**
+ * @brief 
  * 
- * @param[in]
- * @paran[in]
- * @return
+ * @param monitor 
+ * @return int 
  */
-int monitor_exists(int cnt_hw, int cnt_temp);
+int monitor_load_max_temp(t_monitor *monitor);
 
 /**
- *
- * @return
+ * @brief 
+ * 
+ * @param monitor 
+ * @return int 
  */
-t_monitor *load_monitors(t_settings *settings);
+int monitor_load_defaults(t_monitor *monitor);
 
 /**
- * Frees all monitors in linked list.
- * @param[in] monitors Pointer to head of linked list of all monitors.
+ * @brief 
+ * 
+ * @param cnt_hw 
+ * @param cnt_temp 
+ * @return int 
  */
-void free_monitors(t_monitor *monitors);
+int monitor_id_exists(const int cnt_hw, const int cnt_temp);
 
 /**
- *
- * @param monitors
- * @return
+ * @brief 
+ * 
+ * @param settings 
+ * @return t_node* 
  */
-int get_current_temp(t_monitor *monitors);
+t_node *monitors_load(void);
 
-#endif //MAC_FAN_CONTROL_MONITOR_H_fajkdsfbua
+/**
+ * @brief Get the current temp object
+ * 
+ * @param monitors 
+ * @return int 
+ */
+int monitors_get_temp(const t_node *monitors);
+
+/**
+ * @brief 
+ * 
+ * @param monitor 
+ */
+void monitor_free(t_monitor *monitor);
+
+/**
+ * @brief 
+ * 
+ */
+void monitor_print(const t_monitor *monitor);
+
+#endif //MACFAND_MONITOR_H_fajkdsfbua

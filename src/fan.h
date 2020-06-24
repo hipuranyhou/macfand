@@ -7,26 +7,30 @@
  * https://github.com/Hipuranyhou/macfand
  */
 
-#ifndef MAC_FAN_CONTROL_FAN_H_qwewqiorhq
-#define MAC_FAN_CONTROL_FAN_H_qwewqiorhq
+#ifndef MACFAND_FAN_H_qwewqiorhq
+#define MACFAND_FAN_H_qwewqiorhq
 
-#include "config.h"
+#include "settings.h"
+#include "linked.h"
 
 /**
- * Struct holding all information about one cooling fan.
+ * @brief 
+ * 
  */
 typedef struct fan {
-    short int id;
+    int id;
     int min;
     int max;
     int speed;
     int step;
-    char *write_path;
-    struct fan *next;
+    char *path_write;
+    char *path_manual;
+    char *label;
 } t_fan;
 
 /**
- * Enum holding types of fan modes from applesmc.
+ * @brief 
+ * 
  */
 enum fan_mode {
     FAN_AUTO,
@@ -34,37 +38,78 @@ enum fan_mode {
 };
 
 /**
- * Loads max and min speed of each fan from appropriate files and counts step for each fan.
- * @param[in] fans Pointer to head of linked list of all fans.
- * @return 1 on success, 0 on error
+ * @brief 
+ * 
+ * @param fan 
+ * @return int 
  */
-int load_fans_default_speed(t_settings *settings, t_fan *fans);
+int fan_load_label(t_fan *fan);
 
 /**
- * Constructs linked list of all accessible fans in /sys/devices/platform/applesmc.768/.
- * @return Pointer to first fan in linked list, NULL on error
- */
-t_fan *load_fans(t_settings *settings);
+ * @brief 
+ * 
+ * @param fan 
+ * @param destination 
+ * @param speed 
+ * @return int 
+ */ 
+int fan_load_speed(t_fan *fan, int *destination, const char *speed);
 
 /**
- * Sets all fans to either auto or manual mode.
- * @param[in] fans Pointer to head of linked list of all fans.
- * @param[in] mode Fans mode (FAN_AUTO/FAN_MANUAL).
- * @return 1 on succes, 0 on error
+ * @brief 
+ * 
+ * @param settings 
+ * @param fans 
+ * @return int 
  */
-int set_fans_mode(t_fan *fans, enum fan_mode mode);
+int fan_load_defaults(const t_settings *settings, t_fan *fan);
 
 /**
- * Frees all fans in linked list.
- * @param[in] fans Pointer to head of linked list of all fans.
+ * @brief 
+ * 
+ * @param fan 
+ * @return int 
  */
-void free_fans(t_fan *fans);
+int fan_id_exists(const int fan_cnt);
 
 /**
- *
- * @param fan
- * @param speed
+ * @brief 
+ * 
+ * @param settings 
+ * @return t_node* 
  */
-int set_fan_speed(t_fan *fan, int speed);
+t_node *fans_load(const t_settings *settings);
 
-#endif //MAC_FAN_CONTROL_FAN_H_qwewqiorhq
+/**
+ * @brief Set the fans mode object
+ * 
+ * @param fans 
+ * @param mode 
+ * @return int 
+ */
+int fans_set_mode(t_node *fans, const enum fan_mode mode);
+
+/**
+ * @brief 
+ * 
+ * @param fan 
+ */
+void fan_free(t_fan *fan);
+
+/**
+ * @brief Set the fan speed object
+ * 
+ * @param fan 
+ * @param speed 
+ * @return int 
+ */
+int fan_set_speed(t_fan *fan, const int speed);
+
+/**
+ * @brief 
+ * 
+ * @param fan 
+ */
+void fan_print(const t_fan *fan);
+
+#endif //MACFAND_FAN_H_qwewqiorhq

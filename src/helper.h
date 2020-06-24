@@ -7,18 +7,34 @@
  * https://github.com/Hipuranyhou/macfand
  */
 
-#ifndef MAC_FAN_CONTROL_HELPER_H_pifiohaods
-#define MAC_FAN_CONTROL_HELPER_H_pifiohaods
+#ifndef MACFAND_HELPER_H_pifiohaods
+#define MACFAND_HELPER_H_pifiohaods
 
 /**
- *
- * @param format
- * @param ...
- * @return
+ * @brief 
+ * 
+ * @param format 
+ * @param ... 
+ * @return char* 
  */
 char* concatenate_format(const char* format, ...);
 
+/**
+ * @brief 
+ * 
+ * @param a 
+ * @param b 
+ * @return int 
+ */
 int max(int a, int b);
+
+/**
+ * @brief 
+ * 
+ * @param a 
+ * @param b 
+ * @return int 
+ */
 int min(int a, int b);
 
-#endif //MAC_FAN_CONTROL_HELPER_H_pifiohaods
+#endif //MACFAND_HELPER_H_pifiohaods
