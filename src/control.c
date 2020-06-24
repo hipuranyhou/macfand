@@ -69,7 +69,7 @@ void start_control(const t_settings *settings, t_node **fans, const t_node *moni
             *fans = (*fans)->next;
             fan = (*fans)->data;
 
-            printf("Fan %d -> %d (%d)\n", fan->id, fan->speed, cur_temp);
+            printf("Fan %d (%s) -> %d (%d)\n", fan->id, fan->label, fan->speed, cur_temp);
         }
 
         nanosleep(&ts, NULL);

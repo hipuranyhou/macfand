@@ -16,7 +16,7 @@
 #include "monitor.h"
 #include "helper.h"
 #include "settings.h"
-//#include "control.h"
+#include "control.h"
 #include "daemonize.h"
 #include "linked.h"
 
@@ -105,12 +105,8 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    /*
-
     // Start main control loop
     start_control(&settings, &fans, monitors);
-
-    */
 
     // Reset fans to automatic mode when exiting
     if (!fans_set_mode(fans, FAN_AUTO)) {

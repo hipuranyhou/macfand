@@ -177,7 +177,7 @@ int fans_set_mode(t_node *fans, const enum fan_mode mode) {
         fan = fans->data;
 
         fan_file_manual = fopen(fan->path_manual, "w");
-        if (fan_file_manual == NULL) {
+        if (!fan_file_manual) {
             state = 0;
             fans = fans->next;
             continue;
@@ -206,8 +206,7 @@ int fan_set_speed(t_fan *fan, const int speed) {
         return 1;
 
     fan_file_write = fopen(fan->path_write, "w");
-
-    if (fan_file_write == NULL)
+    if (!fan_file_write)
         return 0;
 
     if (fprintf(fan_file_write, "%d\n", speed) == EOF) {

@@ -27,11 +27,11 @@
 
 #include "daemonize.h"
 
-//extern volatile int termination_flag;
+extern volatile int termination_flag;
 
 void set_termination_flag(int sig) {
     syslog(LOG_NOTICE, "Resetting fans to automatic mode and terminating mac_fan_control.");
-    //termination_flag = 1;
+    termination_flag = 1;
 }
 
 void prepare_signals(void) {
