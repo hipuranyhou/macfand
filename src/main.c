@@ -36,7 +36,7 @@ static struct argp_option options[] = {
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state) { 
     t_settings *settings = state->input;
-    switch(key) { 
+    switch(key) {
         case 'd':
             settings->daemon = 1;
             break;
