@@ -31,12 +31,12 @@ int list_push_front(t_node **head, const void *data, const size_t data_size) {
 }
 
 void list_free(t_node *head, void (*node_free)(void *)) {
-    t_node *tmp = NULL;
+    t_node *next = NULL;
     while (head) {
-        tmp = head->next;
+        next = head->next;
         node_free(head->data);
         free(head);
-        head = tmp;
+        head = next;
     }
 }
 

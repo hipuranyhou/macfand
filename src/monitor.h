@@ -72,7 +72,7 @@ t_node *monitors_load(void);
  * @param monitors 
  * @return int 
  */
-int monitors_get_temp(t_node *monitors);
+int monitors_get_temp(const t_node *monitors);
 
 /**
  * @brief 

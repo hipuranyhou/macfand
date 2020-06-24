@@ -67,18 +67,17 @@ static struct argp argp = {options, parse_opt, 0, 0};
 
 
 int main(int argc, char **argv) {
-    // Load default settings
     t_settings settings;
+    t_node *monitors = NULL, *fans = NULL;
+
     settings_load_defaults(&settings);
 
-    // Parse command line arguments
     argp_parse(&argp, argc, argv, 0, 0, &settings);
 
     if (settings.daemon)
         daemonize();
 
-    // Load temperature monitors and max temperature
-    t_node *monitors = monitors_load();
+    monitors = monitors_load();
     if (monitors == NULL) {
         fprintf(stderr, "%s\n", "Error encountered while loading temperature monitors!");
         return 1;
@@ -86,18 +85,16 @@ int main(int argc, char **argv) {
 
     settings_set_max_temp(&settings, monitors);
 
-    // Load fans
-    t_node *fans = fans_load(&settings);
+    fans = fans_load(&settings);
     if (fans == NULL) {
         list_free(monitors, (void (*)(void *))monitor_free);
         fprintf(stderr, "%s\n", "Error encountered while loading fans!");
         return 1;
     }
 
-    // Set fans to manual mode
     if (!fans_set_mode(fans, FAN_MANUAL)) {
         // Set fans back to auto if enabling manual mode failed 
-        // (those we were unable to set to manual mode are already in automatic mode)
+        // Those we were unable to set to manual mode are already in automatic mode
         fans_set_mode(fans, FAN_AUTO);
         list_free(monitors, (void (*)(void *))monitor_free);
         list_free(fans, (void (*)(void *))fan_free);
@@ -105,22 +102,11 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    // Start main control loop
-    start_control(&settings, &fans, monitors);
+    control_start(&settings, fans, monitors);
 
-    // Reset fans to automatic mode when exiting
-    if (!fans_set_mode(fans, FAN_AUTO)) {
-        switch (settings.daemon) {
-            case 0:
-                fprintf(stderr, "Error while resetting fans to automatic mode.");
-                break;
-            case 1:
-                syslog(LOG_ERR, "Error while resetting fans to automatic mode.");
-                break;
-        }
-    }
+    // TODO: log error
+    fans_set_mode(fans, FAN_AUTO);
 
-    // Free memory and exit
     list_free(monitors, (void (*)(void *))monitor_free);
     list_free(fans, (void (*)(void *))fan_free);
 

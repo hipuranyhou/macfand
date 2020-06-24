@@ -77,6 +77,8 @@ int monitor_load_max_temp(t_monitor *monitor) {
         return 0;
     }
 
+    monitor->temp_max /= 1000; 
+
     // We silently ignore return value of fclose() when just reading from it
     fclose(monitor_file_max);
     return 1;
@@ -156,7 +158,7 @@ t_node *monitors_load(void) {
 }
 
 
-int monitors_get_temp(t_node *monitors) {
+int monitors_get_temp(const t_node *monitors) {
     int temp = 0;
     FILE *monitor_file_read = NULL;
     t_monitor *monitor = NULL;
@@ -205,7 +207,7 @@ void monitor_print(const t_monitor *monitor) {
     if (!monitor)
         return;
     printf("Monitor %d - %s\n", monitor->id, monitor->label);
-    printf("Current temp: %d°C  Max temp: %d°C\n", (monitor->temp_current / 1000), (monitor->temp_max / 1000));
+    printf("Current temp: %d°C  Max temp: %d°C\n", monitor->temp_current, monitor->temp_max);
     printf("Read: %s\n", monitor->path_read);
     printf("\n");
 }
