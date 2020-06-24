@@ -81,7 +81,7 @@ void control_start(const t_settings *settings, t_node *fans, const t_node *monit
             control_calculate_speed(settings, &control, fan);
             // TODO: log error
             fan_set_speed(fan, control.speed);
-            printf("Fan %d -> %d (%d)\n", fan->id, fan->speed, control.temp_current);
+            //printf("Fan %d -> %d (%d)\n", fan->id, fan->speed, control.temp_current);
             fans = fans->next;
         }
         // Wait
