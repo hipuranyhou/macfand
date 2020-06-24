@@ -46,13 +46,13 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
             settings->poll_time = atoi(arg);
             break;
         case 'l':
-            if (atoi(arg) < 56)
-                argp_failure(state, 1, 0, "Low temp must be bigger than 55");
+            if (atoi(arg) < 1)
+                argp_failure(state, 1, 0, "Low temp must be a whole number bigger than 0");
             settings->low_temp = atoi(arg);
             break;
         case 'h':
-            if (atoi(arg) < 56)
-                argp_failure(state, 1, 0, "High temp must be bigger than 55");
+            if (atoi(arg) < 30)
+                argp_failure(state, 1, 0, "High temp must be a whole number bigger than 29");
             settings->high_temp = atoi(arg);
             break;
         case 'v':

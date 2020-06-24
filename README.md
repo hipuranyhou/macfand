@@ -81,18 +81,22 @@ Use to get quick info about available options.
 #### Daemon
 `--daemon` or `-d`
 
-Use to run macfand as daemon. In daemon mode, syslog is used for all messages (stdout and stderr otherwise)and pid file is located at `/run/macfand.pid`.
+Use to run macfand as daemon. In daemon mode, syslog is used for all messages (stdout and stderr otherwise) and pid file is located at `/run/macfand.pid`.
 
 #### Poll time
 `--poll=NUM` or `-p NUM`
 
-Use to set poll time of (how often temperature is checked and fans adjusted). **Must be whole number bigger than 0.**
+Use to set how often temperature is checked and fans are adjusted. **Must be whole number bigger than 0.**
 
 #### Low temp
-*Low temp option will be added.*
+`--low=NUM` or `-l NUM`
+
+Use to set temperature under which fans run on min speed. **Must be a whole number bigger than 0.**
 
 #### High temp
-*High temp option will be added.*
+`--high=NUM` or `-h NUM`
+
+Use to set temperature over which fans will start to slowly ramp up. **Must be a whole number bigger than 29.**
 
 #### Verbose
 *Verbose mode will be added.*
