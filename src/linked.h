@@ -13,8 +13,8 @@
 #include <stdlib.h>
 
 /**
- * @brief 
- * 
+ * @brief Holds data used by generic single linked list.
+ * This is used for constructing generic single linked list holding pointer to data and pointer to next node in list.
  */
 typedef struct node {
     void *data;
@@ -22,28 +22,30 @@ typedef struct node {
 } t_node;
 
 /**
- * @brief 
- * 
- * @param head 
- * @param data 
- * @param data_size 
- * @return int 
+ * @brief Prepends node to given generic linked list.
+ * Prepends node to given generic linked list. Regardless of whether head is NULL or not, it will after
+ * point to first node of the list.
+ * @param[in,out]  head       Pointer to head of list.
+ * @param[in]      data       Data to be saved in data member of node.
+ * @param[in]      data_size  Size of data type saved in list.
+ * @return int 0 on error, 1 on success.
  */
 int list_push_front(t_node **head, const void *data, const size_t data_size);
 
 /**
- * @brief 
- * 
- * @param head 
- * @param node_free
+ * @brief Frees memory used by given generic linked list.
+ * Frees memory used by the given list by calling the provided node_free() function on data member of every node
+ * and free() on every node.
+ * @param[in]  head       Pointer to head of generic linked list.
+ * @param[in]  node_free  Pointer to free function for data type saved in generic linked list.
  */
 void list_free(t_node *head, void (*node_free)(void *));
 
 /**
- * @brief 
- * 
- * @param head 
- * @param node_print 
+ * @brief Prints given generic linked list.
+ * Prints the given list by calling the provided node_print() function on data member of every node.
+ * @param[in]  head        Pointer to head of generic linked list.
+ * @param[in]  node_print  Pointer to print function for data type saved in generic linked list.
  */
 void list_print(const t_node *head, void (*node_print)(const void *));
 
