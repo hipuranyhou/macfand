@@ -18,40 +18,46 @@
 
 char* concatenate_format(const char* format, ...) {
     va_list ap;
-    int cnt = 0;
+    int len = 0, vsn_ret = 0;
     char *string = NULL;
 
     // Get length of string
     va_start(ap, format);
-    cnt = vsnprintf(NULL, 0, format, ap);
+    len = vsnprintf(NULL, 0, format, ap);
     va_end(ap);
-    if (cnt < 0)
+    if (len < 0)
         return NULL;
 
-    string = (char*)malloc(cnt + 1);
+    string = (char*)malloc(len + 1);
     if (!string)
         return NULL;
 
     // Concatenate
     va_start(ap, format);
-    vsnprintf(string, cnt + 1, format, ap);
+    vsn_ret = vsnprintf(string, len + 1, format, ap);
     va_end(ap);
+
+    if (vsn_ret > len) {
+        if (string)
+            free(string);
+        return NULL;
+    }
 
     return string;
 }
 
 
 int convert_valid_int(char *string, int *destination) {
-    char *end = NULL;
-    long int tmp = 0;
+    char *tmp_str;
+    long int tmp_val = 0;
 
     errno = 0;
-    tmp = strtol(string, &end, 10);
+    tmp_val = strtol(string, &tmp_str, 10);
 
-    if (string == end || errno == ERANGE || tmp < INT_MIN || tmp > INT_MAX)
+    if (tmp_str == string || *tmp_str != '\0' || tmp_val < INT_MIN || tmp_val > INT_MAX)
         return 0;
 
-    *destination = (int)tmp;
+    *destination = (int)tmp_val;
     return 1;
 }
 

@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <argp.h>
 #include <syslog.h>
+#include <errno.h>
 
 #include "fan.h"
 #include "monitor.h"
