@@ -102,11 +102,11 @@ int monitor_load_defaults(t_monitor *monitor) {
 }
 
 
-int monitor_id_exists(const int cnt_hw, const int cnt_mon) {
+int monitor_id_exists(const int id_hw, const int id_mon) {
     FILE *monitor_file_read = NULL;
     char *monitor_path_read = NULL;
 
-    monitor_path_read = concatenate_format(MONITOR_PATH_FORMAT, MONITOR_PATH_BASE, cnt_hw, cnt_mon, MONITOR_PATH_READ);
+    monitor_path_read = concatenate_format(MONITOR_PATH_FORMAT, MONITOR_PATH_BASE, id_hw, id_mon, MONITOR_PATH_READ);
     if (!monitor_path_read)
         return -1;
 
@@ -122,7 +122,7 @@ int monitor_id_exists(const int cnt_hw, const int cnt_mon) {
 
 
 t_node *monitors_load(void) {
-    int cnt_mon = 0, monitor_exists = 0;
+    int id_mon = 0, monitor_exists = 0;
     t_monitor *monitor = NULL;
     t_node *monitors = NULL;
 
@@ -132,11 +132,11 @@ t_node *monitors_load(void) {
 
     monitor->temp_current = 0;
 
-    for (int cnt_hw = 0; cnt_hw < 16; ++cnt_hw) {
+    for (int id_hw = 0; id_hw < 16; ++id_hw) {
         for (;;) {
-            monitor->id_hw = cnt_hw;
-            monitor->id = ++cnt_mon;
-            monitor_exists = monitor_id_exists(cnt_hw, cnt_mon);
+            monitor->id_hw = id_hw;
+            monitor->id = ++id_mon;
+            monitor_exists = monitor_id_exists(id_hw, id_mon);
 
             if (monitor_exists == 0)
                 break;

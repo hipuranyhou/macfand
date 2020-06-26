@@ -13,8 +13,9 @@
 #include "linked.h"
 
 /**
- * @brief 
- * 
+ * @brief Holds information about temperature monitor.
+ * Struct holding id and hwmon entry id, current temperature and max temperature, path for reading temperature from
+ * given monitor and its label.
  */
 typedef struct monitor {
     int id;
@@ -26,64 +27,67 @@ typedef struct monitor {
 } t_monitor;
 
 /**
- * @brief 
- * 
- * @param monitor 
- * @return int 
+ * @brief Loads label of monitor.
+ * Loads label of given monitor from appropriate system file.
+ * @param[in,out]  monitor  Pointer to temperature monitor.
+ * @return int 0 on error, 1 on success.
  */
 int monitor_load_label(t_monitor *monitor);
 
 /**
- * @brief 
- * 
- * @param monitor 
- * @return int 
+ * @brief Loads max temperature of monitor.
+ * Loads max temperature of given monitor from appropriate system file.
+ * @param[in,out]  monitor  Pointer to temperature monitor.
+ * @return int 0 on error, 1 on success.
  */
 int monitor_load_max_temp(t_monitor *monitor);
 
 /**
- * @brief 
- * 
- * @param monitor 
- * @return int 
+ * @brief Loads default values for given monitor.
+ * Loads max temperature and label from appropiate files for given monitor and constructs its reading path.
+ * @param[in,out]  monitor  Pointer to temperature monitor.
+ * @return int 0 on error, 1 on success.
  */
 int monitor_load_defaults(t_monitor *monitor);
 
 /**
- * @brief 
- * 
- * @param cnt_hw 
- * @param cnt_temp 
- * @return int 
+ * @brief Checks if monitor given monitor exists.
+ * Check whether monitor with given id for given hwmon entry id exists by trying to opening its 
+ * temperature reading path.
+ * @param[in]  id_hw  hwmon entry id.
+ * @param[in]  id_mon  id of temperature monitor for given hwmon entry.
+ * @return int -1 on error, 0 if does not exist, 1 if exists.
  */
-int monitor_id_exists(const int cnt_hw, const int cnt_temp);
+int monitor_id_exists(const int id_hw, const int id_mon);
 
 /**
- * @brief 
- * 
- * @param settings 
- * @return t_node* 
+ * @brief Constructs linked list of system temperature monitors.
+ * Constructs generic linked list of all system temperature monitors for up to 16 hwmon entries and unlimited entries
+ * in hwmon subfolders. For each monitor sets its ids, current temperature to 0, temperature reading path and from 
+ * appropiate system files loads its label and max temperature.
+ * @return t_node* NULL on error, pointer to head of generic linked list of temperature monitors otherwise.
  */
 t_node *monitors_load(void);
 
 /**
- * @brief Get the current temp object
- * 
- * @param monitors 
- * @return int 
+ * @brief Gets the current system temperature.
+ * Gets the current system temperature, which is the highest value from current temperatures of all system monitors.
+ * @param[in]  monitors  Pointer to head of linked list of temperature monitors.
+ * @return int 100 if reading at least one temperature failed, current system temperature otherwise.
  */
 int monitors_get_temp(const t_node *monitors);
 
 /**
- * @brief 
- * 
- * @param monitor 
+ * @brief Frees memory for given monitor.
+ * Calls free() on members of monitor if they are not NULL.
+ * @param[in] monitor  Pointer to temperature monitor.
  */
 void monitor_free(t_monitor *monitor);
 
 /**
- * @brief 
- * 
+ * @brief Prints info about monitor.
+ * Prints formated information (all values of t_monitor) about given monitor to stdout.
+ * @param[in]  monitor  Pointer to temperature monitor.
  */
 void monitor_print(const t_monitor *monitor);
 
