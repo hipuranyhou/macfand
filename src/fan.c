@@ -244,5 +244,4 @@ void fan_print(const t_fan *fan) {
     printf("Speed: %d   Step: %d\n", fan->speed, fan->step);
     printf("Write: %s\n", fan->path_write);
     printf("Manual: %s\n", fan->path_manual);
-    printf("\n");
 }

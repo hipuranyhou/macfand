@@ -209,5 +209,4 @@ void monitor_print(const t_monitor *monitor) {
     printf("Monitor %d - %s\n", monitor->id, monitor->label);
     printf("Current temp: %d°C  Max temp: %d°C\n", monitor->temp_current, monitor->temp_max);
     printf("Read: %s\n", monitor->path_read);
-    printf("\n");
 }
