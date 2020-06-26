@@ -92,7 +92,7 @@ int fan_load_defaults(const t_settings *settings, t_fan *fan) {
         return 0;
 
     // Calculate size of one unit of fan speed change
-    fan->step = (fan->max - fan->min) / ((settings->max_temp - settings->high_temp) * (settings->max_temp - settings->high_temp + 1) / 2);
+    fan->step = (fan->max - fan->min) / ((settings->temp_max - settings->temp_high) * (settings->temp_max - settings->temp_high + 1) / 2);
 
     fan->path_write = concatenate_format(FAN_PATH_FORMAT, FAN_PATH_BASE, fan->id, FAN_PATH_WRITE);
     if (!fan->path_write)
