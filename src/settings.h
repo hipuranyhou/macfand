@@ -17,10 +17,10 @@
  * 
  */
 typedef struct settings {
-    int low_temp;
-    int high_temp;
-    int max_temp;
-    int poll_time;
+    int temp_low;
+    int temp_high;
+    int temp_max;
+    int time_poll;
     int daemon;
     int verbose;
 } t_settings;
