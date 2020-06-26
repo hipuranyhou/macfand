@@ -48,12 +48,11 @@ int convert_valid_int(char *string, int *destination) {
     errno = 0;
     tmp = strtol(string, &end, 10);
 
-    if (string != end && errno != ERANGE && tmp >= INT_MIN && tmp <= INT_MAX) {
-        *destination = (int)tmp;
-        return 1;
-    }
+    if (string == end || errno == ERANGE || tmp < INT_MIN || tmp > INT_MAX)
+        return 0;
 
-    return 0;
+    *destination = (int)tmp;
+    return 1;
 }
 
 

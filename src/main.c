@@ -41,19 +41,16 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
             settings->daemon = 1;
             break;
         case 'p':
-            if (atoi(arg) < 1)
+            if (!convert_valid_int(arg, &(settings->time_poll)) || settings->time_poll < 1)
                 argp_failure(state, 1, 0, "Poll time must be a whole number bigger than 0");
-            settings->time_poll = atoi(arg);
             break;
         case 'l':
-            if (atoi(arg) < 1)
+            if (!convert_valid_int(arg, &(settings->temp_low)) || settings->temp_low < 1)
                 argp_failure(state, 1, 0, "Low temp must be a whole number bigger than 0");
-            settings->temp_low = atoi(arg);
             break;
         case 'h':
-            if (atoi(arg) < 30)
+            if (!convert_valid_int(arg, &(settings->temp_high)) || settings->temp_high < 30)
                 argp_failure(state, 1, 0, "High temp must be a whole number bigger than 29");
-            settings->temp_high = atoi(arg);
             break;
         case 'v':
             settings->verbose = 1;
