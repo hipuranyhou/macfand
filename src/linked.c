@@ -43,6 +43,7 @@ void list_free(t_node *head, void (*node_free)(void *)) {
 void list_print(const t_node *head, void (*node_print)(const void *)) {
     while (head) {
         node_print(head->data);
+        printf("\n");
         head = head->next;
     }
 }
