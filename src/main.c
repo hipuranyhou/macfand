@@ -20,6 +20,7 @@
 #include "control.h"
 #include "daemonize.h"
 #include "linked.h"
+#include "logger.h"
 
 
 const char *argp_program_version = "macfand - version 0.1";
@@ -70,6 +71,9 @@ int main(int argc, char **argv) {
 
     settings_load_defaults(&settings);
 
+    //logger_log(LOG_L_INFO, "%s", "Test 2");
+
+    // Argp leaking memory on failure?
     argp_parse(&argp, argc, argv, 0, 0, &settings);
 
     if (settings.daemon)

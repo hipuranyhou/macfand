@@ -8,7 +8,6 @@
  */
 
 #include <stdio.h>
-#include <stdarg.h>
 #include <stdlib.h>
 #include <limits.h>
 #include <errno.h>
@@ -16,26 +15,26 @@
 #include "helper.h"
 
 
-char* concatenate_format(const char* format, ...) {
-    va_list ap;
+char* concatenate_format_v(const char* format, va_list ap) {
+    va_list ap_len;
     int len = 0, vsn_ret = 0;
     char *string = NULL;
 
     // Get length of string
-    va_start(ap, format);
-    len = vsnprintf(NULL, 0, format, ap);
-    va_end(ap);
+    va_copy(ap_len, ap);
+    len = vsnprintf(NULL, 0, format, ap_len);
+    va_end(ap_len);
     if (len < 0)
         return NULL;
+
+    
 
     string = (char*)malloc(len + 1);
     if (!string)
         return NULL;
 
     // Concatenate
-    va_start(ap, format);
     vsn_ret = vsnprintf(string, len + 1, format, ap);
-    va_end(ap);
 
     if (vsn_ret > len) {
         if (string)
@@ -43,6 +42,18 @@ char* concatenate_format(const char* format, ...) {
         return NULL;
     }
 
+    return string;
+}
+
+
+char* concatenate_format(const char* format, ...) {
+    va_list ap;
+    char *string = NULL;
+
+    va_start(ap, format);
+    string = concatenate_format_v(format, ap);
+    va_end(ap);
+    
     return string;
 }
 

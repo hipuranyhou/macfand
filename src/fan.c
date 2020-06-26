@@ -170,8 +170,8 @@ int fans_set_mode(t_node *fans, const enum fan_mode mode) {
     FILE *fan_file_manual = NULL;
     t_fan *fan = NULL;
 
-    if (!fans)
-        state = 0;
+    if (!fans || mode < FAN_AUTO || mode > FAN_MANUAL)
+        return 0;
 
     while (fans) {
         fan = fans->data;

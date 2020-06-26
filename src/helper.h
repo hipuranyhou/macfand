@@ -10,6 +10,17 @@
 #ifndef MACFAND_HELPER_H_pifiohaods
 #define MACFAND_HELPER_H_pifiohaods
 
+#include <stdarg.h>
+
+/**
+ * @brief 
+ * 
+ * @param format 
+ * @param ap 
+ * @return char* 
+ */
+char* concatenate_format_v(const char* format, va_list ap);
+
 /**
  * @brief Creates string using given format and parameters.
  * Concatenates given paramteres using format with vsnprintf(). Allocates memory for given string which has to

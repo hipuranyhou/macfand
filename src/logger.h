@@ -38,4 +38,13 @@ enum log_level {
  */
 void logger_set_mode(const enum log_type type);
 
+/**
+ * @brief 
+ * 
+ * @param level 
+ * @param format 
+ * @param ... 
+ */
+void logger_log(const enum log_level level, const char *format, ...);
+
 #endif //MACFAND_LOGGER_H_lfakfjakjl
