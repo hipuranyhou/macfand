@@ -22,12 +22,11 @@
 char* concatenate_format_v(const char* format, va_list ap);
 
 /**
- * @brief Creates string using given format and parameters.
- * Concatenates given paramteres using format with vsnprintf(). Allocates memory for given string which has to
- * be later freed.
- * @param[in]  format  Format used for concatenation.
- * @param[in]  ...     Parameters to concatenate. 
- * @return char* NULL on error, pointer to null terminated char* otherwise.
+ * @brief 
+ * 
+ * @param format 
+ * @param ... 
+ * @return char* 
  */
 char* concatenate_format(const char* format, ...);
 
