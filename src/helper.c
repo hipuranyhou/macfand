@@ -37,10 +37,10 @@ char* concatenate_format(const char* format, ...) {
     return string;
 }
 
-int max(int a, int b) {
+int max(const int a, const int b) {
     return (a > b) ? a : b;
 }
 
-int min(int a, int b) {
+int min(const int a, const int b) {
     return (a < b) ? a : b;
 }

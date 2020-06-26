@@ -26,7 +26,7 @@ char* concatenate_format(const char* format, ...);
  * @param b 
  * @return int 
  */
-int max(int a, int b);
+int max(const int a, const int b);
 
 /**
  * @brief 
@@ -35,6 +35,6 @@ int max(int a, int b);
  * @param b 
  * @return int 
  */
-int min(int a, int b);
+int min(const int a, const int b);
 
 #endif //MACFAND_HELPER_H_pifiohaods
