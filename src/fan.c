@@ -109,11 +109,11 @@ int fan_load_defaults(const t_settings *settings, t_fan *fan) {
 }
 
 
-int fan_id_exists(const int fan_cnt) {
+int fan_id_exists(const int id_fan) {
     FILE *fan_file_manual = NULL;
     char *fan_path_manual = NULL;
 
-    fan_path_manual = concatenate_format(FAN_PATH_FORMAT, FAN_PATH_BASE, fan_cnt, FAN_PATH_MANUAL);
+    fan_path_manual = concatenate_format(FAN_PATH_FORMAT, FAN_PATH_BASE, id_fan, FAN_PATH_MANUAL);
     if (!fan_path_manual)
         return -1;
 
@@ -129,7 +129,7 @@ int fan_id_exists(const int fan_cnt) {
 
 
 t_node *fans_load(const t_settings *settings) {
-    int fan_cnt = 0, fan_exists = 0;
+    int id_fan = 0, fan_exists = 0;
     t_fan *fan = NULL;
     t_node *fans = NULL;
 
@@ -143,8 +143,8 @@ t_node *fans_load(const t_settings *settings) {
     fan->speed = 0;
 
     for (;;) {
-        fan->id = ++fan_cnt;
-        fan_exists = fan_id_exists(fan_cnt);
+        fan->id = ++id_fan;
+        fan_exists = fan_id_exists(id_fan);
 
         if (fan_exists == 0)
             break;
