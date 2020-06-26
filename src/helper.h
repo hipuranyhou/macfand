@@ -21,6 +21,16 @@
 char* concatenate_format(const char* format, ...);
 
 /**
+ * @brief Validates and converts string to int.
+ * Uses strtol() to check if given string is an valid integer and is in range of int. On success resulting
+ * integer is stored in destination.
+ * @param[in]  string       String which should be checked and converted to an int.
+ * @param[out] destination  Pointer to where should the integer be stored.
+ * @return int 0 on error, 1 if integer conversion succeded.
+ */
+int convert_valid_int(char *string, int *destination);
+
+/**
  * @brief Returns max of two given integers.
  * Returns max of two given integers.
  * @param[in]  a  Integer a. 
