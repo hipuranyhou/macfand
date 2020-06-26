@@ -22,25 +22,25 @@ void control_calculate_speed(const t_settings *settings, t_control *control, con
     control->speed = fan->speed;
 
     // Extremes
-    if (control->temp_current >= settings->max_temp) {
+    if (control->temp_current >= settings->temp_max) {
         control->speed = fan->max;
         return;
     }
 
-    if (control->temp_current <= settings->low_temp) {
+    if (control->temp_current <= settings->temp_low) {
         control->speed = fan->min;
         return;
     }
 
     // Set lower or higher
-    if (control->temp_delta > 0 && control->temp_current > settings->high_temp) {
-        control->steps = (control->temp_current - settings->high_temp) * (control->temp_current - settings->high_temp + 1) / 2;
+    if (control->temp_delta > 0 && control->temp_current > settings->temp_high) {
+        control->steps = (control->temp_current - settings->temp_high) * (control->temp_current - settings->temp_high + 1) / 2;
         control->speed = max(control->speed, (fan->min + (control->steps * fan->step)));
         return;
     }
 
-    if (control->temp_delta < 0 && control->temp_current > settings->low_temp) {
-        control->steps = (settings->max_temp - control->temp_current) * (settings->max_temp - control->temp_current + 1) / 2;
+    if (control->temp_delta < 0 && control->temp_current > settings->temp_low) {
+        control->steps = (settings->temp_max - control->temp_current) * (settings->temp_max - control->temp_current + 1) / 2;
         control->speed = min(control->speed, (fan->max - (control->steps * fan->step)));
         return;
     }
@@ -63,7 +63,7 @@ void control_start(const t_settings *settings, t_node *fans, const t_node *monit
     if (!settings || !fans || !monitors)
         return;
 
-    ts.tv_sec = settings->poll_time;
+    ts.tv_sec = settings->time_poll;
     ts.tv_nsec = 0;
 
     for(;;) {
