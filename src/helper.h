@@ -38,7 +38,7 @@ char* concatenate_format(const char* format, ...);
  * @param[out] destination  Pointer to where should the integer be stored.
  * @return int 0 on error, 1 if integer conversion succeded.
  */
-int convert_valid_int(char *string, int *destination);
+int get_int_from_string(char *string, int *destination);
 
 /**
  * @brief Returns max of two given integers.

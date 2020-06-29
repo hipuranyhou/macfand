@@ -165,7 +165,7 @@ t_node *fans_load(const t_settings *settings) {
 }
 
 
-int fans_set_mode(t_node *fans, const enum fan_mode mode) {
+int fans_set_mode(t_node *fans, int mode) {
     int state = 1;
     FILE *fan_file_manual = NULL;
     t_fan *fan = NULL;

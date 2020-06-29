@@ -28,15 +28,16 @@ enum log_level {
     LOG_L_ERROR,
     LOG_L_WARN,
     LOG_L_INFO,
-    LOG_L_DEBUG
+    LOG_L_DEBUG,
+    LOG_L_UNKNOWN
 };
 
 /**
  * @brief 
  * 
- * @param type 
+ * @return char* 
  */
-void logger_set_mode(const enum log_type type);
+static int logger_get_time(int destination_size, char *destination);
 
 /**
  * @brief 
@@ -45,6 +46,6 @@ void logger_set_mode(const enum log_type type);
  * @param format 
  * @param ... 
  */
-void logger_log(const enum log_level level, const char *format, ...);
+void logger_log(int level, const char *format, ...);
 
 #endif //MACFAND_LOGGER_H_lfakfjakjl

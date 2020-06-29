@@ -27,15 +27,13 @@ char* concatenate_format_v(const char* format, va_list ap) {
     if (len < 0)
         return NULL;
 
-    
-
+    // Prepare memory for string
     string = (char*)malloc(len + 1);
     if (!string)
         return NULL;
 
     // Concatenate
     vsn_ret = vsnprintf(string, len + 1, format, ap);
-
     if (vsn_ret > len) {
         if (string)
             free(string);
@@ -53,12 +51,12 @@ char* concatenate_format(const char* format, ...) {
     va_start(ap, format);
     string = concatenate_format_v(format, ap);
     va_end(ap);
-    
+
     return string;
 }
 
 
-int convert_valid_int(char *string, int *destination) {
+int get_int_from_string(char *string, int *destination) {
     char *tmp_str;
     long int tmp_val = 0;
 

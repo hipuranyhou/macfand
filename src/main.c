@@ -43,15 +43,15 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
             settings->daemon = 1;
             break;
         case 'p':
-            if (!convert_valid_int(arg, &(settings->time_poll)) || settings->time_poll < 1)
+            if (!get_int_from_string(arg, &(settings->time_poll)) || settings->time_poll < 1)
                 argp_failure(state, 1, 0, "Poll time is invalid!");
             break;
         case 'l':
-            if (!convert_valid_int(arg, &(settings->temp_low)) || settings->temp_low < 1)
+            if (!get_int_from_string(arg, &(settings->temp_low)) || settings->temp_low < 1)
                 argp_failure(state, 1, 0, "Low temp is invalid!");
             break;
         case 'h':
-            if (!convert_valid_int(arg, &(settings->temp_high)) || settings->temp_high < 30)
+            if (!get_int_from_string(arg, &(settings->temp_high)) || settings->temp_high < 30)
                 argp_failure(state, 1, 0, "High temp is invalid!");
             break;
         case 'v':
@@ -71,7 +71,9 @@ int main(int argc, char **argv) {
 
     settings_load_defaults(&settings);
 
-    //logger_log(LOG_L_INFO, "%s", "Test 2");
+    logger_log(LOG_L_ERROR, "%s %d - %s", "Unable to set speed of fan", 2, "left side");
+
+    /*
 
     // Argp leaking memory on failure?
     argp_parse(&argp, argc, argv, 0, 0, &settings);
@@ -111,6 +113,8 @@ int main(int argc, char **argv) {
 
     list_free(monitors, (void (*)(void *))monitor_free);
     list_free(fans, (void (*)(void *))fan_free);
+
+    */
 
     return 0;
 }

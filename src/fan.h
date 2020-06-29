@@ -91,7 +91,7 @@ t_node *fans_load(const t_settings *settings);
  * @param[in]      mode  Mode to which should fans be set. 
  * @return int 0 if at least one setting of fan failed, 1 on success.
  */
-int fans_set_mode(t_node *fans, const enum fan_mode mode);
+int fans_set_mode(t_node *fans, int mode);
 
 /**
  * @brief Sets speed of given fan.
