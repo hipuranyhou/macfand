@@ -34,11 +34,10 @@ typedef struct control {
  * Calculates new fan speed based on temperatures stored in control which will be fan->min if current temperature is 
  * under settings->temp_low, fan->max if current temperature is over settings->temp_max, or one of
  * (fan->min + fan->step * steps) and (fan->max - fan->step * steps) if fans need to cool more or less, respectively.
- * @param[in]      settings  Pointer to struct holding macfand settings.
  * @param[in,out]  control   Pointer to struct holding control values.
  * @param[in]      fan       Pointer to current adjusted fan.
  */
-static void control_calculate_speed(const t_settings *settings, t_control *control, const t_fan *fan);
+static void control_calculate_speed(t_control *control, const t_fan *fan);
 
 /**
  * @brief Adjusts temperatures in control.
@@ -54,10 +53,9 @@ static void control_set_temps(t_control *control, const t_node *monitors);
  * Starts infinite loop which loads temperatures using control_set_temps(), calculates and sets new speed of every fan
  * in fans using control_calculate_speed() and fan_set_speed(). Does this every settings->time_poll. In case
  * registered signal is catched, returns.
- * @param[in]      settings  Pointer to struct holding macfand settings.
  * @param[in,out]  fans      Pointer to head of linked list of system fans.
  * @param[in]      monitors  Pointer to head of linked list of temperature monitors.
  */
-void control_start(const t_settings *settings, t_node *fans, const t_node *monitors);
+void control_start(t_node *fans, const t_node *monitors);
 
 #endif //MACFAND_CONTROL_H_fsdfdsfsdf

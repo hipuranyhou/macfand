@@ -192,6 +192,23 @@ int monitors_get_temp(const t_node *monitors) {
 }
 
 
+int monitors_get_max_temp(const t_node *monitors) {
+    int temp_max = 0;
+    t_monitor *monitor = NULL;
+
+    if (!monitors)
+        return -1;
+
+    while (monitors) {
+        monitor = monitors->data;
+        temp_max = (temp_max > monitor->temp_max) ? temp_max : monitor->temp_max;
+        monitors = monitors->next;
+    }
+
+    return temp_max;
+}
+
+
 void monitor_free(t_monitor *monitor) {
     if (!monitor)
         return;

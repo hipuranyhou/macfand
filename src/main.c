@@ -37,25 +37,28 @@ static struct argp_option options[] = {
 
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state) { 
-    t_settings *settings = state->input;
+    int tmp = 0;
     switch(key) {
         case 'd':
-            settings->daemon = 1;
+            settings_set_value(SET_DAEMON, 1);
             break;
         case 'p':
-            if (!get_int_from_string(arg, &(settings->time_poll)) || settings->time_poll < 1)
+            if (!get_int_from_string(arg, &tmp) || tmp < 1)
                 argp_failure(state, 1, 0, "Poll time is invalid!");
+            settings_set_value(SET_TIME_POLL, 1);
             break;
         case 'l':
-            if (!get_int_from_string(arg, &(settings->temp_low)) || settings->temp_low < 1)
+            if (!get_int_from_string(arg, &tmp) || tmp < 1)
                 argp_failure(state, 1, 0, "Low temp is invalid!");
+            settings_set_value(SET_TEMP_LOW, 1);
             break;
         case 'h':
-            if (!get_int_from_string(arg, &(settings->temp_high)) || settings->temp_high < 30)
+            if (!get_int_from_string(arg, &tmp) || tmp < 30)
                 argp_failure(state, 1, 0, "High temp is invalid!");
+            settings_set_value(SET_TEMP_HIGH, 1);
             break;
         case 'v':
-            settings->verbose = 1;
+            settings_set_value(SET_VERBOSE, 1);
             break;
     }
     return 0;
@@ -66,17 +69,14 @@ static struct argp argp = {options, parse_opt, 0, 0};
 
 
 int main(int argc, char **argv) {
-    t_settings settings;
     t_node *monitors = NULL, *fans = NULL;
-
-    settings_load_defaults(&settings);
 
     logger_set_type(LOG_T_SYS, NULL);
 
     // Argp leaking memory on failure?
-    argp_parse(&argp, argc, argv, 0, 0, &settings);
+    argp_parse(&argp, argc, argv, 0, 0, 0);
 
-    if (settings.daemon)
+    if (settings_get_value(SET_DAEMON))
         daemonize();
 
     monitors = monitors_load();
@@ -85,9 +85,10 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    settings_set_max_temp(&settings, monitors);
+    if (!settings_set_value(SET_TEMP_MAX, monitors_get_max_temp(monitors)) && settings_get_value(SET_VERBOSE))
+        logger_log(LOG_L_WARN, "%s", "Using default max temperature value 84");
 
-    fans = fans_load(&settings);
+    fans = fans_load();
     if (!fans) {
         list_free(monitors, (void (*)(void *))monitor_free);
         logger_log(LOG_L_ERROR, "%s", "Unable to load system fans");
@@ -104,7 +105,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    control_start(&settings, fans, monitors);
+    control_start(fans, monitors);
 
     if (!fans_set_mode(fans, FAN_AUTO))
         logger_log(LOG_L_ERROR, "%s", "Unable to reset fans to automatic mode");

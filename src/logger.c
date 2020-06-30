@@ -22,12 +22,13 @@
 #define LOGGER_DATE_LENGTH 16
 
 
+// Default logger settings
 static struct {
     int type;
     FILE *log_file;
 } logger = {
-    LOG_T_STD,
-    NULL
+    .type = LOG_T_STD,
+    .log_file = NULL
 };
 
 
@@ -40,7 +41,7 @@ static const char* logger_level_strings[4] = {
 
 
 // TODO: what to use when unknown level
-static const int logger_syslog_level[4] = {
+static const int logger_level_syslog[4] = {
     LOG_ERR,
     LOG_WARNING,
     LOG_INFO,
@@ -84,6 +85,7 @@ static void logger_print_std(int level, char *full_string) {
 
 
 static void logger_print_file(char *full_string) {
+    // Here, as logger, we cannot really do much with I/O errors
     fprintf(logger.log_file, "%s\n", (full_string) ? full_string : "ERROR LOGGING MESSAGE");
     fflush(logger.log_file);
 }
@@ -148,7 +150,7 @@ void logger_log(int level, const char *format, ...) {
         level = LOG_L_ERROR;
 
     if (logger.type == LOG_T_SYS) {
-        vsyslog(logger_syslog_level[level], format, ap);
+        vsyslog(logger_level_syslog[level], format, ap);
         va_end(ap);
         return;
     }

@@ -13,32 +13,33 @@
 #include "linked.h"
 
 /**
- * @brief Holds macfand settings values.
- * Used to hold macfand settings, all temperatures used for calculating fan adjust (low, high, max), 
- * main control loop poll time and if macfand should run in daemon and verbose mode.
+ * @brief 
+ * 
  */
-typedef struct settings {
-    int temp_low;
-    int temp_high;
-    int temp_max;
-    int time_poll;
-    int daemon;
-    int verbose;
-} t_settings;
+enum setting {
+    SET_TEMP_LOW,
+    SET_TEMP_HIGH,
+    SET_TEMP_MAX,
+    SET_TIME_POLL,
+    SET_DAEMON,
+    SET_VERBOSE
+};
 
 /**
- * @brief Sets default macfand settings.
- * Sets default macfand settings.
- * @param[out]  settings  Pointer to struct holding macfand settings.
+ * @brief
+ * 
+ * @param setting 
+ * @return int 
  */
-void settings_load_defaults(t_settings *settings);
+int settings_get_value(int setting);
 
 /**
- * @brief Sets settings->temp_max.
- * Sets settings->temp_max based on highest value got from temperature monitors (monitor->temp_max).
- * @param[out]  settings  Pointer to struct holding macfand settings.
- * @param[in]   monitors  Pointer to head of linked list of temperature monitors.
+ * @brief
+ * 
+ * @param setting 
+ * @param value 
+ * @return int 
  */
-void settings_set_max_temp(t_settings *settings, const t_node *monitors);
+int settings_set_value(int setting, int value);
 
 #endif //MACFAND_SETTINGS_H_jkdhfasjkf

@@ -13,6 +13,7 @@
 #include "fan.h"
 #include "helper.h"
 #include "logger.h"
+#include "settings.h"
 
 #define FAN_PATH_BASE "/sys/devices/platform/applesmc.768/fan"
 #define FAN_PATH_WRITE "_output"
@@ -85,15 +86,15 @@ static int fan_load_speed(t_fan *fan, int *destination, const char *speed) {
 }
 
 
-static int fan_load_defaults(const t_settings *settings, t_fan *fan) {
-    if (!fan || !settings)
+static int fan_load_defaults(t_fan *fan) {
+    if (!fan)
         return 0;
 
     if (!fan_load_speed(fan, &(fan->min), FAN_PATH_MIN) || !fan_load_speed(fan, &(fan->max), FAN_PATH_MAX))
         return 0;
 
     // Calculate size of one unit of fan speed change
-    fan->step = (fan->max - fan->min) / ((settings->temp_max - settings->temp_high) * (settings->temp_max - settings->temp_high + 1) / 2);
+    fan->step = (fan->max - fan->min) / ((settings_get_value(SET_TEMP_MAX) - settings_get_value(SET_TEMP_HIGH)) * (settings_get_value(SET_TEMP_MAX) - settings_get_value(SET_TEMP_HIGH) + 1) / 2);
 
     fan->path_write = concatenate_format(FAN_PATH_FORMAT, FAN_PATH_BASE, fan->id, FAN_PATH_WRITE);
     if (!fan->path_write)
@@ -129,13 +130,10 @@ static int fan_id_exists(const int id_fan) {
 }
 
 
-t_node *fans_load(const t_settings *settings) {
+t_node *fans_load(void) {
     int id_fan = 0, fan_exists = 0;
     t_fan *fan = NULL;
     t_node *fans = NULL;
-
-    if (!settings)
-        return NULL;
 
     fan = (t_fan *)malloc(sizeof(*fan));
     if (!fan)
@@ -151,7 +149,7 @@ t_node *fans_load(const t_settings *settings) {
             break;
 
         if (fan_exists == -1                            ||
-            !fan_load_defaults(settings, fan)           ||
+            !fan_load_defaults(fan)                     ||
             !list_push_front(&fans, fan, sizeof(*fan)))
         {
             list_free(fans, (void (*)(void *))fan_free);

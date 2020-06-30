@@ -78,6 +78,14 @@ t_node *monitors_load(void);
 int monitors_get_temp(const t_node *monitors);
 
 /**
+ * @brief 
+ * 
+ * @param monitors 
+ * @return int 
+ */
+int monitors_get_max_temp(const t_node *monitors);
+
+/**
  * @brief Frees memory for given monitor.
  * Calls free() on members of monitor if they are not NULL.
  * @param[in] monitor  Pointer to temperature monitor.

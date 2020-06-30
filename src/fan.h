@@ -60,11 +60,10 @@ static int fan_load_speed(t_fan *fan, int *destination, const char *speed);
  * @brief Loads default values for given fan.
  * Loads max and min speed of given fan, calculates its step size based on these values, constructs its
  * writing and mode settings paths and finally loads its label.
- * @param[in]     settings  Pointer to struct holding macfand settings.
  * @param[in,out] fans      Pointer to head of linked list of system fans.
  * @return int 0 on error, 1 on success.
  */
-static int fan_load_defaults(const t_settings *settings, t_fan *fan);
+static int fan_load_defaults(t_fan *fan);
 
 /**
  * @brief Check if fan exists.
@@ -79,10 +78,9 @@ static int fan_id_exists(const int id_fan);
  * Constructs generic linked list of unlimited number of system fans. For each fan sets its id, current speed to 0,
  * from appropriate system files loads its label, min and max speed. Based on these values calculates step size
  * of speed adjust for given fan and constructs its write and mode setting path.
- * @param[in]  settings  Pointer to struct holding macfand settings.
  * @return t_node* NULL on error, pointer to head of generic linked list of system fans otherwise.
  */
-t_node *fans_load(const t_settings *settings);
+t_node *fans_load(void);
 
 /**
  * @brief Sets mode of all system fans.
