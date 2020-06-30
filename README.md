@@ -93,7 +93,7 @@ Use to enable verbose mode producing a lot of output. Not recommended when using
 #### Poll time
 `--poll=NUM` or `-p NUM`
 
-Use to set how often temperature is checked and fans are adjusted. **Must be a whole number bigger >= 1.**
+Use to set how often temperature is checked and fans are adjusted. **Must be a whole number >= 1.**
 
 #### Low temp
 `--low=NUM` or `-l NUM`
