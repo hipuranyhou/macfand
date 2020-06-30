@@ -126,7 +126,7 @@ static int fan_load_defaults(t_fan *fan) {
         return 0;
 
     if (!fan_load_speed(fan, &(fan->min), FAN_PATH_MIN) || !fan_load_speed(fan, &(fan->max), FAN_PATH_MAX)) {
-        logger_log(LOG_L_ERROR, "%s %d", "Unable to load max or min speed of fan", fan->id);
+        logger_log(LOG_L_DEBUG, "%s %d", "Unable to load max or min speed of fan", fan->id);
         return 0;
     }
 
@@ -142,7 +142,7 @@ static int fan_load_defaults(t_fan *fan) {
         return 0;
 
     if (!fan_load_label(fan)) {
-        logger_log(LOG_L_ERROR, "%s %d", "Unable to load label of fan", fan->id);
+        logger_log(LOG_L_DEBUG, "%s %d", "Unable to load label of fan", fan->id);
         return 0;
     }
 

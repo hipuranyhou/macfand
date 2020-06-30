@@ -125,7 +125,7 @@ static int monitor_load_defaults(t_monitor *monitor) {
         return 0;
 
     if (!monitor_load_max_temp(monitor)) {
-        logger_log(LOG_L_ERROR, "%s %d (hwmon%d)", "Unable to load max temperature of monitor", monitor->id, monitor->id_hw);
+        logger_log(LOG_L_DEBUG, "%s %d (hwmon%d)", "Unable to load max temperature of monitor", monitor->id, monitor->id_hw);
         return 0;
     }
 
@@ -134,7 +134,7 @@ static int monitor_load_defaults(t_monitor *monitor) {
         return 0;
 
     if (!monitor_load_label(monitor)) {
-        logger_log(LOG_L_ERROR, "%s %d (hwmon%d)", "Unable to load label of monitor", monitor->id, monitor->id_hw);
+        logger_log(LOG_L_DEBUG, "%s %d (hwmon%d)", "Unable to load label of monitor", monitor->id, monitor->id_hw);
         return 0;
     }
 
@@ -229,7 +229,7 @@ int monitors_get_temp(const t_node *monitors) {
 
     // If failed to load at least one temperature, crank up the fans
     if (temp == 0) {
-        logger_log(LOG_L_ERROR, "%s", "Unable to get current system temperature, using 100°C");
+        logger_log(LOG_L_DEBUG, "%s", "Unable to get current system temperature, using 100°C");
         return settings_get_value(SET_TEMP_MAX);
     }
 

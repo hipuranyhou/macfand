@@ -102,7 +102,7 @@ void control_start(t_node *fans, const t_node *monitors) {
             fan = fans->data;
             control_calculate_speed(&control, fan);
             if (!fan_set_speed(fan, control.speed))
-                logger_log(LOG_L_ERROR, "%s %d", "Unable to set speed of fan", fan->id);
+                logger_log(LOG_L_DEBUG, "%s %d", "Unable to set speed of fan", fan->id);
             fans = fans->next;
         }
         // Wait

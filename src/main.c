@@ -71,7 +71,7 @@ static struct argp argp = {options, parse_opt, 0, 0};
 int main(int argc, char **argv) {
     t_node *monitors = NULL, *fans = NULL;
 
-    //logger_set_type(LOG_T_SYS, NULL);
+    logger_set_type(LOG_T_SYS, NULL);
 
     // Argp leaking memory on failure?
     argp_parse(&argp, argc, argv, 0, 0, 0);

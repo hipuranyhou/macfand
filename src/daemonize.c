@@ -105,10 +105,10 @@ void daemonize(void) {
     // Write PID file
     pid_file = fopen("/run/macfand.pid", "w+");
     if (!pid_file) {
-        logger_log(LOG_L_ERROR, "%s", "Unable to open PID file");
+        logger_log(LOG_L_DEBUG, "%s", "Unable to open PID file");
         return;
     }
     if (fprintf(pid_file, "%d\n", getpid()) == EOF)
-        logger_log(LOG_L_ERROR, "%s", "Unable to write PID file");
+        logger_log(LOG_L_DEBUG, "%s", "Unable to write PID file");
     fclose(pid_file);
 }
