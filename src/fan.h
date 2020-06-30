@@ -59,7 +59,7 @@ static int fan_load_speed(t_fan *fan, int *destination, const char *speed);
 /**
  * @brief Loads default values for given fan.
  * Loads max and min speed of given fan, calculates its step size based on these values, constructs its
- * writing and mode settings paths and finally loads its label.
+ * writing and mode setting paths and finally loads its label.
  * @param[in,out] fans      Pointer to head of linked list of system fans.
  * @return int 0 on error, 1 on success.
  */
