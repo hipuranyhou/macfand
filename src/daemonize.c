@@ -88,9 +88,6 @@ void daemonize(void) {
     for (fd = sysconf(_SC_OPEN_MAX); fd >= 0; fd--)
         close(fd);
 
-    // Open the log file
-    openlog("macfand", LOG_PID, LOG_DAEMON);
-
     // Write PID file
     pid_file = fopen("/run/macfand.pid", "w+");
     if (pid_file == NULL) {

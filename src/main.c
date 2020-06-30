@@ -29,8 +29,8 @@ const char *argp_program_version = "macfand - version 0.1";
 static struct argp_option options[] = { 
     {"daemon", 'd', 0, 0, "Run in daemon mode"},
     {"poll", 'p', "NUM", 0, "Set poll time in seconds (whole number bigger than 0)"},
-    {"low", 'l', "NUM", 0, "Set temperature under which fans run on min speed (whole number 55 < NUM)"},
-    {"high", 'h', "NUM", 0, "Set temperature used for determining the aggresivity of speed adjustment (whole number 55 < NUM)"},
+    {"low", 'l', "NUM", 0, "Set temperature under which fans run on min speed (whole number bigger than 0)"},
+    {"high", 'h', "NUM", 0, "Set temperature used for determining the aggresivity of speed adjustment (whole number bigger than 29"},
     {"verbose", 'v', 0, 0, "Enables verbose mode. Not allowed in daemon mode!"},
     {0}
 };
@@ -71,9 +71,7 @@ int main(int argc, char **argv) {
 
     settings_load_defaults(&settings);
 
-    logger_log(LOG_L_ERROR, "%s %d - %s", "Unable to set speed of fan", 2, "left side");
-
-    /*
+    logger_set_type(LOG_T_FILE, "macfand.log");
 
     // Argp leaking memory on failure?
     argp_parse(&argp, argc, argv, 0, 0, &settings);
@@ -83,7 +81,7 @@ int main(int argc, char **argv) {
 
     monitors = monitors_load();
     if (monitors == NULL) {
-        fprintf(stderr, "%s\n", "Error encountered while loading temperature monitors!");
+        logger_log(LOG_L_ERROR, "%s", "Unable to load system temperature monitors");
         return 1;
     }
 
@@ -92,7 +90,7 @@ int main(int argc, char **argv) {
     fans = fans_load(&settings);
     if (fans == NULL) {
         list_free(monitors, (void (*)(void *))monitor_free);
-        fprintf(stderr, "%s\n", "Error encountered while loading fans!");
+        logger_log(LOG_L_ERROR, "%s", "Unable to load system fans");
         return 1;
     }
 
@@ -102,19 +100,19 @@ int main(int argc, char **argv) {
         fans_set_mode(fans, FAN_AUTO);
         list_free(monitors, (void (*)(void *))monitor_free);
         list_free(fans, (void (*)(void *))fan_free);
-        fprintf(stderr, "%s\n", "Error encountered while setting fans to manual mode!");
+        logger_log(LOG_L_ERROR, "%s", "Unable to set fans to manual mode");
         return 1;
     }
 
     control_start(&settings, fans, monitors);
 
-    // TODO: log error
-    fans_set_mode(fans, FAN_AUTO);
+    if (!fans_set_mode(fans, FAN_AUTO))
+        logger_log(LOG_L_ERROR, "%s", "Unable to reset fans to automatic mode");
 
     list_free(monitors, (void (*)(void *))monitor_free);
     list_free(fans, (void (*)(void *))fan_free);
 
-    */
+    logger_exit();
 
     return 0;
 }

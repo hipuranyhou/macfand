@@ -28,8 +28,7 @@ enum log_level {
     LOG_L_ERROR,
     LOG_L_WARN,
     LOG_L_INFO,
-    LOG_L_DEBUG,
-    LOG_L_UNKNOWN
+    LOG_L_DEBUG
 };
 
 /**
@@ -38,6 +37,45 @@ enum log_level {
  * @return char* 
  */
 static int logger_get_time(int destination_size, char *destination);
+
+/**
+ * @brief 
+ * 
+ * @param type 
+ * @return int 
+ */ 
+int logger_set_type(int type, char *file_path);
+
+/**
+ * @brief 
+ * 
+ */
+void logger_exit(void);
+
+/**
+ * @brief 
+ * 
+ * @param level 
+ * @param full_string 
+ */
+static void logger_print_std(int level, char *full_string);
+
+/**
+ * @brief 
+ * 
+ * @param full_string 
+ */
+static void logger_print_file(char *full_string);
+
+/**
+ * @brief 
+ * 
+ * @param level 
+ * @param format 
+ * @param ap 
+ * @return char* 
+ */
+static char* logger_construct_full_string(int level, const char *format, va_list ap);
 
 /**
  * @brief 
