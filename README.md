@@ -62,7 +62,9 @@ You can uninstall macfand by running
 
 from inside of the cloned directory if you did not change the executable name.
 
-## Configuration
+## Configuration file
+
+*Will be added*
 
 No configuration file is currently used. All configuration is done using command line options.
 
@@ -83,20 +85,28 @@ Use to get quick info about available options.
 
 Use to run macfand as daemon. In daemon mode, syslog is used for all messages (stdout and stderr otherwise) and pid file is located at `/run/macfand.pid`.
 
+#### Verbose
+`--verbose` or `-v`
+
+Use to enable verbose mode producing a lot of output. Not recommended when using syslog.
+
 #### Poll time
 `--poll=NUM` or `-p NUM`
 
-Use to set how often temperature is checked and fans are adjusted. **Must be whole number bigger than 0.**
+Use to set how often temperature is checked and fans are adjusted. **Must be a whole number bigger >= 1.**
 
 #### Low temp
 `--low=NUM` or `-l NUM`
 
-Use to set temperature under which fans run on min speed. **Must be a whole number bigger than 0.**
+Use to set temperature under which fans run on min speed. **Must be a whole number >= 1.**
 
 #### High temp
 `--high=NUM` or `-h NUM`
 
-Use to set temperature over which fans will start to slowly ramp up. **Must be a whole number bigger than 29.**
+Use to set temperature over which fans will start to slowly ramp up. **Must be a whole number >= 30.**
 
-#### Verbose
-*Verbose mode will be added.*
+#### Log type
+`--type=NUM/PATH` or `-t NUM/PATH`
+
+Use to set logger to be used. 0 for std, 1 for syslog. Any other value will be used as log file
+path and logging to this file will be used.
