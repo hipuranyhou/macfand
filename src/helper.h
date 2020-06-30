@@ -13,20 +13,20 @@
 #include <stdarg.h>
 
 /**
- * @brief 
- * 
- * @param format 
- * @param ap 
- * @return char* 
+ * @brief Concatenates values into a string
+ * Concatenates values in ap into a string with given format. Allocates memory which has to be freed by caller.
+ * @param[in]  format  Format of constructed string
+ * @param[in]  ap      Values to be concatenated into a string
+ * @return char* NULL on error, pointer to concatenated string otherwise (has to be freed!)
  */
 char* concatenate_format_v(const char* format, va_list ap);
 
 /**
- * @brief 
- * 
- * @param format 
- * @param ... 
- * @return char* 
+ * @brief Wrapper for concatenate_format_v()
+ * Wrapper for concatenate_format_v()
+ * @param[in]  format  Format of constructed string
+ * @param[in]  ...     Values to be concatenated into a string
+ * @return char* NULL on error, pointer to concatenated string otherwise (has to be freed!)
  */
 char* concatenate_format(const char* format, ...);
 
