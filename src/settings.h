@@ -13,8 +13,9 @@
 #include "linked.h"
 
 /**
- * @brief 
- * 
+ * @brief Enum holding all available settings.
+ * Enum holding all available settings, which are temperatures low, high and max. Poll time of fan adjust and
+ * daemon and verbose modes.
  */
 enum setting {
     SET_TEMP_LOW,
@@ -26,19 +27,19 @@ enum setting {
 };
 
 /**
- * @brief
- * 
- * @param setting 
- * @return int 
+ * @brief Gets setting value.
+ * Gets value of given setting.
+ * @param[in]  setting  Setting which value we want to get (one of enum setting).
+ * @return int -1 on error, value of given settings otherwise.
  */
 int settings_get_value(int setting);
 
 /**
- * @brief
- * 
- * @param setting 
- * @param value 
- * @return int 
+ * @brief Sets setting value.
+ * Sets value of given setting to value given in value.
+ * @param[in]  setting  Setting which value we want to get (one of enum setting).
+ * @param[in]  value    Value to be set (value >= 0)
+ * @return int 0 on error, 1 on success.
  */
 int settings_set_value(int setting, int value);
 

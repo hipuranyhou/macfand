@@ -78,10 +78,11 @@ t_node *monitors_load(void);
 int monitors_get_temp(const t_node *monitors);
 
 /**
- * @brief 
- * 
- * @param monitors 
- * @return int 
+ * @brief Gets the system max allowed temperature
+ * Gets the system max allowed temperature which is the lowest value of monitor.temp_max amongst all
+ * system temperature monitors.
+ * @param[in]  monitors   Pointer to head of linked list of temperature monitors.
+ * @return int -1 on error, system max temperature otherwise.
  */
 int monitors_get_max_temp(const t_node *monitors);
 
