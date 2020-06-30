@@ -10,6 +10,8 @@
 #ifndef MACFAND_LOGGER_H_lfakfjakjl
 #define MACFAND_LOGGER_H_lfakfjakjl
 
+#include <stdarg.h>
+
 /**
  * @brief 
  * 
