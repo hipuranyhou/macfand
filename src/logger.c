@@ -16,6 +16,7 @@
 
 #include "logger.h"
 #include "helper.h"
+#include "settings.h"
 
 #define LOGGER_DATE_FORMAT "%b %d %H:%M:%S"
 #define LOGGER_DATE_LENGTH 16
@@ -155,6 +156,10 @@ int logger_set_type(int type, char* file_path) {
 void logger_log(int level, const char *format, ...) {
     va_list ap;
     char *full_string = NULL;
+
+    // We log only errors when not in verbose mode
+    if (level != LOG_L_ERROR && !settings_get_value(SET_VERBOSE))
+        return;
 
     va_start(ap, format);
 

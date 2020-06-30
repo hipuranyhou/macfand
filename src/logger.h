@@ -81,7 +81,8 @@ int logger_set_type(int type, char *file_path);
 /**
  * @brief Logs event.
  * Constructs full logged string including time and level string and passes it 
- * to the chosen logger (std, file or syslog).
+ * to the chosen logger (std, file or syslog). When we are not in verbose mode, we
+ * log only errors, nothing else.
  * @param[in]  level   Level of message priority (one of enum log_level).
  * @param[in]  format  Format of constructed message.
  * @param[in]  ...     Values to be concatenated into a message.
