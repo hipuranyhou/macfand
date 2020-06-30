@@ -12,6 +12,7 @@
 
 #include "linked.h"
 
+
 int list_push_front(t_node **head, const void *data, const size_t data_size) {
     t_node *new_node = (t_node*)malloc(sizeof(*new_node));
     if (!new_node)
@@ -30,6 +31,7 @@ int list_push_front(t_node **head, const void *data, const size_t data_size) {
     return 1;
 }
 
+
 void list_free(t_node *head, void (*node_free)(void *)) {
     t_node *next = NULL;
     while (head) {
@@ -39,6 +41,7 @@ void list_free(t_node *head, void (*node_free)(void *)) {
         head = next;
     }
 }
+
 
 void list_print(const t_node *head, void (*node_print)(const void *)) {
     while (head) {

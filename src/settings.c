@@ -12,6 +12,7 @@
 #include "settings.h"
 #include "monitor.h"
 
+
 void settings_load_defaults(t_settings *settings) {
     settings->temp_low = 63;
     settings->temp_high = 66;
@@ -20,6 +21,7 @@ void settings_load_defaults(t_settings *settings) {
     settings->daemon = 0;
     settings->verbose = 0;
 }
+
 
 void settings_set_max_temp(t_settings *settings, const t_node *monitors) {
     t_monitor *monitor = NULL;

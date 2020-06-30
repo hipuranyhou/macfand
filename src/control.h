@@ -38,7 +38,7 @@ typedef struct control {
  * @param[in,out]  control   Pointer to struct holding control values.
  * @param[in]      fan       Pointer to current adjusted fan.
  */
-void control_calculate_speed(const t_settings *settings, t_control *control, const t_fan *fan);
+static void control_calculate_speed(const t_settings *settings, t_control *control, const t_fan *fan);
 
 /**
  * @brief Adjusts temperatures in control.
@@ -47,7 +47,7 @@ void control_calculate_speed(const t_settings *settings, t_control *control, con
  * @param[in,out]  control   Pointer to struct holding control values.
  * @param[in]      monitors  Pointer to head of linked list of temperature monitors.
  */
-void control_set_temps(t_control *control, const t_node *monitors);
+static void control_set_temps(t_control *control, const t_node *monitors);
 
 /**
  * @brief Infinite loop adjusting fan speed based on current temperature.

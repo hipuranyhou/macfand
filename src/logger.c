@@ -68,41 +68,6 @@ static int logger_get_time(int destination_size, char *destination) {
 }
 
 
-int logger_set_type(int type, char* file_path) {
-    if (type < LOG_T_STD || type > LOG_T_FILE)
-        return 0;
-
-    // Setup log file
-    if (type == LOG_T_FILE) {
-        if (file_path == NULL)
-            return 0;
-        if (logger.log_file)
-            fclose(logger.log_file);
-        logger.log_file = fopen(file_path, "a");
-        if (!logger.log_file)
-            return 0;
-    }
-
-    // Setup syslog
-    if (type == LOG_T_SYS && logger.type != LOG_T_SYS)
-        openlog("macfand", LOG_PID, LOG_DAEMON);
-
-    logger.type = type;
-
-    return 1;
-}
-
-
-void logger_exit(void) {
-    logger_log(LOG_L_INFO, "%s", "Shutting down");
-    // Here, as logger, we cannot really do much with I/O errors
-    if (logger.log_file)
-        fclose(logger.log_file);
-    if (logger.type == LOG_T_SYS)
-        closelog();
-}
-
-
 static void logger_print_std(int level, char *full_string) {
     // Here, as logger, we cannot really do much with I/O errors
     switch (level) {
@@ -148,6 +113,31 @@ static char* logger_construct_full_string(int level, const char *format, va_list
 }
 
 
+int logger_set_type(int type, char* file_path) {
+    if (type < LOG_T_STD || type > LOG_T_FILE)
+        return 0;
+
+    // Setup log file
+    if (type == LOG_T_FILE) {
+        if (file_path == NULL)
+            return 0;
+        if (logger.log_file)
+            fclose(logger.log_file);
+        logger.log_file = fopen(file_path, "a");
+        if (!logger.log_file)
+            return 0;
+    }
+
+    // Setup syslog
+    if (type == LOG_T_SYS && logger.type != LOG_T_SYS)
+        openlog("macfand", LOG_PID, LOG_DAEMON);
+
+    logger.type = type;
+
+    return 1;
+}
+
+
 void logger_log(int level, const char *format, ...) {
     va_list ap;
     char *full_string = NULL;
@@ -177,4 +167,14 @@ void logger_log(int level, const char *format, ...) {
 
     if (full_string)
         free(full_string);
+}
+
+
+void logger_exit(void) {
+    logger_log(LOG_L_INFO, "%s", "Shutting down");
+    // Here, as logger, we cannot really do much with I/O errors
+    if (logger.log_file)
+        fclose(logger.log_file);
+    if (logger.type == LOG_T_SYS)
+        closelog();
 }

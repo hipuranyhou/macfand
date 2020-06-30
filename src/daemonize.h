@@ -15,13 +15,13 @@
  * Sets the termination flag to 1 for exiting out of main control loop when signal is catched.
  * @param[in] sig Catched signal number.
  */
-void set_termination_flag(int sig);
+static void set_termination_flag(int sig);
 
 /**
  * @brief Wrapper for all signal() calls;
  * Wrapper for all singal() calls for all signals we want to register.
  */
-void prepare_signals(void);
+static void prepare_signals(void);
 
 /**
  * @brief Daemonizes macfand.

@@ -28,20 +28,23 @@
 #include "daemonize.h"
 #include "logger.h"
 
+
 extern volatile int termination_flag;
 
-void set_termination_flag(int sig) {
-    syslog(LOG_NOTICE, "Resetting fans to automatic mode and terminating mac_fan_control.");
+
+static void set_termination_flag(int sig) {
     termination_flag = 1;
 }
 
-void prepare_signals(void) {
+
+static void prepare_signals(void) {
     // Prepare all signals after which we terminate
     signal(SIGABRT, set_termination_flag);
     signal(SIGINT, set_termination_flag);
     signal(SIGQUIT, set_termination_flag);
     signal(SIGTERM, set_termination_flag);
 }
+
 
 void daemonize(void) {
 

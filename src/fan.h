@@ -44,7 +44,7 @@ enum fan_mode {
  * @param[in,out]  fan  Pointer to fan. 
  * @return int 0 on error, 1 on success.
  */
-int fan_load_label(t_fan *fan);
+static int fan_load_label(t_fan *fan);
 
 /**
  * @brief Loads given speed of fan.
@@ -54,7 +54,7 @@ int fan_load_label(t_fan *fan);
  * @param[in]      speed        Path end of wanted speed (one of FAN_PATH_MAX and FAN_PATH_MIN).
  * @return int 0 on error, 1 on success.
  */ 
-int fan_load_speed(t_fan *fan, int *destination, const char *speed);
+static int fan_load_speed(t_fan *fan, int *destination, const char *speed);
 
 /**
  * @brief Loads default values for given fan.
@@ -64,7 +64,7 @@ int fan_load_speed(t_fan *fan, int *destination, const char *speed);
  * @param[in,out] fans      Pointer to head of linked list of system fans.
  * @return int 0 on error, 1 on success.
  */
-int fan_load_defaults(const t_settings *settings, t_fan *fan);
+static int fan_load_defaults(const t_settings *settings, t_fan *fan);
 
 /**
  * @brief Check if fan exists.
@@ -72,7 +72,7 @@ int fan_load_defaults(const t_settings *settings, t_fan *fan);
  * @param[in]  id_fan  id of wanted fan.
  * @return int -1 on error, 0 if does not exist, 1 if exists.
  */
-int fan_id_exists(const int id_fan);
+static int fan_id_exists(const int id_fan);
 
 /**
  * @brief Constructs linked list of system fans.

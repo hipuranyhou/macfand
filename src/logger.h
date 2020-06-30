@@ -41,20 +41,6 @@ static int logger_get_time(int destination_size, char *destination);
 /**
  * @brief 
  * 
- * @param type 
- * @return int 
- */ 
-int logger_set_type(int type, char *file_path);
-
-/**
- * @brief 
- * 
- */
-void logger_exit(void);
-
-/**
- * @brief 
- * 
  * @param level 
  * @param full_string 
  */
@@ -80,10 +66,24 @@ static char* logger_construct_full_string(int level, const char *format, va_list
 /**
  * @brief 
  * 
+ * @param type 
+ * @return int 
+ */ 
+int logger_set_type(int type, char *file_path);
+
+/**
+ * @brief 
+ * 
  * @param level 
  * @param format 
  * @param ... 
  */
 void logger_log(int level, const char *format, ...);
+
+/**
+ * @brief 
+ * 
+ */
+void logger_exit(void);
 
 #endif //MACFAND_LOGGER_H_lfakfjakjl

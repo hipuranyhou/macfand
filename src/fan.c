@@ -23,7 +23,7 @@
 #define FAN_PATH_FORMAT "%s%d%s"
 
 
-int fan_load_label(t_fan *fan) {
+static int fan_load_label(t_fan *fan) {
     char *fan_path_label = NULL;
     FILE *fan_file_label = NULL;
     int getline_return = 0;
@@ -58,7 +58,7 @@ int fan_load_label(t_fan *fan) {
 }
 
 
-int fan_load_speed(t_fan *fan, int *destination, const char *speed) {
+static int fan_load_speed(t_fan *fan, int *destination, const char *speed) {
     char *fan_path_speed = NULL;
     FILE *fan_file_speed = NULL;
 
@@ -85,7 +85,7 @@ int fan_load_speed(t_fan *fan, int *destination, const char *speed) {
 }
 
 
-int fan_load_defaults(const t_settings *settings, t_fan *fan) {
+static int fan_load_defaults(const t_settings *settings, t_fan *fan) {
     if (!fan || !settings)
         return 0;
 
@@ -110,7 +110,7 @@ int fan_load_defaults(const t_settings *settings, t_fan *fan) {
 }
 
 
-int fan_id_exists(const int id_fan) {
+static int fan_id_exists(const int id_fan) {
     FILE *fan_file_manual = NULL;
     char *fan_path_manual = NULL;
 

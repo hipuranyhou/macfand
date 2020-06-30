@@ -19,7 +19,7 @@
 volatile int termination_flag = 0;
 
 
-void control_calculate_speed(const t_settings *settings, t_control *control, const t_fan *fan) {
+static void control_calculate_speed(const t_settings *settings, t_control *control, const t_fan *fan) {
     control->speed = fan->speed;
 
     // Extremes
@@ -48,7 +48,7 @@ void control_calculate_speed(const t_settings *settings, t_control *control, con
 }
 
 
-void control_set_temps(t_control *control, const t_node *monitors) {
+static void control_set_temps(t_control *control, const t_node *monitors) {
     control->temp_previous = control->temp_current;
     control->temp_current = monitors_get_temp(monitors);
     control->temp_delta = control->temp_current - control->temp_previous;

@@ -21,7 +21,7 @@
 #define MONITOR_PATH_FORMAT "%s%d/temp%d%s" 
 
 
-int monitor_load_label(t_monitor *monitor) {
+static int monitor_load_label(t_monitor *monitor) {
     char *monitor_path_label = NULL;
     FILE *monitor_file_label = NULL;
     int getline_return = 0;
@@ -56,7 +56,7 @@ int monitor_load_label(t_monitor *monitor) {
 }
 
 
-int monitor_load_max_temp(t_monitor *monitor) {
+static int monitor_load_max_temp(t_monitor *monitor) {
     char *monitor_path_max = NULL;
     FILE *monitor_file_max = NULL;
 
@@ -84,7 +84,7 @@ int monitor_load_max_temp(t_monitor *monitor) {
     return 1;
 }
 
-int monitor_load_defaults(t_monitor *monitor) {
+static int monitor_load_defaults(t_monitor *monitor) {
     if (!monitor)
         return 0;
 
@@ -102,7 +102,7 @@ int monitor_load_defaults(t_monitor *monitor) {
 }
 
 
-int monitor_id_exists(const int id_hw, const int id_mon) {
+static int monitor_id_exists(const int id_hw, const int id_mon) {
     FILE *monitor_file_read = NULL;
     char *monitor_path_read = NULL;
 

@@ -32,7 +32,7 @@ typedef struct monitor {
  * @param[in,out]  monitor  Pointer to temperature monitor.
  * @return int 0 on error, 1 on success.
  */
-int monitor_load_label(t_monitor *monitor);
+static int monitor_load_label(t_monitor *monitor);
 
 /**
  * @brief Loads max temperature of monitor.
@@ -40,7 +40,7 @@ int monitor_load_label(t_monitor *monitor);
  * @param[in,out]  monitor  Pointer to temperature monitor.
  * @return int 0 on error, 1 on success.
  */
-int monitor_load_max_temp(t_monitor *monitor);
+static int monitor_load_max_temp(t_monitor *monitor);
 
 /**
  * @brief Loads default values for given monitor.
@@ -48,7 +48,7 @@ int monitor_load_max_temp(t_monitor *monitor);
  * @param[in,out]  monitor  Pointer to temperature monitor.
  * @return int 0 on error, 1 on success.
  */
-int monitor_load_defaults(t_monitor *monitor);
+static int monitor_load_defaults(t_monitor *monitor);
 
 /**
  * @brief Checks if monitor given monitor exists.
@@ -58,7 +58,7 @@ int monitor_load_defaults(t_monitor *monitor);
  * @param[in]  id_mon  id of temperature monitor for given hwmon entry.
  * @return int -1 on error, 0 if does not exist, 1 if exists.
  */
-int monitor_id_exists(const int id_hw, const int id_mon);
+static int monitor_id_exists(const int id_hw, const int id_mon);
 
 /**
  * @brief Constructs linked list of system temperature monitors.

@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
         daemonize();
 
     monitors = monitors_load();
-    if (monitors == NULL) {
+    if (!monitors) {
         logger_log(LOG_L_ERROR, "%s", "Unable to load system temperature monitors");
         return 1;
     }
@@ -88,7 +88,7 @@ int main(int argc, char **argv) {
     settings_set_max_temp(&settings, monitors);
 
     fans = fans_load(&settings);
-    if (fans == NULL) {
+    if (!fans) {
         list_free(monitors, (void (*)(void *))monitor_free);
         logger_log(LOG_L_ERROR, "%s", "Unable to load system fans");
         return 1;
