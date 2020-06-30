@@ -44,7 +44,7 @@ extern volatile int termination_flag;
 
 
 static void set_termination_flag(int sig) {
-    termination_flag = 1;
+    termination_flag = sig;
 }
 
 
