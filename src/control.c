@@ -15,6 +15,27 @@
 #include "helper.h"
 #include "logger.h"
 #include "settings.h"
+#include "fan.h"
+#include "monitor.h"
+
+/**
+ * @brief Calculates new fan speed.
+ * Calculates new fan speed based on temperatures stored in control which will be fan->min if current temperature is 
+ * under settings->temp_low, fan->max if current temperature is over settings->temp_max, or one of
+ * (fan->min + fan->step * steps) and (fan->max - fan->step * steps) if fans need to cool more or less, respectively.
+ * @param[in,out]  control   Pointer to struct holding control values.
+ * @param[in]      fan       Pointer to current adjusted fan.
+ */
+static void control_calculate_speed(t_control *control, const t_fan *fan);
+
+/**
+ * @brief Adjusts temperatures in control.
+ * Sets temp_previous to temp_current, updates temp_current using monitors_get_temp() and calculates temp_delta
+ * based on these two updated values.
+ * @param[in,out]  control   Pointer to struct holding control values.
+ * @param[in]      monitors  Pointer to head of linked list of temperature monitors.
+ */
+static void control_set_temps(t_control *control, const t_node *monitors);
 
 
 volatile int termination_flag = 0;

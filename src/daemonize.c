@@ -26,6 +26,19 @@
 #include "daemonize.h"
 #include "logger.h"
 
+/**
+ * @brief Sets the termination flag.
+ * Sets the termination flag to 1 for exiting out of main control loop when signal is catched.
+ * @param[in] sig Catched signal number.
+ */
+static void set_termination_flag(int sig);
+
+/**
+ * @brief Wrapper for all signal() calls;
+ * Wrapper for all singal() calls for all signals we want to register.
+ */
+static void prepare_signals(void);
+
 
 extern volatile int termination_flag;
 

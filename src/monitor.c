@@ -20,7 +20,41 @@
 #define MONITOR_PATH_READ "_input"
 #define MONITOR_PATH_MAX "_max"
 #define MONITOR_PATH_LABEL "_label"
-#define MONITOR_PATH_FORMAT "%s%d/temp%d%s" 
+#define MONITOR_PATH_FORMAT "%s%d/temp%d%s"
+
+/**
+ * @brief Loads label of monitor.
+ * Loads label of given monitor from appropriate system file.
+ * @param[in,out]  monitor  Pointer to temperature monitor.
+ * @return int 0 on error, 1 on success.
+ */
+static int monitor_load_label(t_monitor *monitor);
+
+/**
+ * @brief Loads max temperature of monitor.
+ * Loads max temperature of given monitor from appropriate system file.
+ * @param[in,out]  monitor  Pointer to temperature monitor.
+ * @return int 0 on error, 1 on success.
+ */
+static int monitor_load_max_temp(t_monitor *monitor);
+
+/**
+ * @brief Loads default values for given monitor.
+ * Loads max temperature and label from appropiate files for given monitor and constructs its reading path.
+ * @param[in,out]  monitor  Pointer to temperature monitor.
+ * @return int 0 on error, 1 on success.
+ */
+static int monitor_load_defaults(t_monitor *monitor);
+
+/**
+ * @brief Checks if monitor given monitor exists.
+ * Check whether monitor with given id for given hwmon entry id exists by trying to opening its 
+ * temperature reading path.
+ * @param[in]  id_hw  hwmon entry id.
+ * @param[in]  id_mon  id of temperature monitor for given hwmon entry.
+ * @return int -1 on error, 0 if does not exist, 1 if exists.
+ */
+static int monitor_id_exists(const int id_hw, const int id_mon);
 
 
 static int monitor_load_label(t_monitor *monitor) {
