@@ -20,10 +20,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
-#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <syslog.h>
 
 #include "daemonize.h"
 #include "logger.h"

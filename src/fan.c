@@ -90,8 +90,10 @@ static int fan_load_defaults(t_fan *fan) {
     if (!fan)
         return 0;
 
-    if (!fan_load_speed(fan, &(fan->min), FAN_PATH_MIN) || !fan_load_speed(fan, &(fan->max), FAN_PATH_MAX))
+    if (!fan_load_speed(fan, &(fan->min), FAN_PATH_MIN) || !fan_load_speed(fan, &(fan->max), FAN_PATH_MAX)) {
+        logger_log(LOG_L_ERROR, "%s %d", "Unable to load max or min speed of fan", fan->id);
         return 0;
+    }
 
     // Calculate size of one unit of fan speed change
     fan->step = (fan->max - fan->min) / ((settings_get_value(SET_TEMP_MAX) - settings_get_value(SET_TEMP_HIGH)) * (settings_get_value(SET_TEMP_MAX) - settings_get_value(SET_TEMP_HIGH) + 1) / 2);
@@ -104,8 +106,10 @@ static int fan_load_defaults(t_fan *fan) {
     if (!fan->path_manual)
         return 0;
 
-    if (!fan_load_label(fan))
+    if (!fan_load_label(fan)) {
+        logger_log(LOG_L_ERROR, "%s %d", "Unable to load label of fan", fan->id);
         return 0;
+    }
 
     return 1;
 }
@@ -175,7 +179,7 @@ int fans_set_mode(t_node *fans, int mode) {
     while (fans) {
         fan = fans->data;
 
-        fan_file_manual = fopen(fan->path_manual, "w");
+        fan_file_manual = fopen(fan->path_manual, "w+");
         if (!fan_file_manual) {
             state = 0;
             fans = fans->next;
@@ -204,7 +208,7 @@ int fan_set_speed(t_fan *fan, const int speed) {
     if (fan->speed == speed)
         return 1;
 
-    fan_file_write = fopen(fan->path_write, "w");
+    fan_file_write = fopen(fan->path_write, "w+");
     if (!fan_file_write)
         return 0;
 

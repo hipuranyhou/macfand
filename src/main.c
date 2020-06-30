@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    if (!settings_set_value(SET_TEMP_MAX, monitors_get_max_temp(monitors)) && settings_get_value(SET_VERBOSE))
+    if (!settings_set_value(SET_TEMP_MAX, monitors_get_max_temp(monitors)))
         logger_log(LOG_L_WARN, "%s", "Using default max temperature value 84");
 
     fans = fans_load();

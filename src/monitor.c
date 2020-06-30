@@ -13,6 +13,8 @@
 
 #include "monitor.h"
 #include "helper.h"
+#include "settings.h"
+#include "logger.h"
 
 #define MONITOR_PATH_BASE "/sys/devices/platform/coretemp.0/hwmon/hwmon"
 #define MONITOR_PATH_READ "_input"
@@ -88,15 +90,19 @@ static int monitor_load_defaults(t_monitor *monitor) {
     if (!monitor)
         return 0;
 
-    if (!monitor_load_max_temp(monitor))
+    if (!monitor_load_max_temp(monitor)) {
+        logger_log(LOG_L_ERROR, "%s %d (hwmon%d)", "Unable to load max temperature of monitor", monitor->id, monitor->id_hw);
         return 0;
+    }
 
     monitor->path_read = concatenate_format(MONITOR_PATH_FORMAT, MONITOR_PATH_BASE, monitor->id_hw, monitor->id, MONITOR_PATH_READ);
     if (!monitor->path_read)
         return 0;
 
-    if (!monitor_load_label(monitor))
+    if (!monitor_load_label(monitor)) {
+        logger_log(LOG_L_ERROR, "%s %d (hwmon%d)", "Unable to load label of monitor", monitor->id, monitor->id_hw);
         return 0;
+    }
 
     return 1;
 }
@@ -187,8 +193,13 @@ int monitors_get_temp(const t_node *monitors) {
         monitors = monitors->next;
     }
 
-    // Return 100 if failed to load at least one temperature to crank up the fans
-    return (temp == 0) ? 100 : (temp / 1000);
+    // If failed to load at least one temperature, crank up the fans
+    if (temp == 0) {
+        logger_log(LOG_L_ERROR, "%s", "Unable to get current system temperature, using 100°C");
+        return settings_get_value(SET_TEMP_MAX);
+    }
+
+    return (temp / 1000);
 }
 
 
