@@ -110,7 +110,7 @@ int main(int argc, char **argv) {
     // Procedure after termination signal catched
     list_free(monitors, (void (*)(void *))monitor_free);
 
-    if (!fans_set_mode(fans, FAN_AUTO) {
+    if (!fans_set_mode(fans, FAN_AUTO)) {
         logger_log(LOG_L_ERROR, "%s", "Unable to reset fans to automatic mode");
         list_free(fans, (void (*)(void *))fan_free);
         logger_exit();
