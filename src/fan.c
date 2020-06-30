@@ -12,6 +12,7 @@
 
 #include "fan.h"
 #include "helper.h"
+#include "logger.h"
 
 #define FAN_PATH_BASE "/sys/devices/platform/applesmc.768/fan"
 #define FAN_PATH_WRITE "_output"

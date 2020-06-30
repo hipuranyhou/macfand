@@ -26,6 +26,7 @@
 #include <syslog.h>
 
 #include "daemonize.h"
+#include "logger.h"
 
 extern volatile int termination_flag;
 
@@ -90,11 +91,11 @@ void daemonize(void) {
 
     // Write PID file
     pid_file = fopen("/run/macfand.pid", "w+");
-    if (pid_file == NULL) {
-        syslog(LOG_ERR, "Unable to open pid file.");
+    if (!pid_file) {
+        logger_log(LOG_L_ERROR, "%s", "Unable to open PID file");
         return;
     }
     if (fprintf(pid_file, "%d\n", getpid()) == EOF)
-        syslog(LOG_ERR, "Unable to write pid file.");
+        logger_log(LOG_L_ERROR, "%s", "Unable to write PID file");
     fclose(pid_file);
 }

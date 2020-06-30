@@ -13,6 +13,7 @@
 
 #include "control.h"
 #include "helper.h"
+#include "logger.h"
 
 
 volatile int termination_flag = 0;
@@ -79,9 +80,8 @@ void control_start(const t_settings *settings, t_node *fans, const t_node *monit
         while (fans) {
             fan = fans->data;
             control_calculate_speed(settings, &control, fan);
-            // TODO: log error
-            fan_set_speed(fan, control.speed);
-            //printf("Fan %d -> %d (%d)\n", fan->id, fan->speed, control.temp_current);
+            if (!fan_set_speed(fan, control.speed))
+                logger_log(LOG_L_ERROR, "%s %d", "Unable to set speed of fan", fan->id);
             fans = fans->next;
         }
         // Wait
