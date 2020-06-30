@@ -24,7 +24,7 @@ typedef struct node {
 /**
  * @brief Prepends node to given generic linked list.
  * Prepends node to given generic linked list. Regardless of whether head is NULL or not, it will after
- * point to first node of the list.
+ * point to first node of the list. This list has to be freed afterwards with list_free().
  * @param[in,out]  head       Pointer to head of list.
  * @param[in]      data       Data to be saved in data member of node.
  * @param[in]      data_size  Size of data type saved in list.

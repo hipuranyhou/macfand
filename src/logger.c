@@ -118,19 +118,32 @@ int logger_set_type(int type, char* file_path) {
     if (type < LOG_T_STD || type > LOG_T_FILE)
         return 0;
 
+    // Close previous log
+    switch (logger.type) {
+        case LOG_T_FILE:
+            if (logger.log_file) {
+                fclose(logger.log_file);
+                logger.log_file = NULL;
+            }
+            break;
+        case LOG_T_SYS:
+            closelog();
+            break;
+        default:
+            break;
+    }
+
     // Setup log file
     if (type == LOG_T_FILE) {
         if (file_path == NULL)
             return 0;
-        if (logger.log_file)
-            fclose(logger.log_file);
         logger.log_file = fopen(file_path, "a");
         if (!logger.log_file)
             return 0;
     }
 
     // Setup syslog
-    if (type == LOG_T_SYS && logger.type != LOG_T_SYS)
+    if (type == LOG_T_SYS)
         openlog("macfand", LOG_PID, LOG_DAEMON);
 
     logger.type = type;
