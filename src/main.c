@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
 
     settings_load_defaults(&settings);
 
-    logger_set_type(LOG_T_FILE, "macfand.log");
+    logger_set_type(LOG_T_SYS, NULL);
 
     // Argp leaking memory on failure?
     argp_parse(&argp, argc, argv, 0, 0, &settings);
