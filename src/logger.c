@@ -139,7 +139,7 @@ static char* logger_construct_full_string(int level, const char *format, va_list
         return NULL;
 
     // Construct full log message including time, level and message
-    full_string = concatenate_format("%s %-7s: %s", time_buffer, logger_level_strings[level], message);
+    full_string = concatenate_format("[%s] %-7s: %s", time_buffer, logger_level_strings[level], message);
     if (!full_string) {
         free(message);
         return NULL;
