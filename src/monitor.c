@@ -229,7 +229,7 @@ int monitors_get_temp(const t_node *monitors) {
 
     // If failed to load at least one temperature, crank up the fans
     if (temp == 0) {
-        logger_log(LOG_L_DEBUG, "%s", "Unable to get current system temperature, using 100°C");
+        logger_log(LOG_L_WARN, "%s", "Unable to get current system temperature, using 100°C");
         return settings_get_value(SET_TEMP_MAX);
     }
 
