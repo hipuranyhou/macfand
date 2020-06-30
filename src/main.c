@@ -30,8 +30,9 @@ static struct argp_option options[] = {
     {"daemon", 'd', 0, 0, "Run in daemon mode"},
     {"poll", 'p', "NUM", 0, "Set poll time in seconds (whole number bigger than 0)"},
     {"low", 'l', "NUM", 0, "Set temperature under which fans run on min speed (whole number bigger than 0)"},
-    {"high", 'h', "NUM", 0, "Set temperature used for determining the aggresivity of speed adjustment (whole number bigger than 29"},
-    {"verbose", 'v', 0, 0, "Enables verbose mode. Not allowed in daemon mode!"},
+    {"high", 'h', "NUM", 0, "Set temperature used for determining the aggresivity of speed adjustment (whole number bigger than 29)"},
+    {"verbose", 'v', 0, 0, "Enables verbose mode."},
+    {"type", 't', "NUM/PATH", 0, "Sets type of logger used (0 -> std, 1 -> sys, other values taken as log file path)"},
     {0}
 };
 
@@ -44,21 +45,37 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
             break;
         case 'p':
             if (!get_int_from_string(arg, &tmp) || tmp < 1)
-                argp_failure(state, 1, 0, "Poll time is invalid!");
+                argp_failure(state, 1, 0, "Poll time is invalid");
             settings_set_value(SET_TIME_POLL, 1);
             break;
         case 'l':
             if (!get_int_from_string(arg, &tmp) || tmp < 1)
-                argp_failure(state, 1, 0, "Low temp is invalid!");
+                argp_failure(state, 1, 0, "Low temp is invalid");
             settings_set_value(SET_TEMP_LOW, 1);
             break;
         case 'h':
             if (!get_int_from_string(arg, &tmp) || tmp < 30)
-                argp_failure(state, 1, 0, "High temp is invalid!");
+                argp_failure(state, 1, 0, "High temp is invalid");
             settings_set_value(SET_TEMP_HIGH, 1);
             break;
         case 'v':
             settings_set_value(SET_VERBOSE, 1);
+            break;
+        case 't':
+            if (!get_int_from_string(arg, &tmp))
+                tmp = -1;
+            switch (tmp) {
+                case 0:
+                    logger_set_type(LOG_T_STD, NULL);
+                    break;
+                case 1:
+                    logger_set_type(LOG_T_SYS, NULL);
+                    break;
+                default:
+                    if (!logger_set_type(LOG_T_FILE, arg))
+                        argp_failure(state, 1, 0, "Unable to open log file");
+                    break;
+            }
             break;
     }
     return 0;
@@ -70,8 +87,6 @@ static struct argp argp = {options, parse_opt, 0, 0};
 
 int main(int argc, char **argv) {
     t_node *monitors = NULL, *fans = NULL;
-
-    logger_set_type(LOG_T_SYS, NULL);
 
     // Argp leaking memory on failure?
     argp_parse(&argp, argc, argv, 0, 0, 0);
