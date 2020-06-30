@@ -47,7 +47,6 @@ static void prepare_signals(void) {
 
 
 void daemonize(void) {
-
     FILE *pid_file = NULL;
 
     pid_t pid = 0;
