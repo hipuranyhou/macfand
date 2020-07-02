@@ -10,6 +10,7 @@
 #ifndef MACFAND_LINKED_H_retoeroioi
 #define MACFAND_LINKED_H_retoeroioi
 
+#include <stdio.h>
 #include <stdlib.h>
 
 /**
@@ -24,7 +25,7 @@ typedef struct node {
 /**
  * @brief Prepends node to given generic linked list.
  * Prepends node to given generic linked list. Regardless of whether head is NULL or not, it will after
- * point to first node of the list.
+ * point to first node of the list. This list has to be freed afterwards with list_free().
  * @param[in,out]  head       Pointer to head of list.
  * @param[in]      data       Data to be saved in data member of node.
  * @param[in]      data_size  Size of data type saved in list.
@@ -47,6 +48,6 @@ void list_free(t_node *head, void (*node_free)(void *));
  * @param[in]  head        Pointer to head of generic linked list.
  * @param[in]  node_print  Pointer to print function for data type saved in generic linked list.
  */
-void list_print(const t_node *head, void (*node_print)(const void *));
+void list_print(const t_node *head, FILE *stream, void (*node_print)(const void *, FILE *));
 
 #endif //MACFAND_LINKED_H_retoeroioi

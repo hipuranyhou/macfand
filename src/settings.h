@@ -13,32 +13,34 @@
 #include "linked.h"
 
 /**
- * @brief Holds macfand settings values.
- * Used to hold macfand settings, all temperatures used for calculating fan adjust (low, high, max), 
- * main control loop poll time and if macfand should run in daemon and verbose mode.
+ * @brief Enum holding all available settings.
+ * Enum holding all available settings, which are temperatures low, high and max. Poll time of fan adjust and
+ * daemon and verbose modes.
  */
-typedef struct settings {
-    int temp_low;
-    int temp_high;
-    int temp_max;
-    int time_poll;
-    int daemon;
-    int verbose;
-} t_settings;
+enum setting {
+    SET_TEMP_LOW,
+    SET_TEMP_HIGH,
+    SET_TEMP_MAX,
+    SET_TIME_POLL,
+    SET_DAEMON,
+    SET_VERBOSE
+};
 
 /**
- * @brief Sets default macfand settings.
- * Sets default macfand settings.
- * @param[out]  settings  Pointer to struct holding macfand settings.
+ * @brief Gets setting value.
+ * Gets value of given setting.
+ * @param[in]  setting  Setting which value we want to get (one of enum setting).
+ * @return int -1 on error, value of given settings otherwise.
  */
-void settings_load_defaults(t_settings *settings);
+int settings_get_value(int setting);
 
 /**
- * @brief Sets settings->temp_max.
- * Sets settings->temp_max based on highest value got from temperature monitors (monitor->temp_max).
- * @param[out]  settings  Pointer to struct holding macfand settings.
- * @param[in]   monitors  Pointer to head of linked list of temperature monitors.
+ * @brief Sets setting value.
+ * Sets value of given setting to value given in value.
+ * @param[in]  setting  Setting which value we want to get (one of enum setting).
+ * @param[in]  value    Value to be set (value >= 0)
+ * @return int 0 on error, 1 on success.
  */
-void settings_set_max_temp(t_settings *settings, const t_node *monitors);
+int settings_set_value(int setting, int value);
 
 #endif //MACFAND_SETTINGS_H_jkdhfasjkf

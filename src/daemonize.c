@@ -20,21 +20,35 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
-#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <syslog.h>
 
 #include "daemonize.h"
+#include "logger.h"
+
+/**
+ * @brief Sets the termination flag.
+ * Sets the termination flag to 1 for exiting out of main control loop when signal is catched.
+ * @param[in] sig Catched signal number.
+ */
+static void set_termination_flag(int sig);
+
+/**
+ * @brief Wrapper for all signal() calls;
+ * Wrapper for all singal() calls for all signals we want to register.
+ */
+static void prepare_signals(void);
+
 
 extern volatile int termination_flag;
 
-void set_termination_flag(int sig) {
-    syslog(LOG_NOTICE, "Resetting fans to automatic mode and terminating mac_fan_control.");
-    termination_flag = 1;
+
+static void set_termination_flag(int sig) {
+    termination_flag = sig;
 }
 
-void prepare_signals(void) {
+
+static void prepare_signals(void) {
     // Prepare all signals after which we terminate
     signal(SIGABRT, set_termination_flag);
     signal(SIGINT, set_termination_flag);
@@ -42,8 +56,8 @@ void prepare_signals(void) {
     signal(SIGTERM, set_termination_flag);
 }
 
-void daemonize(void) {
 
+void daemonize(void) {
     FILE *pid_file = NULL;
 
     pid_t pid = 0;
@@ -88,16 +102,13 @@ void daemonize(void) {
     for (fd = sysconf(_SC_OPEN_MAX); fd >= 0; fd--)
         close(fd);
 
-    // Open the log file
-    openlog("macfand", LOG_PID, LOG_DAEMON);
-
     // Write PID file
     pid_file = fopen("/run/macfand.pid", "w+");
-    if (pid_file == NULL) {
-        syslog(LOG_ERR, "Unable to open pid file.");
+    if (!pid_file) {
+        logger_log(LOG_L_DEBUG, "%s", "Unable to open PID file");
         return;
     }
     if (fprintf(pid_file, "%d\n", getpid()) == EOF)
-        syslog(LOG_ERR, "Unable to write pid file.");
+        logger_log(LOG_L_DEBUG, "%s", "Unable to write PID file");
     fclose(pid_file);
 }

@@ -10,6 +10,8 @@
 #ifndef MACFAND_MONITOR_H_fajkdsfbua
 #define MACFAND_MONITOR_H_fajkdsfbua
 
+#include <stdio.h>
+
 #include "linked.h"
 
 /**
@@ -25,40 +27,6 @@ typedef struct monitor {
     char *path_read;
     char *label;
 } t_monitor;
-
-/**
- * @brief Loads label of monitor.
- * Loads label of given monitor from appropriate system file.
- * @param[in,out]  monitor  Pointer to temperature monitor.
- * @return int 0 on error, 1 on success.
- */
-int monitor_load_label(t_monitor *monitor);
-
-/**
- * @brief Loads max temperature of monitor.
- * Loads max temperature of given monitor from appropriate system file.
- * @param[in,out]  monitor  Pointer to temperature monitor.
- * @return int 0 on error, 1 on success.
- */
-int monitor_load_max_temp(t_monitor *monitor);
-
-/**
- * @brief Loads default values for given monitor.
- * Loads max temperature and label from appropiate files for given monitor and constructs its reading path.
- * @param[in,out]  monitor  Pointer to temperature monitor.
- * @return int 0 on error, 1 on success.
- */
-int monitor_load_defaults(t_monitor *monitor);
-
-/**
- * @brief Checks if monitor given monitor exists.
- * Check whether monitor with given id for given hwmon entry id exists by trying to opening its 
- * temperature reading path.
- * @param[in]  id_hw  hwmon entry id.
- * @param[in]  id_mon  id of temperature monitor for given hwmon entry.
- * @return int -1 on error, 0 if does not exist, 1 if exists.
- */
-int monitor_id_exists(const int id_hw, const int id_mon);
 
 /**
  * @brief Constructs linked list of system temperature monitors.
@@ -78,6 +46,15 @@ t_node *monitors_load(void);
 int monitors_get_temp(const t_node *monitors);
 
 /**
+ * @brief Gets the system max allowed temperature
+ * Gets the system max allowed temperature which is the lowest value of monitor.temp_max amongst all
+ * system temperature monitors.
+ * @param[in]  monitors   Pointer to head of linked list of temperature monitors.
+ * @return int -1 on error, system max temperature otherwise.
+ */
+int monitors_get_max_temp(const t_node *monitors);
+
+/**
  * @brief Frees memory for given monitor.
  * Calls free() on members of monitor if they are not NULL.
  * @param[in] monitor  Pointer to temperature monitor.
@@ -89,6 +66,6 @@ void monitor_free(t_monitor *monitor);
  * Prints formated information (all values of t_monitor) about given monitor to stdout.
  * @param[in]  monitor  Pointer to temperature monitor.
  */
-void monitor_print(const t_monitor *monitor);
+void monitor_print(const t_monitor *monitor, FILE *stream);
 
 #endif //MACFAND_MONITOR_H_fajkdsfbua

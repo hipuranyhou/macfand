@@ -7,21 +7,56 @@
  * https://github.com/Hipuranyhou/macfand
  */
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <dirent.h>
 
 #include "monitor.h"
 #include "helper.h"
+#include "settings.h"
+#include "logger.h"
 
 #define MONITOR_PATH_BASE "/sys/devices/platform/coretemp.0/hwmon/hwmon"
 #define MONITOR_PATH_READ "_input"
 #define MONITOR_PATH_MAX "_max"
 #define MONITOR_PATH_LABEL "_label"
-#define MONITOR_PATH_FORMAT "%s%d/temp%d%s" 
+#define MONITOR_PATH_FORMAT "%s%d/temp%d%s"
+
+/**
+ * @brief Loads label of monitor.
+ * Loads label of given monitor from appropriate system file.
+ * @param[in,out]  monitor  Pointer to temperature monitor.
+ * @return int 0 on error, 1 on success.
+ */
+static int monitor_load_label(t_monitor *monitor);
+
+/**
+ * @brief Loads max temperature of monitor.
+ * Loads max temperature of given monitor from appropriate system file.
+ * @param[in,out]  monitor  Pointer to temperature monitor.
+ * @return int 0 on error, 1 on success.
+ */
+static int monitor_load_max_temp(t_monitor *monitor);
+
+/**
+ * @brief Loads default values for given monitor.
+ * Loads max temperature and label from appropiate files for given monitor and constructs its reading path.
+ * @param[in,out]  monitor  Pointer to temperature monitor.
+ * @return int 0 on error, 1 on success.
+ */
+static int monitor_load_defaults(t_monitor *monitor);
+
+/**
+ * @brief Checks if monitor given monitor exists.
+ * Check whether monitor with given id for given hwmon entry id exists by trying to opening its 
+ * temperature reading path.
+ * @param[in]  id_hw  hwmon entry id.
+ * @param[in]  id_mon  id of temperature monitor for given hwmon entry.
+ * @return int -1 on error, 0 if does not exist, 1 if exists.
+ */
+static int monitor_id_exists(const int id_hw, const int id_mon);
 
 
-int monitor_load_label(t_monitor *monitor) {
+static int monitor_load_label(t_monitor *monitor) {
     char *monitor_path_label = NULL;
     FILE *monitor_file_label = NULL;
     int getline_return = 0;
@@ -56,7 +91,7 @@ int monitor_load_label(t_monitor *monitor) {
 }
 
 
-int monitor_load_max_temp(t_monitor *monitor) {
+static int monitor_load_max_temp(t_monitor *monitor) {
     char *monitor_path_max = NULL;
     FILE *monitor_file_max = NULL;
 
@@ -84,25 +119,29 @@ int monitor_load_max_temp(t_monitor *monitor) {
     return 1;
 }
 
-int monitor_load_defaults(t_monitor *monitor) {
+static int monitor_load_defaults(t_monitor *monitor) {
     if (!monitor)
         return 0;
 
-    if (!monitor_load_max_temp(monitor))
+    if (!monitor_load_max_temp(monitor)) {
+        logger_log(LOG_L_DEBUG, "%s %d (hwmon%d)", "Unable to load max temperature of monitor", monitor->id, monitor->id_hw);
         return 0;
+    }
 
     monitor->path_read = concatenate_format(MONITOR_PATH_FORMAT, MONITOR_PATH_BASE, monitor->id_hw, monitor->id, MONITOR_PATH_READ);
     if (!monitor->path_read)
         return 0;
 
-    if (!monitor_load_label(monitor))
+    if (!monitor_load_label(monitor)) {
+        logger_log(LOG_L_DEBUG, "%s %d (hwmon%d)", "Unable to load label of monitor", monitor->id, monitor->id_hw);
         return 0;
+    }
 
     return 1;
 }
 
 
-int monitor_id_exists(const int id_hw, const int id_mon) {
+static int monitor_id_exists(const int id_hw, const int id_mon) {
     FILE *monitor_file_read = NULL;
     char *monitor_path_read = NULL;
 
@@ -187,8 +226,30 @@ int monitors_get_temp(const t_node *monitors) {
         monitors = monitors->next;
     }
 
-    // Return 100 if failed to load at least one temperature to crank up the fans
-    return (temp == 0) ? 100 : (temp / 1000);
+    // If failed to load at least one temperature, crank up the fans
+    if (temp == 0) {
+        logger_log(LOG_L_WARN, "%s", "Unable to get current system temperature, using 100°C");
+        return settings_get_value(SET_TEMP_MAX);
+    }
+
+    return (temp / 1000);
+}
+
+
+int monitors_get_max_temp(const t_node *monitors) {
+    int temp_max = 10000;
+    t_monitor *monitor = NULL;
+
+    if (!monitors)
+        return -1;
+
+    while (monitors) {
+        monitor = monitors->data;
+        temp_max = (temp_max < monitor->temp_max) ? temp_max : monitor->temp_max;
+        monitors = monitors->next;
+    }
+
+    return (temp_max != 10000) ? temp_max : -1;
 }
 
 
@@ -203,10 +264,10 @@ void monitor_free(t_monitor *monitor) {
 }
 
 
-void monitor_print(const t_monitor *monitor) {
+void monitor_print(const t_monitor *monitor, FILE *stream) {
     if (!monitor)
         return;
-    printf("Monitor %d - %s\n", monitor->id, monitor->label);
-    printf("Current temp: %d°C  Max temp: %d°C\n", monitor->temp_current, monitor->temp_max);
-    printf("Read: %s\n", monitor->path_read);
+    fprintf(stream, "Monitor %d - %s\n", monitor->id, monitor->label);
+    fprintf(stream, "Max temp: %d°C\n", monitor->temp_max);
+    fprintf(stream, "Read: %s\n", monitor->path_read);
 }

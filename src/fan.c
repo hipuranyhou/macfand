@@ -7,11 +7,12 @@
  * https://github.com/Hipuranyhou/macfand
  */
 
-#include <stdio.h>
 #include <stdlib.h>
 
 #include "fan.h"
 #include "helper.h"
+#include "logger.h"
+#include "settings.h"
 
 #define FAN_PATH_BASE "/sys/devices/platform/applesmc.768/fan"
 #define FAN_PATH_WRITE "_output"
@@ -21,8 +22,43 @@
 #define FAN_PATH_LABEL "_label"
 #define FAN_PATH_FORMAT "%s%d%s"
 
+/**
+ * @brief Loads label of fan.
+ * Loads label of given fan by reading the appropriate system file.
+ * @param[in,out]  fan  Pointer to fan. 
+ * @return int 0 on error, 1 on success.
+ */
+static int fan_load_label(t_fan *fan);
 
-int fan_load_label(t_fan *fan) {
+/**
+ * @brief Loads given speed of fan.
+ * Loads given speed to destination of fan by reading the appropriate system file.
+ * @param[in,out]  fan          Pointer to fan. 
+ * @param[out]     destination  Pointer to where should be the speed saved.
+ * @param[in]      speed        Path end of wanted speed (one of FAN_PATH_MAX and FAN_PATH_MIN).
+ * @return int 0 on error, 1 on success.
+ */ 
+static int fan_load_speed(t_fan *fan, int *destination, const char *speed);
+
+/**
+ * @brief Loads default values for given fan.
+ * Loads max and min speed of given fan, calculates its step size based on these values, constructs its
+ * writing and mode setting paths and finally loads its label.
+ * @param[in,out] fans      Pointer to head of linked list of system fans.
+ * @return int 0 on error, 1 on success.
+ */
+static int fan_load_defaults(t_fan *fan);
+
+/**
+ * @brief Check if fan exists.
+ * Checks whether fan with given id exists by trying to opening its mode setting path.
+ * @param[in]  id_fan  id of wanted fan.
+ * @return int -1 on error, 0 if does not exist, 1 if exists.
+ */
+static int fan_id_exists(const int id_fan);
+
+
+static int fan_load_label(t_fan *fan) {
     char *fan_path_label = NULL;
     FILE *fan_file_label = NULL;
     int getline_return = 0;
@@ -57,7 +93,7 @@ int fan_load_label(t_fan *fan) {
 }
 
 
-int fan_load_speed(t_fan *fan, int *destination, const char *speed) {
+static int fan_load_speed(t_fan *fan, int *destination, const char *speed) {
     char *fan_path_speed = NULL;
     FILE *fan_file_speed = NULL;
 
@@ -84,15 +120,17 @@ int fan_load_speed(t_fan *fan, int *destination, const char *speed) {
 }
 
 
-int fan_load_defaults(const t_settings *settings, t_fan *fan) {
-    if (!fan || !settings)
+static int fan_load_defaults(t_fan *fan) {
+    if (!fan)
         return 0;
 
-    if (!fan_load_speed(fan, &(fan->min), FAN_PATH_MIN) || !fan_load_speed(fan, &(fan->max), FAN_PATH_MAX))
+    if (!fan_load_speed(fan, &(fan->min), FAN_PATH_MIN) || !fan_load_speed(fan, &(fan->max), FAN_PATH_MAX)) {
+        logger_log(LOG_L_DEBUG, "%s %d", "Unable to load max or min speed of fan", fan->id);
         return 0;
+    }
 
     // Calculate size of one unit of fan speed change
-    fan->step = (fan->max - fan->min) / ((settings->temp_max - settings->temp_high) * (settings->temp_max - settings->temp_high + 1) / 2);
+    fan->step = (fan->max - fan->min) / ((settings_get_value(SET_TEMP_MAX) - settings_get_value(SET_TEMP_HIGH)) * (settings_get_value(SET_TEMP_MAX) - settings_get_value(SET_TEMP_HIGH) + 1) / 2);
 
     fan->path_write = concatenate_format(FAN_PATH_FORMAT, FAN_PATH_BASE, fan->id, FAN_PATH_WRITE);
     if (!fan->path_write)
@@ -102,14 +140,16 @@ int fan_load_defaults(const t_settings *settings, t_fan *fan) {
     if (!fan->path_manual)
         return 0;
 
-    if (!fan_load_label(fan))
+    if (!fan_load_label(fan)) {
+        logger_log(LOG_L_DEBUG, "%s %d", "Unable to load label of fan", fan->id);
         return 0;
+    }
 
     return 1;
 }
 
 
-int fan_id_exists(const int id_fan) {
+static int fan_id_exists(const int id_fan) {
     FILE *fan_file_manual = NULL;
     char *fan_path_manual = NULL;
 
@@ -128,13 +168,10 @@ int fan_id_exists(const int id_fan) {
 }
 
 
-t_node *fans_load(const t_settings *settings) {
+t_node *fans_load(void) {
     int id_fan = 0, fan_exists = 0;
     t_fan *fan = NULL;
     t_node *fans = NULL;
-
-    if (!settings)
-        return NULL;
 
     fan = (t_fan *)malloc(sizeof(*fan));
     if (!fan)
@@ -150,7 +187,7 @@ t_node *fans_load(const t_settings *settings) {
             break;
 
         if (fan_exists == -1                            ||
-            !fan_load_defaults(settings, fan)           ||
+            !fan_load_defaults(fan)                     ||
             !list_push_front(&fans, fan, sizeof(*fan)))
         {
             list_free(fans, (void (*)(void *))fan_free);
@@ -165,18 +202,18 @@ t_node *fans_load(const t_settings *settings) {
 }
 
 
-int fans_set_mode(t_node *fans, const enum fan_mode mode) {
+int fans_set_mode(t_node *fans, int mode) {
     int state = 1;
     FILE *fan_file_manual = NULL;
     t_fan *fan = NULL;
 
-    if (!fans)
-        state = 0;
+    if (!fans || mode < FAN_AUTO || mode > FAN_MANUAL)
+        return 0;
 
     while (fans) {
         fan = fans->data;
 
-        fan_file_manual = fopen(fan->path_manual, "w");
+        fan_file_manual = fopen(fan->path_manual, "w+");
         if (!fan_file_manual) {
             state = 0;
             fans = fans->next;
@@ -205,7 +242,7 @@ int fan_set_speed(t_fan *fan, const int speed) {
     if (fan->speed == speed)
         return 1;
 
-    fan_file_write = fopen(fan->path_write, "w");
+    fan_file_write = fopen(fan->path_write, "w+");
     if (!fan_file_write)
         return 0;
 
@@ -236,12 +273,12 @@ void fan_free(t_fan *fan) {
 }
 
 
-void fan_print(const t_fan *fan) {
+void fan_print(const t_fan *fan, FILE *stream) {
     if (!fan)
         return;
-    printf("Fan %d - %s\n", fan->id, fan->label);
-    printf("Min speed: %d   Max speed: %d\n", fan->min, fan->max);
-    printf("Speed: %d   Step: %d\n", fan->speed, fan->step);
-    printf("Write: %s\n", fan->path_write);
-    printf("Manual: %s\n", fan->path_manual);
+    fprintf(stream, "Fan %d - %s\n", fan->id, fan->label);
+    fprintf(stream, "Min speed: %d   Max speed: %d\n", fan->min, fan->max);
+    fprintf(stream, "Step: %d\n", fan->step);
+    fprintf(stream, "Write: %s\n", fan->path_write);
+    fprintf(stream, "Mode: %s\n", fan->path_manual);
 }

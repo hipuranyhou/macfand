@@ -7,10 +7,10 @@
  * https://github.com/Hipuranyhou/macfand
  */
 
-#include <stdio.h>
 #include <string.h>
 
 #include "linked.h"
+
 
 int list_push_front(t_node **head, const void *data, const size_t data_size) {
     t_node *new_node = (t_node*)malloc(sizeof(*new_node));
@@ -30,6 +30,7 @@ int list_push_front(t_node **head, const void *data, const size_t data_size) {
     return 1;
 }
 
+
 void list_free(t_node *head, void (*node_free)(void *)) {
     t_node *next = NULL;
     while (head) {
@@ -40,10 +41,11 @@ void list_free(t_node *head, void (*node_free)(void *)) {
     }
 }
 
-void list_print(const t_node *head, void (*node_print)(const void *)) {
+
+void list_print(const t_node *head, FILE *stream, void (*node_print)(const void *, FILE *)) {
     while (head) {
-        node_print(head->data);
-        printf("\n");
+        node_print(head->data, stream);
+        fprintf(stream, "\n");
         head = head->next;
     }
 }
