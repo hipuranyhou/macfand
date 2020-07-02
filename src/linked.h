@@ -10,6 +10,7 @@
 #ifndef MACFAND_LINKED_H_retoeroioi
 #define MACFAND_LINKED_H_retoeroioi
 
+#include <stdio.h>
 #include <stdlib.h>
 
 /**
@@ -47,6 +48,6 @@ void list_free(t_node *head, void (*node_free)(void *));
  * @param[in]  head        Pointer to head of generic linked list.
  * @param[in]  node_print  Pointer to print function for data type saved in generic linked list.
  */
-void list_print(const t_node *head, void (*node_print)(const void *));
+void list_print(const t_node *head, FILE *stream, void (*node_print)(const void *, FILE *));
 
 #endif //MACFAND_LINKED_H_retoeroioi

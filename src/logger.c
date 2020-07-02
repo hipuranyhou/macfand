@@ -224,6 +224,25 @@ void logger_log(int level, const char *format, ...) {
 }
 
 
+void logger_log_list(const t_node *head, void (*node_print)(const void *, FILE *)) {
+    FILE *stream = NULL;
+    switch (logger.type) {
+        case LOG_T_STD:
+            stream = stdout;
+            break;
+        case LOG_T_SYS:
+            return;
+        case LOG_T_FILE:
+            stream = logger.log_file;
+            break;
+        default:
+            return;
+    }
+    list_print(head, stream, node_print);
+    fflush(stream);
+}
+
+
 void logger_exit(void) {
     logger_log(LOG_L_INFO, "%s", "Shutting down");
     // Here, as logger, we cannot really do much with I/O errors

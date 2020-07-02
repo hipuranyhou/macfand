@@ -7,7 +7,6 @@
  * https://github.com/Hipuranyhou/macfand
  */
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <dirent.h>
 
@@ -265,10 +264,10 @@ void monitor_free(t_monitor *monitor) {
 }
 
 
-void monitor_print(const t_monitor *monitor) {
+void monitor_print(const t_monitor *monitor, FILE *stream) {
     if (!monitor)
         return;
-    printf("Monitor %d - %s\n", monitor->id, monitor->label);
-    printf("Current temp: %d°C  Max temp: %d°C\n", monitor->temp_current, monitor->temp_max);
-    printf("Read: %s\n", monitor->path_read);
+    fprintf(stream, "Monitor %d - %s\n", monitor->id, monitor->label);
+    fprintf(stream, "Max temp: %d°C\n", monitor->temp_max);
+    fprintf(stream, "Read: %s\n", monitor->path_read);
 }

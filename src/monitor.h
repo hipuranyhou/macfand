@@ -10,6 +10,8 @@
 #ifndef MACFAND_MONITOR_H_fajkdsfbua
 #define MACFAND_MONITOR_H_fajkdsfbua
 
+#include <stdio.h>
+
 #include "linked.h"
 
 /**
@@ -64,6 +66,6 @@ void monitor_free(t_monitor *monitor);
  * Prints formated information (all values of t_monitor) about given monitor to stdout.
  * @param[in]  monitor  Pointer to temperature monitor.
  */
-void monitor_print(const t_monitor *monitor);
+void monitor_print(const t_monitor *monitor, FILE *stream);
 
 #endif //MACFAND_MONITOR_H_fajkdsfbua

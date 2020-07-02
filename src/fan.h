@@ -10,6 +10,8 @@
 #ifndef MACFAND_FAN_H_qwewqiorhq
 #define MACFAND_FAN_H_qwewqiorhq
 
+#include <stdio.h>
+
 #include "settings.h"
 #include "linked.h"
 
@@ -77,6 +79,6 @@ void fan_free(t_fan *fan);
  * Prints formatted information (all members of t_fan) about given fan to stdout.
  * @param[in]  fan  Pointer to fan. 
  */
-void fan_print(const t_fan *fan);
+void fan_print(const t_fan *fan, FILE *stream);
 
 #endif //MACFAND_FAN_H_qwewqiorhq

@@ -7,7 +7,6 @@
  * https://github.com/Hipuranyhou/macfand
  */
 
-#include <stdio.h>
 #include <stdlib.h>
 
 #include "fan.h"
@@ -274,12 +273,12 @@ void fan_free(t_fan *fan) {
 }
 
 
-void fan_print(const t_fan *fan) {
+void fan_print(const t_fan *fan, FILE *stream) {
     if (!fan)
         return;
-    printf("Fan %d - %s\n", fan->id, fan->label);
-    printf("Min speed: %d   Max speed: %d\n", fan->min, fan->max);
-    printf("Speed: %d   Step: %d\n", fan->speed, fan->step);
-    printf("Write: %s\n", fan->path_write);
-    printf("Manual: %s\n", fan->path_manual);
+    fprintf(stream, "Fan %d - %s\n", fan->id, fan->label);
+    fprintf(stream, "Min speed: %d   Max speed: %d\n", fan->min, fan->max);
+    fprintf(stream, "Step: %d\n", fan->step);
+    fprintf(stream, "Write: %s\n", fan->path_write);
+    fprintf(stream, "Mode: %s\n", fan->path_manual);
 }

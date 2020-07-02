@@ -7,7 +7,6 @@
  * https://github.com/Hipuranyhou/macfand
  */
 
-#include <stdio.h>
 #include <string.h>
 
 #include "linked.h"
@@ -43,10 +42,10 @@ void list_free(t_node *head, void (*node_free)(void *)) {
 }
 
 
-void list_print(const t_node *head, void (*node_print)(const void *)) {
+void list_print(const t_node *head, FILE *stream, void (*node_print)(const void *, FILE *)) {
     while (head) {
-        node_print(head->data);
-        printf("\n");
+        node_print(head->data, stream);
+        fprintf(stream, "\n");
         head = head->next;
     }
 }

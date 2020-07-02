@@ -100,6 +100,10 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    // We do this twice for fans and monitors to get at least monitors printed if loading fans fails
+    if (settings_get_value(SET_VERBOSE))
+        logger_log_list(monitors, (void (*)(const void *, FILE *))monitor_print);
+
     if (!settings_set_value(SET_TEMP_MAX, monitors_get_max_temp(monitors)))
         logger_log(LOG_L_WARN, "%s", "Using default max temperature value 84");
 
@@ -109,6 +113,10 @@ int main(int argc, char **argv) {
         logger_log(LOG_L_ERROR, "%s", "Unable to load system fans");
         return 1;
     }
+
+    // We do this twice for fans and monitors to get at least monitors printed if loading fans fails
+    if (settings_get_value(SET_VERBOSE))
+        logger_log_list(fans, (void (*)(const void *, FILE *))fan_print);
 
     if (!fans_set_mode(fans, FAN_MANUAL)) {
         // Set fans back to auto if enabling manual mode failed 

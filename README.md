@@ -88,7 +88,9 @@ Use to run macfand as daemon. In daemon mode, syslog is used for all messages (s
 #### Verbose
 `--verbose` or `-v`
 
-Use to enable verbose mode producing a lot of output. Not recommended when using syslog.
+Use to enable verbose mode producing a lot of output. Not recommended when using
+syslog because some messages (for example logging of loaded fans and monitors) is disabled even in verbose mode
+when using syslog.
 
 #### Poll time
 `--poll=NUM` or `-p NUM`

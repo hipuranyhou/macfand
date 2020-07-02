@@ -12,6 +12,8 @@
 
 #include <stdarg.h>
 
+#include "linked.h"
+
 /**
  * @brief 
  * 
@@ -53,6 +55,15 @@ int logger_set_type(int type, char *file_path);
  * @param[in]  ...     Values to be concatenated into a message.
  */
 void logger_log(int level, const char *format, ...);
+
+/**
+ * @brief Logs given generic linked list.
+ * Logs given generic linked list using given print function based on logger type (file or std).
+ * Printing of lists is disable when using syslog.
+ * @param[in]  head        Pointer to head of generic linked list.
+ * @param[in]  node_print  Pointer to print function for data type saved in generic linked list.
+ */
+void logger_log_list(const t_node *head, void (*node_print)(const void *, FILE *));
 
 /**
  * @brief Logs exit message and gracefully exits logger
