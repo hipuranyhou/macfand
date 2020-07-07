@@ -29,11 +29,10 @@ typedef struct control {
 /**
  * @brief Infinite loop adjusting fan speed based on current temperature.
  * Starts infinite loop which loads temperatures using control_set_temps(), calculates and sets new speed of every fan
- * in fans using control_calculate_speed() and fan_set_speed(). Does this every settings->time_poll. In case
- * registered signal is catched, returns.
+ * in fans using control_calculate_speed() and fan_set_speed(). In case registered signal is catched, returns.
  * @param[in,out]  fans      Pointer to head of linked list of system fans.
  * @param[in]      monitors  Pointer to head of linked list of temperature monitors.
  */
-void control_start(t_node *fans, const t_node *monitors);
+void control_start(const t_node *monitors, t_node *fans);
 
 #endif //MACFAND_CONTROL_H_fsdfdsfsdf

@@ -77,7 +77,7 @@ static void control_set_temps(t_control *control, const t_node *monitors) {
 }
 
 
-void control_start(t_node *fans, const t_node *monitors) {
+void control_start(const t_node *monitors, t_node *fans) {
     t_control control = {0, 0, 0, 0, 0};
     t_fan *fan = NULL;
     t_node *fans_head = fans;

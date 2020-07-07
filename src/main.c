@@ -22,6 +22,14 @@
 #include "linked.h"
 #include "logger.h"
 
+/**
+ * @brief 
+ * 
+ * @param monitors 
+ * @param fans 
+ */
+static void prepare_exit(t_node *monitors, t_node *fans);
+
 
 const char *argp_program_version = "macfand - version 0.1";
 
@@ -85,6 +93,15 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
 static struct argp argp = {options, parse_opt, 0, 0};
 
 
+static void prepare_exit(t_node *monitors, t_node *fans) {
+    if (monitors)
+        list_free(monitors, (void (*)(void *))monitor_free);
+    if (fans)
+        list_free(fans, (void (*)(void *))fan_free);
+    logger_exit();
+}
+
+
 int main(int argc, char **argv) {
     t_node *monitors = NULL, *fans = NULL;
 
@@ -94,54 +111,43 @@ int main(int argc, char **argv) {
     if (settings_get_value(SET_DAEMON))
         daemonize();
 
-    monitors = monitors_load();
-    if (!monitors) {
+    if (!(monitors = monitors_load())) {
         logger_log(LOG_L_ERROR, "%s", "Unable to load system temperature monitors");
         return 1;
-    }
-
-    // We do this twice for fans and monitors to get at least monitors printed if loading fans fails
-    if (settings_get_value(SET_VERBOSE))
-        logger_log_list(monitors, (void (*)(const void *, FILE *))monitor_print);
+    }   
 
     if (!settings_set_value(SET_TEMP_MAX, monitors_get_max_temp(monitors)))
         logger_log(LOG_L_WARN, "%s", "Using default max temperature value 84");
 
-    fans = fans_load();
-    if (!fans) {
-        list_free(monitors, (void (*)(void *))monitor_free);
+    if (settings_get_value(SET_VERBOSE))
+        logger_log_list(monitors, (void (*)(const void *, FILE *))monitor_print);
+
+    if (!(fans = fans_load())) {
         logger_log(LOG_L_ERROR, "%s", "Unable to load system fans");
+        prepare_exit(monitors, fans);
         return 1;
     }
 
-    // We do this twice for fans and monitors to get at least monitors printed if loading fans fails
     if (settings_get_value(SET_VERBOSE))
         logger_log_list(fans, (void (*)(const void *, FILE *))fan_print);
 
     if (!fans_set_mode(fans, FAN_MANUAL)) {
-        // Set fans back to auto if enabling manual mode failed 
         // Those we were unable to set to manual mode are already in automatic mode
         fans_set_mode(fans, FAN_AUTO);
-        list_free(monitors, (void (*)(void *))monitor_free);
-        list_free(fans, (void (*)(void *))fan_free);
         logger_log(LOG_L_ERROR, "%s", "Unable to set fans to manual mode");
+        prepare_exit(monitors, fans);
         return 1;
     }
 
-    control_start(fans, monitors);
-
-    // Procedure after termination signal catched
-    list_free(monitors, (void (*)(void *))monitor_free);
+    control_start(monitors, fans);
 
     if (!fans_set_mode(fans, FAN_AUTO)) {
         logger_log(LOG_L_ERROR, "%s", "Unable to reset fans to automatic mode");
-        list_free(fans, (void (*)(void *))fan_free);
-        logger_exit();
+        prepare_exit(monitors, fans);
         return 1;
     }
 
-    list_free(fans, (void (*)(void *))fan_free);
-    logger_exit();
+    prepare_exit(monitors, fans);
 
     return 0;
 }
