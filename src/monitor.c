@@ -186,7 +186,10 @@ t_node *monitors_load(void) {
             {
                 list_free(monitors, (void (*)(void *))monitor_free);
                 monitors = NULL;
-                free(monitor);
+                if (monitor->path_read)
+                    free(monitor->path_read);
+                if (monitor->label)
+                    free(monitor->label);
                 break;
             }
         }

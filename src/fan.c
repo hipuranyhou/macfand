@@ -178,6 +178,9 @@ t_node *fans_load(void) {
         return NULL;
 
     fan->speed = 0;
+    fan->path_write = NULL;
+    fan->path_manual = NULL;     
+    fan->label = NULL;
 
     for (;;) {
         fan->id = ++id_fan;
@@ -192,7 +195,12 @@ t_node *fans_load(void) {
         {
             list_free(fans, (void (*)(void *))fan_free);
             fans = NULL;
-            free(fan);
+            if (fan->path_write)
+                free(fan->path_write);
+            if (fan->path_manual)
+                free(fan->path_manual);
+            if (fan->label)
+                free(fan->label);
             break;
         }
     }
