@@ -36,7 +36,7 @@ run:
 	$(EXECDIR)/./$(EXEC)
 
 run_valgrind:
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $(EXECDIR)/./$(EXEC) --verbose:
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $(EXECDIR)/./$(EXEC) --verbose
 
 install:
 	cp $(EXECDIR)/$(EXEC) /usr/bin
