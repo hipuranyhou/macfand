@@ -52,7 +52,7 @@ int monitors_get_temp(const t_node *monitors);
  * @param[in]  monitors   Pointer to head of linked list of temperature monitors.
  * @return int -1 on error, system max temperature otherwise.
  */
-int monitors_get_max_temp(const t_node *monitors);
+int monitors_get_temp_max(const t_node *monitors);
 
 /**
  * @brief Frees memory for given monitor.

@@ -140,10 +140,6 @@ static char* logger_construct_full_string(int level, const char *format, va_list
 
     // Construct full log message including time, level and message
     full_string = concatenate_format("[%s] %-7s: %s", time_buffer, logger_level_strings[level], message);
-    if (!full_string) {
-        free(message);
-        return NULL;
-    }
 
     free(message);
     return full_string;
@@ -224,8 +220,9 @@ void logger_log(int level, const char *format, ...) {
 }
 
 
-void logger_log_list(const t_node *head, void (*node_print)(const void *, FILE *)) {
+void logger_log_list(const char *name, const t_node *head, void (*node_print)(const void *, FILE *)) {
     FILE *stream = NULL;
+    logger_log(LOG_L_INFO, "Currently loaded %s ->\n", name);
     switch (logger.type) {
         case LOG_T_STD:
             stream = stdout;

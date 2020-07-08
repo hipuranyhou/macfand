@@ -285,8 +285,7 @@ void fan_print(const t_fan *fan, FILE *stream) {
     if (!fan)
         return;
     fprintf(stream, "Fan %d - %s\n", fan->id, fan->label);
-    fprintf(stream, "Min speed: %d   Max speed: %d\n", fan->min, fan->max);
-    fprintf(stream, "Step: %d\n", fan->step);
+    fprintf(stream, "Min speed: %d    Max speed: %d    Step: %d\n", fan->min, fan->max, fan->step);
     fprintf(stream, "Write: %s\n", fan->path_write);
     fprintf(stream, "Mode: %s\n", fan->path_manual);
 }

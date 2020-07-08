@@ -239,7 +239,7 @@ int monitors_get_temp(const t_node *monitors) {
 }
 
 
-int monitors_get_max_temp(const t_node *monitors) {
+int monitors_get_temp_max(const t_node *monitors) {
     int temp_max = 10000;
     t_monitor *monitor = NULL;
 

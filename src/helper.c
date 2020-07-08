@@ -9,8 +9,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <limits.h>
 #include <errno.h>
+#include <limits.h>
 
 #include "helper.h"
 
@@ -53,6 +53,43 @@ char* concatenate_format(const char* format, ...) {
     va_end(ap);
 
     return string;
+}
+
+
+size_t get_line_until(const char *line, const char delimeter, char **destination, size_t *destination_size) {
+    size_t cnt = 0;
+
+    if (!line)
+        return 0;
+
+    // Prepare buffer
+    if (*destination_size == 0) 
+        *destination_size = 32;
+    if (!(*destination))
+        *destination = (char*)malloc(*destination_size * sizeof(*destination));
+    if (!(*destination))
+        return -1;
+
+    while (*line) {
+        // Resize buffer
+        if (cnt == *destination_size) {
+            *destination_size <<= 1;
+            if (*destination_size > 8192)
+                return -1;
+            *destination = (char*)realloc(*destination, *destination_size * sizeof(*destination));
+            if (!(*destination))
+                return -1;
+        }
+
+        if (*line == delimeter || *line == '\n')
+            break;
+        (*destination)[cnt++] = *line;
+        line++;
+    }
+
+    (*destination)[cnt] = '\0';
+
+    return cnt;
 }
 
 

@@ -31,6 +31,17 @@ char* concatenate_format_v(const char* format, va_list ap);
 char* concatenate_format(const char* format, ...);
 
 /**
+ * @brief 
+ * 
+ * @param line 
+ * @param delimeter 
+ * @param destination 
+ * @param destination_size 
+ * @return int 
+ */
+size_t get_line_until(const char *line, const char delimeter, char **destination, size_t *destination_size);
+
+/**
  * @brief Validates and converts string to int.
  * Uses strtol() to check if given string is an valid integer and is in range of int. On success resulting
  * integer is stored in destination.
