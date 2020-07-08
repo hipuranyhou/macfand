@@ -222,7 +222,9 @@ void logger_log(int level, const char *format, ...) {
 
 void logger_log_list(const char *name, const t_node *head, void (*node_print)(const void *, FILE *)) {
     FILE *stream = NULL;
+
     logger_log(LOG_L_INFO, "Currently loaded %s ->\n", name);
+
     switch (logger.type) {
         case LOG_T_STD:
             stream = stdout;
@@ -235,7 +237,9 @@ void logger_log_list(const char *name, const t_node *head, void (*node_print)(co
         default:
             return;
     }
+
     list_print(head, stream, node_print);
+    
     fflush(stream);
 }
 
