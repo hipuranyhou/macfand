@@ -93,7 +93,7 @@ size_t get_line_until(const char *line, const char delimeter, char **destination
 }
 
 
-int get_int_from_string(char *string, int *destination) {
+int get_int_from_string(const char *string, int *destination) {
     char *tmp_str;
     long int tmp_val = 0;
 

@@ -49,7 +49,7 @@ size_t get_line_until(const char *line, const char delimeter, char **destination
  * @param[out] destination  Pointer to where should the integer be stored.
  * @return int 0 on error, 1 if integer conversion succeded.
  */
-int get_int_from_string(char *string, int *destination);
+int get_int_from_string(const char *string, int *destination);
 
 /**
  * @brief Returns max of two given integers.
