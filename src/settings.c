@@ -29,7 +29,7 @@ static struct {
     .temp_max = 84,
     .time_poll = 1,
     .daemon = 0,
-    .verbose = 1,
+    .verbose = 0,
     .log_type = LOG_T_STD,
     .log_file_path = NULL
 };
@@ -38,7 +38,6 @@ static struct {
 void settings_free() {
     if (settings.log_file_path)
         free(settings.log_file_path);
-    return 0;
 }
 
 
@@ -156,7 +155,7 @@ int settings_set_value(int setting, int value) {
 int settings_set_value_string(int setting, const char *value) { 
     if (!value)
         return 0;
-        
+
     switch (setting) {
         case SET_LOG_FILE_PATH:
             settings.log_file_path = (char*)malloc(strlen(value)+1);
