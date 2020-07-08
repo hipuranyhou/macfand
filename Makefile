@@ -42,6 +42,7 @@ install:
 	cp $(EXECDIR)/$(EXEC) /usr/bin
 	chmod 755 /usr/bin/$(EXEC)
 	cp macfand.service /usr/lib/systemd/system
+	cp macfand.config /etc
 	systemctl daemon-reload
 	systemctl enable --now macfand.service
 
