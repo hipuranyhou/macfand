@@ -17,6 +17,7 @@
 #include "settings.h"
 #include "fan.h"
 #include "monitor.h"
+#include "widget.h"
 
 /**
  * @brief Calculates new fan speed.
@@ -97,6 +98,10 @@ void control_start(const t_node *monitors, t_node *fans) {
         fans = fans_head;
         control_set_temps(&control, monitors);
 
+        // Write widget file
+        if (settings_get_value(SET_WIDGET))
+            widget_write(fans);
+
         // Set speed of each fan
         while (fans) {
             fan = fans->data;
@@ -105,6 +110,7 @@ void control_start(const t_node *monitors, t_node *fans) {
                 logger_log(LOG_L_DEBUG, "%s %d", "Unable to set speed of fan", fan->id);
             fans = fans->next;
         }
+
         // Wait
         nanosleep(&ts, NULL);
     }

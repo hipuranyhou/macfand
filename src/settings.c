@@ -23,6 +23,8 @@ static struct {
     int verbose;
     int log_type;
     char *log_file_path;
+    int widget;
+    char *widget_file_path;
 } settings = {
     .temp_low = 63,
     .temp_high = 66,
@@ -31,13 +33,17 @@ static struct {
     .daemon = 0,
     .verbose = 0,
     .log_type = LOG_T_STD,
-    .log_file_path = NULL
+    .log_file_path = NULL,
+    .widget = 0,
+    .widget_file_path = NULL
 };
 
 
 void settings_free() {
     if (settings.log_file_path)
         free(settings.log_file_path);
+    if (settings.widget_file_path)
+        free(settings.widget_file_path);
 }
 
 
@@ -78,12 +84,25 @@ int settings_check() {
         return 0;
     }
 
-    if (settings.log_type == LOG_T_FILE && settings.log_file_path == NULL) {
+    if (settings.log_type == LOG_T_FILE && !settings.log_file_path) {
         if (!settings_set_value_string(SET_LOG_FILE_PATH, "/var/log/macfand.log")) {
             logger_log(LOG_L_DEBUG, "%s", "Unable to set default log file path to /var/log/macfand.log");
             return 0;
         }
         logger_log(LOG_L_INFO, "%s", "Using default log file path /var/log/macfand.log");
+    }
+
+    if (settings.widget != 0 && settings.widget != 1) {
+        logger_log(LOG_L_DEBUG, "%s", "Value of widget must be 0 or 1");
+        return 0;
+    }
+
+    if (settings.widget && !settings.widget_file_path) {
+        if (!settings_set_value_string(SET_WIDGET_FILE_PATH, "/tmp/macfand.widget")) {
+            logger_log(LOG_L_DEBUG, "%s", "Unable to set default widget file path to /tmp/macfand.widget");
+            return 0;
+        }
+        logger_log(LOG_L_INFO, "%s", "Using default widget file path /tmp/macfand.widget");
     }
 
     return 1;
@@ -106,6 +125,8 @@ int settings_get_value(const int setting) {
             return settings.verbose;
         case SET_LOG_TYPE:
             return settings.log_type;
+        case SET_WIDGET:
+            return settings.widget;
         default:
             return -1;
     }
@@ -114,8 +135,10 @@ int settings_get_value(const int setting) {
 
 char* settings_get_value_string(const int setting) {
     switch (setting) {
-        case SET_TEMP_LOW:
+        case SET_LOG_FILE_PATH:
             return settings.log_file_path;
+        case SET_WIDGET_FILE_PATH:
+            return settings.widget_file_path;
         default:
             return NULL;
     }
@@ -145,6 +168,9 @@ int settings_set_value(const int setting, const int value) {
         case SET_LOG_TYPE:
             settings.log_type = value;
             break;
+        case SET_WIDGET:
+            settings.widget = value;
+            break;
         default:
             return 0;
     }
@@ -158,12 +184,25 @@ int settings_set_value_string(const int setting, const char *value) {
         return 0;
 
     switch (setting) {
+
         case SET_LOG_FILE_PATH:
+            if (settings.log_file_path)
+                free(settings.log_file_path);
             settings.log_file_path = (char*)malloc(strlen(value)+1);
             if (!settings.log_file_path)
                 return 0;
             strcpy(settings.log_file_path, value);
             break;
+
+        case SET_WIDGET_FILE_PATH:
+            if (settings.widget_file_path)
+                free(settings.widget_file_path);
+            settings.widget_file_path = (char*)malloc(strlen(value)+1);
+            if (!settings.widget_file_path)
+                return 0;
+            strcpy(settings.widget_file_path, value);
+            break;
+
         default:
             return 0;
     }

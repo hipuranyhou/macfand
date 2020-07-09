@@ -228,7 +228,7 @@ int fans_set_mode(t_node *fans, int mode) {
             continue;
         }
 
-        if (fprintf(fan_file_manual, "%d\n", mode) == EOF)
+        if (fprintf(fan_file_manual, "%d\n", mode) < 0)
             state = 0;
 
         if (fclose(fan_file_manual) == EOF)
@@ -254,7 +254,7 @@ int fan_set_speed(t_fan *fan, const int speed) {
     if (!fan_file_write)
         return 0;
 
-    if (fprintf(fan_file_write, "%d\n", speed) == EOF) {
+    if (fprintf(fan_file_write, "%d\n", speed) < 0) {
         fclose(fan_file_write);
         return 0;
     }

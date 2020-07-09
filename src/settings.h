@@ -25,7 +25,9 @@ enum setting {
     SET_DAEMON,
     SET_VERBOSE,
     SET_LOG_TYPE,
-    SET_LOG_FILE_PATH
+    SET_LOG_FILE_PATH,
+    SET_WIDGET,
+    SET_WIDGET_FILE_PATH
 };
 
 /**

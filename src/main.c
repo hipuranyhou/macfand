@@ -145,7 +145,7 @@ static int prepare_settings(const arguments_t *arguments) {
 
     if (!arguments->no_config) {
         // Load config
-        if (!config_load((arguments->config_file_path) ? arguments->config_file_path : "/etc/macfand.config")) {
+        if (!config_load((arguments->config_file_path) ? arguments->config_file_path : "/etc/macfand.conf")) {
             logger_log(LOG_L_ERROR, "%s", "Unable to load configuration file");
             return 0;
         }
