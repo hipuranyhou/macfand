@@ -1,4 +1,5 @@
 # macfand
+#### version 0.1
 
 Daemon for controlling fans on Linux systems using applesmc and coretemp.
 
