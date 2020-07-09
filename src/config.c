@@ -45,10 +45,20 @@ static int config_parse_file(FILE *config_file);
 
 
 static int config_assign_setting(const char *key, const char *value) {
-    int value_int = 0;
+    int value_int = 0, is_boolean = 0;
+
+    if (strcmp(value, "yes") == 0 || strcmp(value, "true") == 0) {
+        is_boolean = 1;
+        value_int = 1;
+    }
+
+    if (strcmp(value, "no") == 0 || strcmp(value, "false") == 0) {
+        is_boolean = 1;
+        value_int = 0;
+    }
 
     // Char settings
-    if (!get_int_from_string(value, &value_int)) {
+    if (!get_int_from_string(value, &value_int) && !is_boolean) {
 
         // Log type
         if (strcmp(key, "log_type") == 0) {
