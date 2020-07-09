@@ -71,7 +71,7 @@ Macfand expects configuration file by default. If no path is set using [config](
 Configuration file can be reloaded at runtime by sending `SIGHUP` to macfand. Note that **daemon mode** setting **is ignored when reloading** configuration file at runtime.
 
 For more information about configuration 
-options see [macfand.conf](https://github.com/Hipuranyhou/macfand/blob/master/macfand.config).
+options see [macfand.conf](https://github.com/Hipuranyhou/macfand/blob/master/macfand.conf).
 
 ## Options
 
