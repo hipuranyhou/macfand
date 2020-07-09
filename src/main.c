@@ -59,7 +59,7 @@ static int prepare_monitors_and_fans(t_node **monitors, t_node **fans);
  * @param[in]  arguments  Pointer to struct of argp arguments.
  * @return int 0 on error, 1 on success.
  */
-int prepare_settings(const arguments_t *arguments);
+static int prepare_settings(const arguments_t *arguments);
 
 
 /*******************************  argp stuff  ***********************************/
@@ -141,7 +141,7 @@ static int prepare_monitors_and_fans(t_node **monitors, t_node **fans) {
 }
 
 
-int prepare_settings(const arguments_t *arguments) {
+static int prepare_settings(const arguments_t *arguments) {
 
     if (!arguments->no_config) {
         // Load config
@@ -190,7 +190,7 @@ int main(int argc, char **argv) {
     if (settings_get_value(SET_DAEMON))
         daemonize();
 
-    // Set logger to configure type
+    // Set logger to configured type
     if (!logger_set_type(settings_get_value(SET_LOG_TYPE), settings_get_value_string(SET_LOG_FILE_PATH))) {
         logger_log(LOG_L_ERROR, "%s", "Unable to set logger to configured mode");
         prepare_exit(monitors, fans);
