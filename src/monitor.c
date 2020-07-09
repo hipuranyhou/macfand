@@ -186,7 +186,10 @@ t_node *monitors_load(void) {
             {
                 list_free(monitors, (void (*)(void *))monitor_free);
                 monitors = NULL;
-                free(monitor);
+                if (monitor->path_read)
+                    free(monitor->path_read);
+                if (monitor->label)
+                    free(monitor->label);
                 break;
             }
         }
@@ -236,7 +239,7 @@ int monitors_get_temp(const t_node *monitors) {
 }
 
 
-int monitors_get_max_temp(const t_node *monitors) {
+int monitors_get_temp_max(const t_node *monitors) {
     int temp_max = 10000;
     t_monitor *monitor = NULL;
 

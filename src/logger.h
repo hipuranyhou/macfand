@@ -60,10 +60,11 @@ void logger_log(int level, const char *format, ...);
  * @brief Logs given generic linked list.
  * Logs given generic linked list using given print function based on logger type (file or std).
  * Printing of lists is disable when using syslog.
+ * @param[in]  name        Name of logged list
  * @param[in]  head        Pointer to head of generic linked list.
  * @param[in]  node_print  Pointer to print function for data type saved in generic linked list.
  */
-void logger_log_list(const t_node *head, void (*node_print)(const void *, FILE *));
+void logger_log_list(const char *name, const t_node *head, void (*node_print)(const void *, FILE *));
 
 /**
  * @brief Logs exit message and gracefully exits logger

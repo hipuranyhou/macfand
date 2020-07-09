@@ -178,6 +178,9 @@ t_node *fans_load(void) {
         return NULL;
 
     fan->speed = 0;
+    fan->path_write = NULL;
+    fan->path_manual = NULL;     
+    fan->label = NULL;
 
     for (;;) {
         fan->id = ++id_fan;
@@ -192,7 +195,12 @@ t_node *fans_load(void) {
         {
             list_free(fans, (void (*)(void *))fan_free);
             fans = NULL;
-            free(fan);
+            if (fan->path_write)
+                free(fan->path_write);
+            if (fan->path_manual)
+                free(fan->path_manual);
+            if (fan->label)
+                free(fan->label);
             break;
         }
     }
@@ -277,8 +285,7 @@ void fan_print(const t_fan *fan, FILE *stream) {
     if (!fan)
         return;
     fprintf(stream, "Fan %d - %s\n", fan->id, fan->label);
-    fprintf(stream, "Min speed: %d   Max speed: %d\n", fan->min, fan->max);
-    fprintf(stream, "Step: %d\n", fan->step);
+    fprintf(stream, "Min speed: %d    Max speed: %d    Step: %d\n", fan->min, fan->max, fan->step);
     fprintf(stream, "Write: %s\n", fan->path_write);
     fprintf(stream, "Mode: %s\n", fan->path_manual);
 }

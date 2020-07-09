@@ -16,7 +16,7 @@ Make sure you have loaded `coretemp` and `applesmc` kernel modules by running:
 lsmod | grep -e coretemp -e applesmc
 ```
 
-These modules should be loaded if you are running linux on a Mac, but if they are not, add these two lines to `/etc/modules`:
+These modules should be loaded if you are running Linux on a Mac, but if they are not, add these two lines to `/etc/modules`:
 
 ```bash
 coretemp
@@ -46,17 +46,17 @@ $ make
 
 3. Install using:
 
-```bash
+```
 # make install
 ```
 
-This will install macfand to `/usr/bin` and enable the included `macfand.service` unit to start with your system.
+This will install macfand to `/usr/bin`, configuration file to `/etc` and enable the included `macfand.service` unit to start with your system.
 
 ## Uninstall
 
 You can uninstall macfand by running 
 
-```bash
+```
 # make uninstall
 ```
 
@@ -64,26 +64,15 @@ from inside of the cloned directory if you did not change the executable name.
 
 ## Configuration file
 
-*Will be added*
-
-No configuration file is currently used. All configuration is done using command line options.
+Macfand expects configuration file by default. If no path is set using [config](https://github.com/Hipuranyhou/macfand#config) argument, macfand checks for configuration file at `/etc/macfand.config`. If you want do disable check for configuration file, use one of 'no', 'false' and '0' as value for [config](https://github.com/Hipuranyhou/macfand#config). For more information about configuration 
+options see [macfand.config](https://github.com/Hipuranyhou/macfand/blob/master/macfand.config).
 
 ## Options
 
-#### Version
-`--version` or `-V`
+#### Config
+`--config` or `-c`
 
-Use to see which version of macfand you are using.
-
-#### Help
-`--help` or `-?`
-
-Use to get quick info about available options.
-
-#### Daemon
-`--daemon` or `-d`
-
-Use to run macfand as daemon. In daemon mode, syslog is used for all messages (stdout and stderr otherwise) and pid file is located at `/run/macfand.pid`.
+Use to set path to configuration file. Use one of 'no', 'false' and '0' to disable check for configuration file.
 
 #### Verbose
 `--verbose` or `-v`
@@ -91,24 +80,3 @@ Use to run macfand as daemon. In daemon mode, syslog is used for all messages (s
 Use to enable verbose mode producing a lot of output. Not recommended when using
 syslog because some messages (for example logging of loaded fans and monitors) is disabled even in verbose mode
 when using syslog.
-
-#### Poll time
-`--poll=NUM` or `-p NUM`
-
-Use to set how often temperature is checked and fans are adjusted. **Must be a whole number >= 1.**
-
-#### Low temp
-`--low=NUM` or `-l NUM`
-
-Use to set temperature under which fans run on min speed. **Must be a whole number >= 1.**
-
-#### High temp
-`--high=NUM` or `-h NUM`
-
-Use to set temperature over which fans will start to slowly ramp up. **Must be a whole number >= 30.**
-
-#### Log type
-`--type=NUM/PATH` or `-t NUM/PATH`
-
-Use to set logger to be used. 0 for std, 1 for syslog. Any other value will be used as log file
-path and logging to this file will be used.

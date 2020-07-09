@@ -33,15 +33,16 @@ $(EXECDIR)/$(EXEC): $(OBJFILES)
 	$(LD) $(LDFLAGS) $^ -o $@
 
 run:
-	$(EXECDIR)/./$(EXEC)
+	$(EXECDIR)/./$(EXEC) --config=macfand.config
 
 run_valgrind:
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $(EXECDIR)/./$(EXEC) --verbose:
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $(EXECDIR)/./$(EXEC) --config=macfand.config
 
 install:
 	cp $(EXECDIR)/$(EXEC) /usr/bin
 	chmod 755 /usr/bin/$(EXEC)
 	cp macfand.service /usr/lib/systemd/system
+	cp macfand.config /etc
 	systemctl daemon-reload
 	systemctl enable --now macfand.service
 
