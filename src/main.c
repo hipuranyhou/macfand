@@ -24,36 +24,50 @@
 #include "config.h"
 
 /**
- * @brief 
- * 
- * @param monitors 
- * @param fans 
+ * @brief Frees all allocated memory and logs exit.
+ * Used in main() before exit. Frees memory used by lists monitors and fans,
+ * string settings and prepares logger for exit.
+ * @param[in]  fans      Pointer to head of linked list of system fans.
+ * @param[in]  monitors  Pointer to head of linked list of temperature monitors.
  */
 static void prepare_exit(t_node *monitors, t_node *fans);
 
 /**
- * @brief 
- * 
- * @param monitors 
- * @param fans 
- * @return int 
+ * @brief Prepares generic linked lists of monitors and fans for use.
+ * Used to load generic linked lists of monitors and fans for use. Loads max temperature 
+ * into settings and sets fans to automatic mode. Logs error messages and both lists using logger.
+ * @param[in,out]  fans      Pointer to head of linked list of system fans.
+ * @param[in,out]  monitors  Pointer to head of linked list of temperature monitors.
+ * @return int 0 on error, 1 on success
  */
 static int prepare_monitors_and_fans(t_node **monitors, t_node **fans);
 
 /**
- * @brief 
- * 
+ * @brief Prepares settings for macfand.
+ * Prepares settings for macfand by reading configuration file if it is not disabled, sets
+ * default paths (log file, i3 widget, ...) and checks validity of settings.
+ * @param[in]  arguments  Pointer to struct of argp arguments.
+ * @return int 0 on error, 1 on success.
+ */
+int prepare_settings(const arguments_t *arguments);
+
+/**
+ * @brief Struct used for argp.
+ * Struct used for returning command line arguments from argp to main.
  */
 typedef struct arguments {
+    int no_config;
     char *config_file_path;
 } arguments_t;
 
+
+/*******************************  argp stuff  ***********************************/
 
 const char *argp_program_version = "macfand - version 0.1";
 
 
 static struct argp_option options[] = { 
-    {"config", 'c', "PATH", 0, "Path to custom configuration file", 1},
+    {"config", 'c', "PATH", 0, "Path to custom configuration file (no, false or 0 to disable check for config file)", 1},
     {"verbose", 'v', NULL, 0, "Enable verbose mode", 2},
     {0}
 };
@@ -63,6 +77,10 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
     arguments_t *arguments = state->input;
     switch(key) {
         case 'c':
+            if (strcmp(arg, "no") == 0 || strcmp(arg, "false") == 0 || strcmp(arg, "0") == 0) {
+                arguments->no_config = 1;
+                break;
+            }
             arguments->config_file_path = arg;
             break;
         case 'v':
@@ -74,6 +92,8 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
 
 
 static struct argp argp = {options, parse_opt, NULL, NULL, NULL, NULL, NULL};
+
+/******************************************************************************/
 
 
 static void prepare_exit(t_node *monitors, t_node *fans) {
@@ -90,13 +110,11 @@ static int prepare_monitors_and_fans(t_node **monitors, t_node **fans) {
 
     if (!(*monitors = monitors_load())) {
         logger_log(LOG_L_ERROR, "%s", "Unable to load system temperature monitors");
-        logger_exit();
         return 1;
     }   
 
     if (!settings_set_value(SET_TEMP_MAX, monitors_get_temp_max(*monitors))) {
         logger_log(LOG_L_ERROR, "%s", "Unable to load max temperature");
-        prepare_exit(*monitors, *fans);
         return 0;
     }
 
@@ -105,7 +123,6 @@ static int prepare_monitors_and_fans(t_node **monitors, t_node **fans) {
 
     if (!(*fans = fans_load())) {
         logger_log(LOG_L_ERROR, "%s", "Unable to load system fans");
-        prepare_exit(*monitors, *fans);
         return 0;
     }
 
@@ -116,7 +133,29 @@ static int prepare_monitors_and_fans(t_node **monitors, t_node **fans) {
         // Those we were unable to set to manual mode are already in automatic mode
         fans_set_mode(*fans, FAN_AUTO);
         logger_log(LOG_L_ERROR, "%s", "Unable to set fans to manual mode");
-        prepare_exit(*monitors, *fans);
+        return 0;
+    }
+
+    return 1;
+}
+
+
+int prepare_settings(const arguments_t *arguments) {
+
+    if (!arguments->no_config) {
+        // Load config
+        if (!config_load((arguments->config_file_path) ? arguments->config_file_path : "/etc/macfand.config")) {
+            logger_log(LOG_L_ERROR, "%s", "Unable to load configuration file");
+            return 0;
+        }
+    }
+
+    if (arguments->no_config)
+        logger_log(LOG_L_WARN, "%s", "Using default settings");
+
+    // Load default paths and check validity of settings
+    if (!settings_check()) {
+        logger_log(LOG_L_ERROR, "%s", "Settings are invalid");
         return 0;
     }
 
@@ -127,29 +166,24 @@ static int prepare_monitors_and_fans(t_node **monitors, t_node **fans) {
 int main(int argc, char **argv) {
     t_node *monitors = NULL, *fans = NULL;
     arguments_t arguments = {
+        .no_config = 0,
         .config_file_path = NULL
     };
 
     // Argp leaking memory on failure?
     argp_parse(&argp, argc, argv, 0, NULL, &arguments);
 
-    // Load config
-    if (!config_load((arguments.config_file_path) ? arguments.config_file_path : "/etc/macfand.config")) {
-        logger_log(LOG_L_ERROR, "%s", "Unable to load configuration file");
-        logger_exit();
-        return EXIT_FAILURE;
-    }
-
-    // Check validity of settings
-    if (!settings_check()) {
-        logger_log(LOG_L_ERROR, "%s", "Settings are invalid");
-        logger_exit();
+    // Load settings
+    if (!prepare_settings(&arguments)) {
+        prepare_exit(monitors, fans);
         return EXIT_FAILURE;
     }
 
     // Load system temperature monitors a fans
-    if (!prepare_monitors_and_fans(&monitors, &fans))
+    if (!prepare_monitors_and_fans(&monitors, &fans)) {
+        prepare_exit(monitors, fans);
         return EXIT_FAILURE;
+    }
 
     // Daemonize
     if (settings_get_value(SET_DAEMON))

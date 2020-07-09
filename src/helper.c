@@ -59,22 +59,24 @@ char* concatenate_format(const char* format, ...) {
 size_t get_line_until(const char *line, const char delimeter, char **destination, size_t *destination_size) {
     size_t cnt = 0;
 
-    if (!line)
-        return 0;
+    if (!line || (*destination && *destination_size == 0))
+        return -1;
 
     // Prepare buffer
     if (*destination_size == 0) 
         *destination_size = 32;
-    if (!(*destination))
+    if (!(*destination)) {
         *destination = (char*)malloc(*destination_size * sizeof(*destination));
-    if (!(*destination))
-        return -1;
+        if (!(*destination))
+            return -1;
+    }
 
     while (*line) {
+
         // Resize buffer
-        if (cnt == *destination_size) {
+        if (cnt == *destination_size - 1) {
             *destination_size <<= 1;
-            if (*destination_size > 8192)
+            if (*destination_size > 4096)
                 return -1;
             *destination = (char*)realloc(*destination, *destination_size * sizeof(*destination));
             if (!(*destination))
@@ -83,8 +85,10 @@ size_t get_line_until(const char *line, const char delimeter, char **destination
 
         if (*line == delimeter || *line == '\n')
             break;
+            
         (*destination)[cnt++] = *line;
         line++;
+
     }
 
     (*destination)[cnt] = '\0';

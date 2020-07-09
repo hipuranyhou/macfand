@@ -31,13 +31,15 @@ char* concatenate_format_v(const char* format, va_list ap);
 char* concatenate_format(const char* format, ...);
 
 /**
- * @brief 
- * 
- * @param line 
- * @param delimeter 
- * @param destination 
- * @param destination_size 
- * @return int 
+ * @brief Extracts string from line until delimeter.
+ * Used to extract string from given line until delimeter, newline or null byte, whichever comes first.
+ * Given string is saved in destination. If given destination is not large enough, calls realloc and
+ * updates destination and destination_size appropriately. Memory has to be freed even when function fails.
+ * @param[in]      line              Pointer to string we extract from.
+ * @param[in]      delimeter         Character until which we read.
+ * @param[in,out]  destination       Pointer to destination buffer.
+ * @param[in,out]  destination_size  Pointer to size of buffer destination.
+ * @return int -1 on error, number of read characters (excluding terminating null byte) otherwise.
  */
 size_t get_line_until(const char *line, const char delimeter, char **destination, size_t *destination_size);
 

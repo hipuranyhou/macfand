@@ -48,12 +48,12 @@ int settings_check() {
         return 0;
     }
 
-    if (settings.temp_high < 1 || settings.temp_high <= settings.temp_low) {
+    if (settings.temp_high <= settings.temp_low) {
         logger_log(LOG_L_DEBUG, "%s", "Value of temp_high is invalid (must be > temp_low)");
         return 0;
     }
 
-    if (settings.temp_max < 1 || settings.temp_max <= settings.temp_high) {
+    if (settings.temp_max <= settings.temp_high) {
         logger_log(LOG_L_DEBUG, "%s", "Value of temp_max is invalid (must be > temp_high");
         return 0;
     }
@@ -90,7 +90,7 @@ int settings_check() {
 }
 
 
-int settings_get_value(int setting) {
+int settings_get_value(const int setting) {
     switch (setting) {
         case SET_TEMP_LOW:
             return settings.temp_low;
@@ -112,7 +112,7 @@ int settings_get_value(int setting) {
 }
 
 
-char* settings_get_value_string(int setting) {
+char* settings_get_value_string(const int setting) {
     switch (setting) {
         case SET_TEMP_LOW:
             return settings.log_file_path;
@@ -122,7 +122,7 @@ char* settings_get_value_string(int setting) {
 }
 
 
-int settings_set_value(int setting, int value) {
+int settings_set_value(const int setting, const int value) {
     switch (setting) {
         case SET_TEMP_LOW:
             settings.temp_low = value;
@@ -148,11 +148,12 @@ int settings_set_value(int setting, int value) {
         default:
             return 0;
     }
+
     return 1;
 }
 
 
-int settings_set_value_string(int setting, const char *value) { 
+int settings_set_value_string(const int setting, const char *value) { 
     if (!value)
         return 0;
 

@@ -18,25 +18,28 @@
 #include "helper.h"
 
 /**
- * @brief 
- * 
- * @param key 
- * @param value 
- * @return int 
+ * @brief Assigns value of given setting.
+ * Assigns value of given setting.
+ * @param[in]  key    Name of setting to be assigned.
+ * @param[in]  value  Value to be assigned.
+ * @return int 0 on error, 1 on success.
  */
 static int config_assign_setting(const char *key, const char *value);
 
 /**
- * @brief 
- * 
- * @param line 
- * @return int 
+ * @brief Parses given line of configuration file.
+ * Extracts key and value from given line of configuration file and assigns
+ * value of setting with given key.
+ * @param[in]  line  String holding line to be parsed.
+ * @return int 0 on error, 1 on success.
  */
 static int config_parse_line(const char *config_line);
 
 /**
- * @brief 
- * 
+ * @brief Parses each line of given configuration file.
+ * Parses each line of given configuration file.
+ * @param[in]  config_file  Pointer to opened file to be parsed.
+ * @return int -1 on error, 0 on success, line number with mistake otherwise.
  */
 static int config_parse_file(FILE *config_file);
 
@@ -131,6 +134,7 @@ static int config_parse_line(const char *config_line) {
         return 0;
     }
 
+    // Skip whitespace before value
     config_line += get_return;
     while (isspace(*config_line) || *config_line == '"' || *config_line == ':')
         config_line++;
@@ -179,7 +183,7 @@ static int config_parse_file(FILE *config_file) {
 }
 
 
-int config_load(char *config_path) {
+int config_load(const char *config_path) {
     FILE *config_file = NULL;
     int parse_return = 0;
 
