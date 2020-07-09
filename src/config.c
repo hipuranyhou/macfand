@@ -76,6 +76,13 @@ static int config_assign_setting(const char *key, const char *value) {
             return 1;
         }
 
+        // Widget file path
+        if (strcmp(key, "widget_file_path") == 0) {
+            if (!settings_set_value_string(SET_WIDGET_FILE_PATH, value))
+                return 0;
+            return 1;
+        }
+
         return 0;
     }
     
@@ -102,6 +109,11 @@ static int config_assign_setting(const char *key, const char *value) {
     }
     if (strcmp(key, "verbose") == 0) {
         if (!settings_set_value(SET_VERBOSE, value_int))
+            return 0;
+        return 1;
+    }
+    if (strcmp(key, "widget") == 0) {
+        if (!settings_set_value(SET_WIDGET, value_int))
             return 0;
         return 1;
     }

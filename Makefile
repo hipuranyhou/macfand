@@ -36,20 +36,20 @@ run:
 	$(EXECDIR)/./$(EXEC) --config=macfand.config
 
 run_valgrind:
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $(EXECDIR)/./$(EXEC) --config=macfand.config
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $(EXECDIR)/./$(EXEC) --config=macfand.conf
 
 install:
 	cp $(EXECDIR)/$(EXEC) /usr/bin
 	chmod 755 /usr/bin/$(EXEC)
 	cp macfand.service /usr/lib/systemd/system
-	cp macfand.config /etc
+	cp macfand.conf /etc
 	systemctl daemon-reload
 	systemctl enable --now macfand.service
 
 uninstall:
 	systemctl disable --now macfand.service
 	systemctl daemon-reload
-	rm -f /usr/lib/systemd/system/macfand.service /usr/bin/$(EXEC) /etc/macfand.config
+	rm -f /usr/lib/systemd/system/macfand.service /usr/bin/$(EXEC) /etc/macfand.conf
 
 clean:
 	rm -rf $(OBJDIR) $(EXECDIR)
