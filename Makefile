@@ -49,7 +49,7 @@ install:
 uninstall:
 	systemctl disable --now macfand.service
 	systemctl daemon-reload
-	find / -name 'macfand*' -exec rm --force --recursive {} \;
+	rm -f /usr/lib/systemd/system/macfand.service /usr/bin/$(EXEC) /etc/macfand.conf
 
 clean:
 	rm -rf $(OBJDIR) $(EXECDIR)
