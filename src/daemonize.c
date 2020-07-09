@@ -19,42 +19,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <signal.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
 #include "daemonize.h"
 #include "logger.h"
-
-/**
- * @brief Sets the termination flag.
- * Sets the termination flag to 1 for exiting out of main control loop when signal is catched.
- * @param[in] sig Catched signal number.
- */
-static void set_termination_flag(int sig);
-
-/**
- * @brief Wrapper for all signal() calls;
- * Wrapper for all singal() calls for all signals we want to register.
- */
-static void prepare_signals(void);
-
-
-extern volatile int termination_flag;
-
-
-static void set_termination_flag(int sig) {
-    termination_flag = sig;
-}
-
-
-static void prepare_signals(void) {
-    // Prepare all signals after which we terminate
-    signal(SIGABRT, set_termination_flag);
-    signal(SIGINT, set_termination_flag);
-    signal(SIGQUIT, set_termination_flag);
-    signal(SIGTERM, set_termination_flag);
-}
 
 
 void daemonize(void) {
@@ -77,9 +46,6 @@ void daemonize(void) {
     // Child becomes leader
     if (setsid() < 0)
         exit(EXIT_FAILURE);
-
-    // Handle signals
-    prepare_signals();
 
     // Fork off second time
     pid = fork();
@@ -108,7 +74,8 @@ void daemonize(void) {
         logger_log(LOG_L_DEBUG, "%s", "Unable to open PID file");
         return;
     }
-    if (fprintf(pid_file, "%d\n", getpid()) == EOF)
+    if (fprintf(pid_file, "%d\n", getpid()) < 0)
         logger_log(LOG_L_DEBUG, "%s", "Unable to write PID file");
-    fclose(pid_file);
+    if (fclose(pid_file) == EOF)
+        logger_log(LOG_L_DEBUG, "%s", "Unable to close PID file");
 }

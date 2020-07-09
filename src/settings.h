@@ -27,7 +27,8 @@ enum setting {
     SET_LOG_TYPE,
     SET_LOG_FILE_PATH,
     SET_WIDGET,
-    SET_WIDGET_FILE_PATH
+    SET_WIDGET_FILE_PATH,
+    SET_CONFIG_FILE_PATH
 };
 
 /**

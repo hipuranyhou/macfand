@@ -32,9 +32,6 @@ void widget_write(const t_node *fans) {
         fans = fans->next;
     }
 
-    if (fflush(widget_file) == EOF)
-        logger_log(LOG_L_ERROR, "%s", "Unable to write widget file");
-
     if (fclose(widget_file) == EOF) {
         logger_log(LOG_L_ERROR, "%s", "Unable to close widget file");
         return;

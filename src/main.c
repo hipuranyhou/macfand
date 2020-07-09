@@ -9,6 +9,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
 #include <argp.h>
 #include <syslog.h>
 #include <errno.h>
@@ -25,12 +26,32 @@
 #include "config.h"
 
 /**
+ * @brief Sets the termination flag.
+ * Sets the termination flag to sig for exiting out of main control loop when termination signal is catched.
+ * @param[in]  sig  Catched signal number.
+ */
+static void set_termination_flag(int sig);
+
+/**
+ * @brief Sets the reload config flag.
+ * Sets the reload config flag to sig for reloading config in main control loop when SIGHUP is catched.
+ * @param[in]  sig  Catched signal number.
+ */
+static void set_reload_config_flag(int sig);
+
+/**
+ * @brief Wrapper for all sigaction() calls.
+ * Wrapper for all sigaction() calls for all signals we want to register.
+ * @return int 0 on error, 1 on success.
+ */
+static int prepare_signals(void);
+
+/**
  * @brief Struct used for argp.
  * Struct used for returning command line arguments from argp to main.
  */
 typedef struct arguments {
     int no_config;
-    char *config_file_path;
 } arguments_t;
 
 /**
@@ -82,7 +103,8 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
                 arguments->no_config = 1;
                 break;
             }
-            arguments->config_file_path = arg;
+            if (!settings_set_value_string(SET_CONFIG_FILE_PATH, arg))
+                argp_failure(state, 1, 0, "Unknown error encoutered while setting config file path.");
             break;
         case 'v':
             settings_set_value(SET_VERBOSE, 1);
@@ -93,6 +115,48 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
 
 
 static struct argp argp = {options, parse_opt, NULL, NULL, NULL, NULL, NULL};
+
+/******************************************************************************/
+
+
+/***************************** signal handling ********************************/
+
+extern volatile sig_atomic_t termination_flag;
+extern volatile sig_atomic_t reload_config_flag;
+
+
+static void set_termination_flag(int sig) {
+    termination_flag = sig;
+}
+
+
+static void set_reload_config_flag(int sig) {
+    reload_config_flag = sig;
+}
+
+
+static int prepare_signals(void) {
+    struct sigaction action;
+
+    action.sa_flags = 0;
+    if (sigemptyset(&action.sa_mask) < 0)
+        return 0;
+
+    // Prepare all signals after which we terminate
+    action.sa_handler = set_termination_flag;
+    if (sigaction(SIGABRT, &action, NULL) < 0 ||
+        sigaction(SIGINT, &action, NULL) < 0  ||
+        sigaction(SIGQUIT, &action, NULL) < 0 ||
+        sigaction(SIGTERM, &action, NULL) < 0)
+        return 0;
+
+    // Reload config action
+    action.sa_handler = set_reload_config_flag;
+    if (sigaction(SIGHUP, &action, NULL) < 0)
+        return 0;
+
+    return 1;
+}
 
 /******************************************************************************/
 
@@ -145,7 +209,7 @@ static int prepare_settings(const arguments_t *arguments) {
 
     if (!arguments->no_config) {
         // Load config
-        if (!config_load((arguments->config_file_path) ? arguments->config_file_path : "/etc/macfand.conf")) {
+        if (!config_load(settings_get_value_string(SET_CONFIG_FILE_PATH))) {
             logger_log(LOG_L_ERROR, "%s", "Unable to load configuration file");
             return 0;
         }
@@ -168,7 +232,6 @@ int main(int argc, char **argv) {
     t_node *monitors = NULL, *fans = NULL;
     arguments_t arguments = {
         .no_config = 0,
-        .config_file_path = NULL
     };
 
     // Argp leaking memory on failure?
@@ -180,8 +243,8 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
 
-    // Load system temperature monitors a fans
-    if (!prepare_monitors_and_fans(&monitors, &fans)) {
+    if (!prepare_signals()) {
+        logger_log(LOG_L_ERROR, "%s", "Unable to register signal handlers");
         prepare_exit(monitors, fans);
         return EXIT_FAILURE;
     }
@@ -197,8 +260,20 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
 
+    // Load system temperature monitors a fans
+    if (!prepare_monitors_and_fans(&monitors, &fans)) {
+        prepare_exit(monitors, fans);
+        return EXIT_FAILURE;
+    }
+
     // Start main control loop
-    control_start(monitors, fans);
+    if (!control_start(monitors, fans)) {
+        logger_log(LOG_L_ERROR, "%s", "Main control loop failed");
+        if (!fans_set_mode(fans, FAN_AUTO))
+            logger_log(LOG_L_ERROR, "%s", "Unable to reset fans to automatic mode");
+        prepare_exit(monitors, fans);
+        return EXIT_FAILURE;
+    }
 
     // Reset fans back to automatic mode
     if (!fans_set_mode(fans, FAN_AUTO)) {

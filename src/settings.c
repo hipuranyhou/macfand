@@ -25,6 +25,7 @@ static struct {
     char *log_file_path;
     int widget;
     char *widget_file_path;
+    char *config_file_path;
 } settings = {
     .temp_low = 63,
     .temp_high = 66,
@@ -35,7 +36,8 @@ static struct {
     .log_type = LOG_T_STD,
     .log_file_path = NULL,
     .widget = 0,
-    .widget_file_path = NULL
+    .widget_file_path = NULL,
+    .config_file_path = NULL
 };
 
 
@@ -44,6 +46,8 @@ void settings_free() {
         free(settings.log_file_path);
     if (settings.widget_file_path)
         free(settings.widget_file_path);
+    if (settings.config_file_path)
+        free(settings.config_file_path);
 }
 
 
@@ -139,6 +143,8 @@ char* settings_get_value_string(const int setting) {
             return settings.log_file_path;
         case SET_WIDGET_FILE_PATH:
             return settings.widget_file_path;
+        case SET_CONFIG_FILE_PATH:
+            return settings.config_file_path;
         default:
             return NULL;
     }
@@ -201,6 +207,15 @@ int settings_set_value_string(const int setting, const char *value) {
             if (!settings.widget_file_path)
                 return 0;
             strcpy(settings.widget_file_path, value);
+            break;
+
+        case SET_CONFIG_FILE_PATH:
+            if (settings.config_file_path)
+                free(settings.config_file_path);
+            settings.config_file_path = (char*)malloc(strlen(value)+1);
+            if (!settings.config_file_path)
+                return 0;
+            strcpy(settings.config_file_path, value);
             break;
 
         default:

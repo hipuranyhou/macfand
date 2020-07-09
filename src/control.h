@@ -32,7 +32,8 @@ typedef struct control {
  * in fans using control_calculate_speed() and fan_set_speed(). In case registered signal is catched, returns.
  * @param[in,out]  fans      Pointer to head of linked list of system fans.
  * @param[in]      monitors  Pointer to head of linked list of temperature monitors.
+ * @return int 0 on error, 1 on success
  */
-void control_start(const t_node *monitors, t_node *fans);
+int control_start(const t_node *monitors, t_node *fans);
 
 #endif //MACFAND_CONTROL_H_fsdfdsfsdf

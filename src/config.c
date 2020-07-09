@@ -198,11 +198,8 @@ static int config_parse_file(FILE *config_file) {
 int config_load(const char *config_path) {
     FILE *config_file = NULL;
     int parse_return = 0;
-
-    if (!config_path)
-        return 0;
     
-    config_file = fopen(config_path, "r");
+    config_file = fopen((config_path) ? config_path : "/etc/macfand.conf", "r");
     if (!config_file)
         return 0;
 

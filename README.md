@@ -65,7 +65,12 @@ from inside of the cloned directory if you did not change the executable name.
 
 ## Configuration file
 
-Macfand expects configuration file by default. If no path is set using [config](https://github.com/Hipuranyhou/macfand#config) argument, macfand checks for configuration file at `/etc/macfand.conf`. If you want do disable check for configuration file, use one of 'no', 'false' and '0' as value for [config](https://github.com/Hipuranyhou/macfand#config). For more information about configuration 
+Macfand expects configuration file by default. If no path is set using [config](https://github.com/Hipuranyhou/macfand#config) argument, macfand checks for configuration file at `/etc/macfand.conf`. If you want do disable check for configuration file, use one of 'no', 'false' and '0' as value for [config](https://github.com/Hipuranyhou/macfand#config)
+. 
+
+Configuration file can be reloaded at runtime by sending `SIGHUP` to macfand. Note that **daemon mode** setting **is ignored when reloading** configuration file at runtime.
+
+For more information about configuration 
 options see [macfand.config](https://github.com/Hipuranyhou/macfand/blob/master/macfand.config).
 
 ## Options

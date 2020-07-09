@@ -10,14 +10,24 @@
 #include <stdio.h>
 #include <time.h>
 #include <syslog.h>
+#include <signal.h>
 
 #include "control.h"
 #include "helper.h"
+#include "config.h"
 #include "logger.h"
 #include "settings.h"
 #include "fan.h"
 #include "monitor.h"
 #include "widget.h"
+#include "daemonize.h"
+
+/**
+ * @brief Reloads settings from configuration file.
+ * Reloads settings from configuration file, check its validity and reloads logger.
+ * @return int 0 on error, 1 on success.
+ */
+static int control_reload_config(void);
 
 /**
  * @brief Calculates new fan speed.
@@ -39,7 +49,29 @@ static void control_calculate_speed(t_control *control, const t_fan *fan);
 static void control_set_temps(t_control *control, const t_node *monitors);
 
 
-volatile int termination_flag = 0;
+volatile sig_atomic_t termination_flag = 0;
+volatile sig_atomic_t reload_config_flag = 0;
+
+
+static int control_reload_config(void) {
+
+    if (!config_load(settings_get_value_string(SET_CONFIG_FILE_PATH))) {
+        logger_log(LOG_L_ERROR, "%s", "Unable to load configuration file");
+        return 0;
+    }
+
+    if (!settings_check()) {
+        logger_log(LOG_L_ERROR, "%s", "Settings are invalid");
+        return 0;
+    }
+
+    if (!logger_set_type(settings_get_value(SET_LOG_TYPE), settings_get_value_string(SET_LOG_FILE_PATH))) {
+        logger_log(LOG_L_ERROR, "%s", "Unable to set logger to configured mode");
+        return 0;
+    }
+
+    return 1;
+}
 
 
 static void control_calculate_speed(t_control *control, const t_fan *fan) {
@@ -78,21 +110,35 @@ static void control_set_temps(t_control *control, const t_node *monitors) {
 }
 
 
-void control_start(const t_node *monitors, t_node *fans) {
-    t_control control = {0, 0, 0, 0, 0};
+int control_start(const t_node *monitors, t_node *fans) {
+    t_control control = {
+        .temp_previous = 0, 
+        .temp_current = 0, 
+        .temp_delta = 0, 
+        .speed = 0, 
+        .steps = 0
+    };
     t_fan *fan = NULL;
     t_node *fans_head = fans;
     struct timespec ts;
 
     if (!fans || !monitors)
-        return;
+        return 0;
 
     ts.tv_sec = settings_get_value(SET_TIME_POLL);
     ts.tv_nsec = 0;
 
     for(;;) {
         if (termination_flag)
-            return;
+            return 1;
+        if (reload_config_flag) {
+            if (!control_reload_config()) {
+                logger_log(LOG_L_ERROR, "%s", "Unable to reload configuration file");
+                return 0;
+            }
+            logger_log(LOG_L_INFO, "%s", "Configuration file reloaded");
+            reload_config_flag = 0;
+        }
 
         // Prepare next fan loop
         fans = fans_head;
@@ -114,4 +160,6 @@ void control_start(const t_node *monitors, t_node *fans) {
         // Wait
         nanosleep(&ts, NULL);
     }
+
+    return 1;
 }
