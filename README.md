@@ -16,7 +16,7 @@ Make sure you have loaded `coretemp` and `applesmc` kernel modules by running:
 lsmod | grep -e coretemp -e applesmc
 ```
 
-These modules should be loaded if you are running linux on a Mac, but if they are not, add these two lines to `/etc/modules`:
+These modules should be loaded if you are running Linux on a Mac, but if they are not, add these two lines to `/etc/modules`:
 
 ```bash
 coretemp
