@@ -12,6 +12,7 @@
 #include <argp.h>
 #include <syslog.h>
 #include <errno.h>
+#include <string.h>
 
 #include "fan.h"
 #include "monitor.h"
@@ -22,6 +23,15 @@
 #include "linked.h"
 #include "logger.h"
 #include "config.h"
+
+/**
+ * @brief Struct used for argp.
+ * Struct used for returning command line arguments from argp to main.
+ */
+typedef struct arguments {
+    int no_config;
+    char *config_file_path;
+} arguments_t;
 
 /**
  * @brief Frees all allocated memory and logs exit.
@@ -50,15 +60,6 @@ static int prepare_monitors_and_fans(t_node **monitors, t_node **fans);
  * @return int 0 on error, 1 on success.
  */
 int prepare_settings(const arguments_t *arguments);
-
-/**
- * @brief Struct used for argp.
- * Struct used for returning command line arguments from argp to main.
- */
-typedef struct arguments {
-    int no_config;
-    char *config_file_path;
-} arguments_t;
 
 
 /*******************************  argp stuff  ***********************************/
