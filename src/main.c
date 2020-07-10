@@ -176,7 +176,7 @@ static int prepare_monitors_and_fans(t_node **monitors, t_node **fans) {
     if (!(*monitors = monitors_load())) {
         logger_log(LOG_L_ERROR, "%s", "Unable to load system temperature monitors");
         return 1;
-    }   
+    }
 
     if (!settings_set_value(SET_TEMP_MAX, monitors_get_temp_max(*monitors))) {
         logger_log(LOG_L_ERROR, "%s", "Unable to load max temperature");

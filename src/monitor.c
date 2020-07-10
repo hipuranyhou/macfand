@@ -8,7 +8,6 @@
  */
 
 #include <stdlib.h>
-#include <dirent.h>
 
 #include "monitor.h"
 #include "helper.h"
