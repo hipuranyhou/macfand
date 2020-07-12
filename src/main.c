@@ -213,10 +213,11 @@ static int prepare_settings(const arguments_t *arguments) {
             logger_log(LOG_L_ERROR, "%s", "Unable to load configuration file");
             return 0;
         }
+        logger_log(LOG_L_INFO, "%s %s", "Using configuration file", settings_get_value_string(SET_CONFIG_FILE_PATH));
     }
 
     if (arguments->no_config)
-        logger_log(LOG_L_WARN, "%s", "Using default settings");
+        logger_log(LOG_L_WARN, "%s", "Using default settings without configuration file");
 
     // Load default paths and check validity of settings
     if (!settings_check()) {
