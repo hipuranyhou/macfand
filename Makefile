@@ -33,7 +33,7 @@ $(EXECDIR)/$(EXEC): $(OBJFILES)
 	$(LD) $(LDFLAGS) $^ -o $@
 
 run:
-	$(EXECDIR)/./$(EXEC) --config=macfand.config
+	$(EXECDIR)/./$(EXEC) --config=macfand.conf
 
 run_valgrind:
 	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $(EXECDIR)/./$(EXEC) --config=macfand.conf
