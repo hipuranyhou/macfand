@@ -10,17 +10,3 @@ It has **automatic detection** of all your **fans**, their **settings** (max and
 **This is unofficial software and by using it you agree to taking full responsibility for possibly damaging your computer.**
 
 For more information about installation and configuration, please, continue to [wiki](https://github.com/Hipuranyhou/macfand/wiki).
-
-## Options
-
-#### Config
-`--config` or `-c`
-
-Use to set path to configuration file. Use one of 'no', 'false' and '0' to disable check for configuration file.
-
-#### Verbose
-`--verbose` or `-v`
-
-Use to enable verbose mode producing a lot of output. Not recommended when using
-syslog because some messages (for example logging of loaded fans and monitors) is disabled even in verbose mode
-when using syslog.
