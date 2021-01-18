@@ -1,0 +1,73 @@
+[Oct 28 14:09:52] INFO   : Using configuration file macfand.conf
+[Oct 28 14:09:52] INFO   : Currently loaded monitors ->
+
+Monitor 5 - Core 3
+Max temp: 84°C
+Read: /sys/devices/platform/coretemp.0/hwmon/hwmon0/temp5_input
+
+Monitor 4 - Core 2
+Max temp: 84°C
+Read: /sys/devices/platform/coretemp.0/hwmon/hwmon0/temp4_input
+
+Monitor 3 - Core 1
+Max temp: 84°C
+Read: /sys/devices/platform/coretemp.0/hwmon/hwmon0/temp3_input
+
+Monitor 2 - Core 0
+Max temp: 84°C
+Read: /sys/devices/platform/coretemp.0/hwmon/hwmon0/temp2_input
+
+Monitor 1 - Package id 0
+Max temp: 84°C
+Read: /sys/devices/platform/coretemp.0/hwmon/hwmon0/temp1_input
+
+[Oct 28 14:09:52] INFO   : Currently loaded fans ->
+
+Fan 2 - Right side 
+Min speed: 2000    Max speed: 5700    Step: 21
+Write: /sys/devices/platform/applesmc.768/fan2_output
+Mode: /sys/devices/platform/applesmc.768/fan2_manual
+
+Fan 1 - Left side  
+Min speed: 2160    Max speed: 6156    Step: 23
+Write: /sys/devices/platform/applesmc.768/fan1_output
+Mode: /sys/devices/platform/applesmc.768/fan1_manual
+
+[Oct 28 14:09:53] ERROR  : Unable to set fans to manual mode
+[Oct 28 14:09:53] INFO   : Shutting down
+[Oct 28 14:21:26] INFO   : Using configuration file macfand.conf
+[Oct 28 14:21:26] INFO   : Currently loaded monitors ->
+
+Monitor 5 - Core 3
+Max temp: 84°C
+Read: /sys/devices/platform/coretemp.0/hwmon/hwmon0/temp5_input
+
+Monitor 4 - Core 2
+Max temp: 84°C
+Read: /sys/devices/platform/coretemp.0/hwmon/hwmon0/temp4_input
+
+Monitor 3 - Core 1
+Max temp: 84°C
+Read: /sys/devices/platform/coretemp.0/hwmon/hwmon0/temp3_input
+
+Monitor 2 - Core 0
+Max temp: 84°C
+Read: /sys/devices/platform/coretemp.0/hwmon/hwmon0/temp2_input
+
+Monitor 1 - Package id 0
+Max temp: 84°C
+Read: /sys/devices/platform/coretemp.0/hwmon/hwmon0/temp1_input
+
+[Oct 28 14:21:26] INFO   : Currently loaded fans ->
+
+Fan 2 - Right side 
+Min speed: 2000    Max speed: 5700    Step: 21
+Write: /sys/devices/platform/applesmc.768/fan2_output
+Mode: /sys/devices/platform/applesmc.768/fan2_manual
+
+Fan 1 - Left side  
+Min speed: 2160    Max speed: 6156    Step: 23
+Write: /sys/devices/platform/applesmc.768/fan1_output
+Mode: /sys/devices/platform/applesmc.768/fan1_manual
+
+[Oct 28 14:21:39] INFO   : Shutting down

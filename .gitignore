@@ -3,5 +3,4 @@ obj/
 .vscode/
 vgcore*
 test
-macfand.log
 macfand.widget
