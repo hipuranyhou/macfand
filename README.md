@@ -1,6 +1,8 @@
 # macfand
 ###### version 0.1-alpha
 
+### This repo was dead for long time because applesmc was not working for me across multiple kernel versions of Arch Linux, but developement is now resumed
+
 Daemon for controlling fans on Linux systems using applesmc and coretemp.
 
 This project was written from scratch, but was highly influenced by the famous [mbpfan](https://github.com/linux-on-mac/mbpfan). Please, check [mbpfan](https://github.com/linux-on-mac/mbpfan) out. That is why I kept the GPL-3.0. I rewrote it mostly for fun and exercise, but also to have more control over it.

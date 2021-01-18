@@ -1,5 +1,5 @@
 /**
- * macfand - hipuranyhou - 21.06.2020
+ * macfand - hipuranyhou - 18.01.2021
  * 
  * Daemon for controlling fans on Linux systems using
  * applesmc and coretemp.

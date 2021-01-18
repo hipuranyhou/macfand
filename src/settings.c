@@ -1,5 +1,5 @@
 /**
- * macfand - hipuranyhou - 21.06.2020
+ * macfand - hipuranyhou - 18.01.2021
  * 
  * Daemon for controlling fans on Linux systems using
  * applesmc and coretemp.
@@ -152,6 +152,7 @@ char* settings_get_value_string(const int setting) {
 
 
 int settings_set_value(const int setting, const int value) {
+
     switch (setting) {
         case SET_TEMP_LOW:
             settings.temp_low = value;

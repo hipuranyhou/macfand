@@ -1,5 +1,5 @@
 #
-# macfand - hipuranyhou - 21.06.2020
+# macfand - hipuranyhou - 18.01.2021
 # 
 # Daemon for controlling fans on systems using
 # applesmc and coretemp.
@@ -15,6 +15,8 @@ SRCDIR := src
 SRCFILES := $(wildcard $(SRCDIR)/*.c)
 OBJDIR := obj
 OBJFILES := $(SRCFILES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
+SYSDDIR := /etc/systemd/system
+INSDIR := /usr/bin
 EXECDIR := bin
 EXEC := macfand
 
@@ -39,9 +41,9 @@ run_valgrind:
 	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $(EXECDIR)/./$(EXEC) --config=macfand.conf
 
 install:
-	cp $(EXECDIR)/$(EXEC) /usr/bin
-	chmod 755 /usr/bin/$(EXEC)
-	cp macfand.service /usr/lib/systemd/system
+	cp $(EXECDIR)/$(EXEC) $(INSDIR)
+	chmod 755 $(INSDIR)/$(EXEC)
+	cp macfand.service $(SYSDDIR)
 	cp macfand.conf /etc
 	systemctl daemon-reload
 	systemctl enable --now macfand.service
@@ -49,7 +51,7 @@ install:
 uninstall:
 	systemctl disable --now macfand.service
 	systemctl daemon-reload
-	rm -f /usr/lib/systemd/system/macfand.service /usr/bin/$(EXEC) /etc/macfand.conf
+	rm -f $(SYSDDIR)/macfand.service $(INSDIR)/$(EXEC) /etc/macfand.conf
 
 clean:
 	rm -rf $(OBJDIR) $(EXECDIR)
