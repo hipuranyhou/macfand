@@ -1,5 +1,5 @@
 /**
- * macfand - hipuranyhou - 18.01.2021
+ * macfand - hipuranyhou - 20.01.2021
  * 
  * Daemon for controlling fans on Linux systems using
  * applesmc and coretemp.
@@ -12,7 +12,7 @@
 
 /**
  * @brief Daemonizes macfand.
- * Registers all signals, forks twice to daemonize macfand, closes all open file descriptors, opens syslog for macfand
+ * Forks twice to daemonize macfand, closes all open file descriptors, 
  * and prints PID of daemon to /run/macfand.pid .
  */
 void daemonize(void);
