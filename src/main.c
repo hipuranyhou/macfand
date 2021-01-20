@@ -1,5 +1,5 @@
 /**
- * macfand - hipuranyhou - 18.01.2021
+ * macfand - hipuranyhou - 20.01.2021
  * 
  * Daemon for controlling fans on Linux systems using
  * applesmc and coretemp.
@@ -85,7 +85,7 @@ static int prepare_settings(const arguments_t *arguments);
 
 /*******************************  argp stuff  ***********************************/
 
-const char *argp_program_version = "macfand - version 0.1";
+const char *argp_program_version = "macfand - version 0.1-alpha";
 
 
 static struct argp_option options[] = { 
