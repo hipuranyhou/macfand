@@ -57,7 +57,7 @@ static int conf_parse_line(const char *line);
 /**
  * @brief Parses each line of given configuration file.
  * Parses each line of given configuration file.
- * @param[in] config_file Pointer to opened file to be parsed.
+ * @param[in] fp Pointer to opened config file to be parsed.
  * @return int -1 on error, 0 on success, line number with mistake otherwise.
  */
 static int conf_parse_file(FILE *fp);
