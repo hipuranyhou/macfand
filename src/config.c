@@ -145,11 +145,11 @@ static int conf_assign_set(const char *key, const char *val) {
     int val_int = 0;
     int is_bool = 0;
 
+    // Check toogle value
     if (strcmp(val, "yes") == 0 || strcmp(val, "true") == 0) {
         is_bool = 1;
         val_int = 1;
     }
-
     if (strcmp(val, "no") == 0 || strcmp(val, "false") == 0) {
         is_bool = 1;
         val_int = 0;
