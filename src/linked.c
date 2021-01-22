@@ -1,5 +1,5 @@
 /**
- * macfand - hipuranyhou - 18.01.2021
+ * macfand - hipuranyhou - 22.01.2021
  * 
  * Daemon for controlling fans on Linux systems using
  * applesmc and coretemp.
@@ -12,21 +12,22 @@
 #include "linked.h"
 
 
-int list_push_front(t_node **head, const void *data, const size_t data_size) {
-    t_node *new_node = (t_node*)malloc(sizeof(*new_node));
-    if (!new_node)
+int list_push_front(t_node **head, const void *const data, const size_t data_size) {
+    t_node *node = (t_node*)malloc(sizeof(*node));
+
+    if (!node || !data || data_size == 0)
         return 0;
     
-    new_node->next = *head;
-    new_node->data = malloc(data_size);
+    node->next = *head;
+    node->data = malloc(data_size);
 
-    if (!new_node->data && data_size > 0) {
-        free(new_node);
+    if (!node->data) {
+        free(node);
         return 0;
     }
 
-    memcpy(new_node->data, data, data_size);
-    *head = new_node;
+    memcpy(node->data, data, data_size);
+    *head = node;
     return 1;
 }
 
@@ -42,10 +43,10 @@ void list_free(t_node *head, void (*node_free)(void *)) {
 }
 
 
-void list_print(const t_node *head, FILE *stream, void (*node_print)(const void *, FILE *)) {
+void list_print(const t_node *head, FILE *const file, void (*node_print)(const void *const, FILE *const)) {
     while (head) {
-        node_print(head->data, stream);
-        fprintf(stream, "\n");
+        node_print(head->data, file);
+        fprintf(file, "\n");
         head = head->next;
     }
 }
