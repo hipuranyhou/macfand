@@ -143,12 +143,12 @@ static int conf_assign_set(const char *key, const char *val) {
 
 
 static int conf_parse_line(const char *line) {
-    char   *key     = NULL;
-    char   *val     = NULL;
-    size_t key_size = 0;
-    size_t val_size = 0;
-    size_t get_ret  = 0;
-    int    ret      = 0;
+    char    *key     = NULL;
+    char    *val     = NULL;
+    size_t  key_size = 0;
+    size_t  val_size = 0;
+    ssize_t get_ret  = 0;
+    int     ret      = 0;
 
     if (!line)
         return 0;
@@ -162,7 +162,7 @@ static int conf_parse_line(const char *line) {
         return 1;
 
     // Load key
-    get_ret = get_line_until(line, ':', &key, &key_size);
+    get_ret = get_word_until(line, ':', &key, &key_size);
     if (get_ret < 1) {
         if (key)
             free(key);
@@ -175,7 +175,7 @@ static int conf_parse_line(const char *line) {
         line++;
 
     // Load value
-    get_ret = get_line_until(line, '"', &val, &val_size);
+    get_ret = get_word_until(line, '"', &val, &val_size);
     if (get_ret < 1) {
         free(key);
         if (val)
