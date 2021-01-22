@@ -1,5 +1,5 @@
 /**
- * macfand - hipuranyhou - 18.01.2021
+ * macfand - hipuranyhou - 22.01.2021
  * 
  * Daemon for controlling fans on Linux systems using
  * applesmc and coretemp.
@@ -8,140 +8,206 @@
  */
 
 #include <stdlib.h>
+#include <dirent.h>
+#include <string.h>
+#include <errno.h>
 
 #include "fan.h"
 #include "helper.h"
 #include "logger.h"
 #include "settings.h"
 
-#define FAN_PATH_BASE "/sys/devices/platform/applesmc.768/fan"
-#define FAN_PATH_WRITE "_output"
-#define FAN_PATH_MAX "_max"
-#define FAN_PATH_MIN "_min"
-#define FAN_PATH_MANUAL "_manual"
-#define FAN_PATH_LABEL "_label"
-#define FAN_PATH_FORMAT "%s%d%s"
+#define FAN_PATH_BASE  "/sys/devices/platform/applesmc.768"
+#define FAN_PATH_RD    "input"
+#define FAN_PATH_WR    "output"
+#define FAN_PATH_MAX   "max"
+#define FAN_PATH_MIN   "min"
+#define FAN_PATH_MOD   "manual"
+#define FAN_PATH_LABEL "label"
+#define FAN_PATH_FMT   FAN_PATH_BASE "/fan%d_%s"
 
 /**
  * @brief Loads label of fan.
  * Loads label of given fan by reading the appropriate system file.
- * @param[in,out]  fan  Pointer to fan. 
+ * @param[in,out] fan Pointer to fan. 
  * @return int 0 on error, 1 on success.
  */
-static int fan_load_label(t_fan *fan);
+static int fan_load_lbl(t_fan *const fan);
+
+/**
+ * @brief Selects where should fan read speed end.
+ * Changes *dest to proper location of where should be speed saved after reading
+ * it for given fan based on path suffix.
+ * @param fan  Pointer to fan which speed should be read.
+ * @param dest Pointer where should be destination saved.
+ * @param suff Suffix of speed file from which we read speed.
+ * @return int 0 on erro, 1 on success.
+ */
+static int fan_sel_spd_dest(t_fan *const fan, int **const dest, const char *const suff);
 
 /**
  * @brief Loads given speed of fan.
- * Loads given speed to destination of fan by reading the appropriate system file.
- * @param[in,out]  fan          Pointer to fan. 
- * @param[out]     destination  Pointer to where should be the speed saved.
- * @param[in]      speed        Path end of wanted speed (one of FAN_PATH_MAX and FAN_PATH_MIN).
+ * Loads speed of given fan by reading the appropriate system file.
+ * @param[in,out] fan  Pointer to fan which speed should be read.
+ * @param[in]     suff Path end of wanted speed (one of FAN_PATH_MAX, FAN_PATH_MIN or FAN_PATH_RD).
  * @return int 0 on error, 1 on success.
  */ 
-static int fan_load_speed(t_fan *fan, int *destination, const char *speed);
+static int fan_read_spd(t_fan *const fan, const char *const suff);
 
 /**
  * @brief Loads default values for given fan.
  * Loads max and min speed of given fan, calculates its step size based on these values, constructs its
- * writing and mode setting paths and finally loads its label.
- * @param[in,out] fans      Pointer to head of linked list of system fans.
+ * reading, writing and mode setting paths and finally loads its label.
+ * @param[in,out] fan Pointer to fan to be loaded.
  * @return int 0 on error, 1 on success.
  */
-static int fan_load_defaults(t_fan *fan);
+static int fan_load_def(t_fan *const fan);
 
 /**
- * @brief Check if fan exists.
- * Checks whether fan with given id exists by trying to opening its mode setting path.
- * @param[in]  id_fan  id of wanted fan.
- * @return int -1 on error, 0 if does not exist, 1 if exists.
+ * @brief Frees members of fan.
+ * Calls free() on all allocated members of fan, but not fan itself.
+ * @param[in] fan Pointer to fan which members should be freed.
  */
-static int fan_id_exists(const int id_fan);
+static void fan_load_free(t_fan *const fan);
 
 
-static int fan_load_label(t_fan *fan) {
-    char *fan_path_label = NULL;
-    FILE *fan_file_label = NULL;
-    int getline_return = 0;
-    size_t buffer_size = 0;
+static int fan_load_lbl(t_fan *const fan) {
+    char   *path      = NULL;
+    FILE   *file      = NULL;
+    int    get_ret    = 0;
+    size_t lbl_size = 0;
 
     if (!fan)
         return 0;
 
-    fan->label = NULL;
+    fan->lbl = NULL;
 
-    fan_path_label = concatenate_format(FAN_PATH_FORMAT, FAN_PATH_BASE, fan->id, FAN_PATH_LABEL);
-    if (!fan_path_label)
+    path = concatenate_format(FAN_PATH_FMT, fan->id, FAN_PATH_LABEL);
+    if (!path)
         return 0;
 
-    fan_file_label = fopen(fan_path_label, "r");
-    free(fan_path_label);
-    if (!fan_file_label)
-        return 0;
-
-    getline_return = getline(&(fan->label), &buffer_size, fan_file_label);
-    if (getline_return == -1) {
-        fclose(fan_file_label);
+    file = fopen(path, "r");
+    free(path);
+    if (!file) {
+        logger_log(LOG_L_DEBUG, "Unable to open label file of fan %d", fan->id);
         return 0;
     }
 
-    // (getline_return - 1) because line ends with "0x10_0x0A"
-    fan->label[getline_return-1] = '\0';
+    errno = 0;
+    get_ret = getline(&(fan->lbl), &lbl_size, file);
+    if (get_ret < 2 || errno != 0) {
+        logger_log(LOG_L_DEBUG, "Unable to load label of fan %d", fan->id);
+        if (fclose(file) == EOF)
+            logger_log(LOG_L_DEBUG, "Unable to close label file of fan %d", fan->id);
+        return 0;
+    }
 
-    // We silently ignore return value of fclose() when just reading from it
-    fclose(fan_file_label);
+    // (get_ret - 2) because line ends with "'0x10''0x0A'"
+    fan->lbl[get_ret-2] = '\0';
+
+    if (fclose(file) == EOF)
+        logger_log(LOG_L_DEBUG, "Unable to close label file of fan %d", fan->id);
     return 1;
 }
 
 
-static int fan_load_speed(t_fan *fan, int *destination, const char *speed) {
-    char *fan_path_speed = NULL;
-    FILE *fan_file_speed = NULL;
-
-    if (!fan)
+static int fan_sel_spd_dest(t_fan *const fan, int **const dest, const char *const suff) {
+    if (!fan || !dest || !suff)
         return 0;
 
-    fan_path_speed = concatenate_format(FAN_PATH_FORMAT, FAN_PATH_BASE, fan->id, speed);
-    if (!fan_path_speed)
+    if (strcmp(FAN_PATH_MIN, suff) == 0)
+        *dest = &(fan->spd.min);
+    else if (strcmp(FAN_PATH_MAX, suff) == 0)
+        *dest = &(fan->spd.max);
+    else if (strcmp(FAN_PATH_RD, suff) == 0)
+        *dest = &(fan->spd.real);
+    else
         return 0;
 
-    fan_file_speed = fopen(fan_path_speed, "r");
-    free(fan_path_speed);
-    if (!fan_file_speed)
-        return 0;
-
-    if (fscanf(fan_file_speed, " %d", destination) != 1) {
-        fclose(fan_file_speed);
-        return 0;
-    }
-
-    // We silently ignore return value of fclose() when just reading from it
-    fclose(fan_file_speed);
     return 1;
 }
 
 
-static int fan_load_defaults(t_fan *fan) {
+static int fan_read_spd(t_fan *const fan, const char *const suff) {
+    char   *path    = NULL;
+    char   *str     = NULL;
+    size_t str_size = 0;
+    int    get_ret  = 0;
+    FILE   *file    = NULL;
+    int    *dest    = NULL;
+
+    if (!fan || !suff || !fan_sel_spd_dest(fan, &dest, suff))
+        return 0;
+
+    // Prepare path to file
+    path = concatenate_format(FAN_PATH_FMT, fan->id, suff);
+    if (!path)
+        return 0;
+
+    // Open file for reading
+    file = fopen(path, "r");
+    free(path);
+    if (!file) {
+        logger_log(LOG_L_DEBUG, "Unable to open speed file of fan %d", fan->id);
+        return 0;
+    }
+
+    // Read line from speed file and remove trailing '\n'
+    errno = 0;
+    get_ret = getline(&str, &str_size, file);
+    if (get_ret < 2 || errno != 0) {
+        logger_log(LOG_L_DEBUG, "Invalid speed file of fan %d", fan->id);
+        if (fclose(file) == EOF)
+            logger_log(LOG_L_DEBUG, "Unable to close speed file of fan %d", fan->id);
+        return 0;
+    }
+    str[get_ret-1] = '\0';
+
+    // Convert read line to integer
+    if (str_to_int(str, dest, 10, NULL) < 1) {
+        logger_log(LOG_L_DEBUG, "Invalid speed of fan %d", fan->id);
+        if (fclose(file) == EOF)
+            logger_log(LOG_L_DEBUG, "Unable to close speed file of fan %d", fan->id);
+        return 0;
+    }
+
+    if (fclose(file) == EOF)
+        logger_log(LOG_L_DEBUG, "Unable to close speed file of fan %d", fan->id);
+    return 1;
+}
+
+
+static int fan_load_def(t_fan *const fan) {
+    int temp_max  = settings_get_value(SET_TEMP_MAX);
+    int temp_high = settings_get_value(SET_TEMP_HIGH);
+
     if (!fan)
         return 0;
 
-    if (!fan_load_speed(fan, &(fan->min), FAN_PATH_MIN) || !fan_load_speed(fan, &(fan->max), FAN_PATH_MAX)) {
-        logger_log(LOG_L_DEBUG, "%s %d", "Unable to load max or min speed of fan", fan->id);
+    // Load min and max speed of given fan
+    if (!fan_read_spd(fan, FAN_PATH_MIN) || !fan_read_spd(fan, FAN_PATH_MAX)) {
+        logger_log(LOG_L_DEBUG, "Unable to load max or min speed of fan %d", fan->id);
         return 0;
     }
+
+    fan->spd.real = 0;
+    fan->spd.tgt = 0;
 
     // Calculate size of one unit of fan speed change
-    fan->step = (fan->max - fan->min) / ((settings_get_value(SET_TEMP_MAX) - settings_get_value(SET_TEMP_HIGH)) * (settings_get_value(SET_TEMP_MAX) - settings_get_value(SET_TEMP_HIGH) + 1) / 2);
+    fan->spd.step = (fan->spd.max - fan->spd.min) / ((temp_max - temp_high) * (temp_max - temp_high + 1) / 2);
 
-    fan->path_write = concatenate_format(FAN_PATH_FORMAT, FAN_PATH_BASE, fan->id, FAN_PATH_WRITE);
-    if (!fan->path_write)
+    // Load all paths of given fan
+    fan->path.rd = concatenate_format(FAN_PATH_FMT, fan->id, FAN_PATH_RD);
+    fan->path.wr = concatenate_format(FAN_PATH_FMT, fan->id, FAN_PATH_WR);
+    fan->path.mod = concatenate_format(FAN_PATH_FMT, fan->id, FAN_PATH_MOD);
+    if (!fan->path.rd || !fan->path.wr || !fan->path.mod) {
+        logger_log(LOG_L_DEBUG, "Unable to load read, write or mode path of fan %d", fan->id);
         return 0;
+    }
 
-    fan->path_manual = concatenate_format(FAN_PATH_FORMAT, FAN_PATH_BASE, fan->id, FAN_PATH_MANUAL);
-    if (!fan->path_manual)
-        return 0;
-
+    // Load fan label
     if (!fan_load_label(fan)) {
-        logger_log(LOG_L_DEBUG, "%s %d", "Unable to load label of fan", fan->id);
+        logger_log(LOG_L_DEBUG, "Unable to load label of fan %d", fan->id);
         return 0;
     }
 
@@ -149,90 +215,88 @@ static int fan_load_defaults(t_fan *fan) {
 }
 
 
-static int fan_id_exists(const int id_fan) {
-    FILE *fan_file_manual = NULL;
-    char *fan_path_manual = NULL;
+t_node* fans_load(void) {
+    struct dirent *dirent    = NULL;
+    DIR           *dir       = NULL;
+    char          *fname     = NULL;
+    char          inv        = 0;
+    int           id_prev    = 0;
+    int           to_int_ret = 0;
+    t_fan         fan;
+    t_node        *fans      = NULL;
 
-    fan_path_manual = concatenate_format(FAN_PATH_FORMAT, FAN_PATH_BASE, id_fan, FAN_PATH_MANUAL);
-    if (!fan_path_manual)
-        return -1;
-
-    fan_file_manual = fopen(fan_path_manual, "r");
-    free(fan_path_manual);
-    if (fan_file_manual == NULL)
-        return 0;
-
-    // We silently ignore return value of fclose() when just reading from it
-    fclose(fan_file_manual);
-    return 1;
-}
-
-
-t_node *fans_load(void) {
-    int id_fan = 0, fan_exists = 0;
-    t_fan *fan = NULL;
-    t_node *fans = NULL;
-
-    fan = (t_fan *)malloc(sizeof(*fan));
-    if (!fan)
+    // Open fans directory
+    dir = opendir(FAN_PATH_BASE);
+    if (!dir) {
+        logger_log(LOG_L_DEBUG, "Unable to open system fans directory");
         return NULL;
+    }
 
-    fan->speed = 0;
-    fan->path_write = NULL;
-    fan->path_manual = NULL;     
-    fan->label = NULL;
+    // Walk through fans directory
+    while (dirent = readdir(dir)) {
+        fname = basename(dirent->d_name);
 
-    for (;;) {
-        fan->id = ++id_fan;
-        fan_exists = fan_id_exists(id_fan);
+        // !name[6] because fan file always has "fan%d_*\0"
+        if (!fname || strncmp(fname, "fan", 3) != 0 || !fname[6])
+            continue;
 
-        if (fan_exists == 0)
-            break;
+        // Get id of fan
+        to_int_ret = str_to_int(fname+3, &(fan.id), 10, &inv);
+        if (to_int_ret < 0 || inv != '_') {
+            list_free(fans, fan_free);
+            fan_load_free(&fan);
+            logger_log(LOG_L_DEBUG, "Invalid fan filename encountered -> %s", fname);
+            return NULL;
+        }
 
-        if (fan_exists == -1                            ||
-            !fan_load_defaults(fan)                     ||
-            !list_push_front(&fans, fan, sizeof(*fan)))
-        {
-            list_free(fans, (void (*)(void *))fan_free);
-            fans = NULL;
-            if (fan->path_write)
-                free(fan->path_write);
-            if (fan->path_manual)
-                free(fan->path_manual);
-            if (fan->label)
-                free(fan->label);
-            break;
+        // Skip already finished fan
+        if (fan.id == id_prev)
+            continue;
+        id_prev = fan.id;
+
+        // Load fan defaults and append it to linked list of fans
+        if (!fan_load_def(&fan) || !list_push_front(&fans, &fan, sizeof(fan))) {
+            list_free(fans, fan_free);
+            fan_load_free(&fan);
+            logger_log(LOG_L_DEBUG, "Unable to load defaults of fan %d", fan.id);
+            return NULL;
         }
     }
 
-    free(fan);
+    if (closedir(dir) < 0)
+        logger_log(LOG_L_DEBUG, "Unable to close system fans directory");
     return fans;
 }
 
 
-int fans_set_mode(t_node *fans, int mode) {
-    int state = 1;
-    FILE *fan_file_manual = NULL;
-    t_fan *fan = NULL;
+int fans_write_mod(const t_node *fans, const enum fan_mode mod) {
+    int   state = 1;
+    FILE  *file = NULL;
+    t_fan *fan  = NULL;
 
-    if (!fans || mode < FAN_AUTO || mode > FAN_MANUAL)
+    if (!fans || mod < FAN_M_AUTO || mod > FAN_M_MAN)
         return 0;
 
     while (fans) {
         fan = fans->data;
 
-        fan_file_manual = fopen(fan->path_manual, "w+");
-        if (!fan_file_manual) {
+        file = fopen(fan->path.mod, "w+");
+        if (!file) {
+            logger_log(LOG_L_DEBUG, "Unable to open mode file of fan %d", fan->id);
             state = 0;
             fans = fans->next;
             continue;
         }
 
-        if (fprintf(fan_file_manual, "%d\n", mode) < 0)
+        if (fprintf(file, "%d\n", mod) < 0) {
+            logger_log(LOG_L_DEBUG, "Unable to write mode of fan %d", fan->id);
             state = 0;
+        }
 
-        if (fclose(fan_file_manual) == EOF)
+        if (fclose(file) == EOF) {
+            logger_log(LOG_L_DEBUG, "Unable to close mode file of fan %d", fan->id);
             state = 0;
+        }
 
         fans = fans->next;
     }
@@ -241,51 +305,83 @@ int fans_set_mode(t_node *fans, int mode) {
 }
 
 
-int fan_set_speed(t_fan *fan, const int speed) {
-    FILE *fan_file_write = NULL;
+int fan_write_spd(t_fan *const fan) {
+    FILE *file = NULL;
 
     if (!fan)
         return 0;
 
-    if (fan->speed == speed)
-        return 1;
-
-    fan_file_write = fopen(fan->path_write, "w+");
-    if (!fan_file_write)
-        return 0;
-
-    if (fprintf(fan_file_write, "%d\n", speed) < 0) {
-        fclose(fan_file_write);
+    // Check current fan speed
+    if (!fan_read_spd(fan, FAN_PATH_RD)) {
+        logger_log(LOG_L_DEBUG, "Unable to read speed of fan %d", fan->id);
         return 0;
     }
 
-    if (fclose(fan_file_write) == EOF)
-        return 0;
+    // Skip writing speed if already same
+    if (fan->spd.real == fan->spd.tgt)
+        return 1;
 
-    fan->speed = speed;
+    file = fopen(fan->path.wr, "w+");
+    if (!file) {
+        logger_log(LOG_L_DEBUG, "Unable to open output speed file of fan %d", fan->id);
+        return 0;
+    }
+
+    // Write new fan speed
+    if (fprintf(file, "%d\n", fan->spd.tgt) < 0) {
+        logger_log(LOG_L_DEBUG, "Unable to write speed of fan %d", fan->id);
+        if (fclose(file) == EOF)
+            logger_log(LOG_L_DEBUG, "Unable to close output speed file of fan %d", fan->id);
+        return 0;
+    }
+
+    if (fclose(file) == EOF) {
+        logger_log(LOG_L_DEBUG, "Unable to close output speed file of fan %d", fan->id);
+        return 0;
+    }
 
     return 1;
+}
+
+
+static void fan_load_free(t_fan *const fan) {
+    if (!fan)
+        return;
+
+    if (fan->path.wr)
+        free(fan->path.wr);
+    if (fan->path.mod)
+        free(fan->path.mod);
+    if (fan->path.rd)
+        free(fan->path.rd);
+    if (fan->lbl)
+        free(fan->lbl);
 }
 
 
 void fan_free(t_fan *fan) {
     if (!fan)
         return;
-    if (fan->path_write)
-        free(fan->path_write);
-    if (fan->path_manual)
-        free(fan->path_manual);
-    if (fan->label)
-        free(fan->label);
+
+    if (fan->lbl)
+        free(fan->lbl);
+    if (fan->path.rd)
+        free(fan->path.rd);
+    if (fan->path.wr)
+        free(fan->path.wr);
+    if (fan->path.mod)
+        free(fan->path.mod);
     free(fan);
 }
 
 
-void fan_print(const t_fan *fan, FILE *stream) {
-    if (!fan)
+void fan_print(const t_fan *const fan, FILE *const file) {
+    if (!fan || !file)
         return;
-    fprintf(stream, "Fan %d - %s\n", fan->id, fan->label);
-    fprintf(stream, "Min speed: %d    Max speed: %d    Step: %d\n", fan->min, fan->max, fan->step);
-    fprintf(stream, "Write: %s\n", fan->path_write);
-    fprintf(stream, "Mode: %s\n", fan->path_manual);
+
+    fprintf(file, "Fan %d - %s\n", fan->id, fan->lbl);
+    fprintf(file, "Min speed: %d    Max speed: %d    Step: %d\n", fan->spd.min, fan->spd.max, fan->spd.step);
+    fprintf(file, "Read: %s\n", fan->path.rd);
+    fprintf(file, "Write: %s\n", fan->path.wr);
+    fprintf(file, "Mode: %s\n", fan->path.mod);
 }
