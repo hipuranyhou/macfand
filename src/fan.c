@@ -245,7 +245,7 @@ t_node* fans_load(void) {
         if (to_int_ret < 0 || inv != '_') {
             list_free(fans, fan_free);
             fan_load_free(&fan);
-            logger_log(LOG_L_DEBUG, "Invalid fan filename encountered -> %s", fname);
+            logger_log(LOG_L_DEBUG, "Invalid fan filename encountered.");
             return NULL;
         }
 
