@@ -233,13 +233,13 @@ int conf_load(const char *path) {
     parse_ret = conf_parse_file(fp);
 
     if (fclose(fp) == EOF)
-        logger_log(LOG_L_WARN, "Unable to close configuration file");
+        log_log(LOG_L_WARN, "Unable to close configuration file");
 
     if (parse_ret < 0) {
-        logger_log(LOG_L_DEBUG, "Unknown error encoutered while parsing configuration file");
+        log_log(LOG_L_DEBUG, "Unknown error encoutered while parsing configuration file");
         return 0;
     } else if (parse_ret > 0) {
-        logger_log(LOG_L_DEBUG, "Unable to parse line %d of configuraton file", parse_ret);
+        log_log(LOG_L_DEBUG, "Unable to parse line %d of configuraton file", parse_ret);
         return 0;
     }
 

@@ -89,16 +89,16 @@ static int fan_load_lbl(t_fan *const fan) {
     file = fopen(path, "r");
     free(path);
     if (!file) {
-        logger_log(LOG_L_DEBUG, "Unable to open label file of fan %d", fan->id);
+        log_log(LOG_L_DEBUG, "Unable to open label file of fan %d", fan->id);
         return 0;
     }
 
     errno = 0;
     get_ret = getline(&(fan->lbl), &lbl_size, file);
     if (get_ret < 2 || errno != 0) {
-        logger_log(LOG_L_DEBUG, "Unable to load label of fan %d", fan->id);
+        log_log(LOG_L_DEBUG, "Unable to load label of fan %d", fan->id);
         if (fclose(file) == EOF)
-            logger_log(LOG_L_DEBUG, "Unable to close label file of fan %d", fan->id);
+            log_log(LOG_L_DEBUG, "Unable to close label file of fan %d", fan->id);
         return 0;
     }
 
@@ -106,7 +106,7 @@ static int fan_load_lbl(t_fan *const fan) {
     fan->lbl[get_ret-2] = '\0';
 
     if (fclose(file) == EOF)
-        logger_log(LOG_L_DEBUG, "Unable to close label file of fan %d", fan->id);
+        log_log(LOG_L_DEBUG, "Unable to close label file of fan %d", fan->id);
     return 1;
 }
 
@@ -148,7 +148,7 @@ static int fan_read_spd(t_fan *const fan, const char *const suff) {
     file = fopen(path, "r");
     free(path);
     if (!file) {
-        logger_log(LOG_L_DEBUG, "Unable to open speed file of fan %d", fan->id);
+        log_log(LOG_L_DEBUG, "Unable to open speed file of fan %d", fan->id);
         return 0;
     }
 
@@ -156,23 +156,23 @@ static int fan_read_spd(t_fan *const fan, const char *const suff) {
     errno = 0;
     get_ret = getline(&str, &str_size, file);
     if (get_ret < 2 || errno != 0) {
-        logger_log(LOG_L_DEBUG, "Invalid speed file of fan %d", fan->id);
+        log_log(LOG_L_DEBUG, "Invalid speed file of fan %d", fan->id);
         if (fclose(file) == EOF)
-            logger_log(LOG_L_DEBUG, "Unable to close speed file of fan %d", fan->id);
+            log_log(LOG_L_DEBUG, "Unable to close speed file of fan %d", fan->id);
         return 0;
     }
     str[get_ret-1] = '\0';
 
     // Convert read line to integer
     if (str_to_int(str, dest, 10, NULL) < 1) {
-        logger_log(LOG_L_DEBUG, "Invalid speed of fan %d", fan->id);
+        log_log(LOG_L_DEBUG, "Invalid speed of fan %d", fan->id);
         if (fclose(file) == EOF)
-            logger_log(LOG_L_DEBUG, "Unable to close speed file of fan %d", fan->id);
+            log_log(LOG_L_DEBUG, "Unable to close speed file of fan %d", fan->id);
         return 0;
     }
 
     if (fclose(file) == EOF)
-        logger_log(LOG_L_DEBUG, "Unable to close speed file of fan %d", fan->id);
+        log_log(LOG_L_DEBUG, "Unable to close speed file of fan %d", fan->id);
     return 1;
 }
 
@@ -186,7 +186,7 @@ static int fan_load_def(t_fan *const fan) {
 
     // Load min and max speed of given fan
     if (!fan_read_spd(fan, FAN_PATH_MIN) || !fan_read_spd(fan, FAN_PATH_MAX)) {
-        logger_log(LOG_L_DEBUG, "Unable to load max or min speed of fan %d", fan->id);
+        log_log(LOG_L_DEBUG, "Unable to load max or min speed of fan %d", fan->id);
         return 0;
     }
 
@@ -201,13 +201,13 @@ static int fan_load_def(t_fan *const fan) {
     fan->path.wr = concat_fmt(FAN_PATH_FMT, fan->id, FAN_PATH_WR);
     fan->path.mod = concat_fmt(FAN_PATH_FMT, fan->id, FAN_PATH_MOD);
     if (!fan->path.rd || !fan->path.wr || !fan->path.mod) {
-        logger_log(LOG_L_DEBUG, "Unable to load read, write or mode path of fan %d", fan->id);
+        log_log(LOG_L_DEBUG, "Unable to load read, write or mode path of fan %d", fan->id);
         return 0;
     }
 
     // Load fan label
     if (!fan_load_label(fan)) {
-        logger_log(LOG_L_DEBUG, "Unable to load label of fan %d", fan->id);
+        log_log(LOG_L_DEBUG, "Unable to load label of fan %d", fan->id);
         return 0;
     }
 
@@ -228,7 +228,7 @@ t_node* fans_load(void) {
     // Open fans directory
     dir = opendir(FAN_PATH_BASE);
     if (!dir) {
-        logger_log(LOG_L_DEBUG, "Unable to open system fans directory");
+        log_log(LOG_L_DEBUG, "Unable to open system fans directory");
         return NULL;
     }
 
@@ -245,7 +245,7 @@ t_node* fans_load(void) {
         if (to_int_ret < 0 || inv != '_') {
             list_free(fans, fan_free);
             fan_load_free(&fan);
-            logger_log(LOG_L_DEBUG, "Invalid fan filename encountered.");
+            log_log(LOG_L_DEBUG, "Invalid fan filename encountered.");
             return NULL;
         }
 
@@ -258,13 +258,13 @@ t_node* fans_load(void) {
         if (!fan_load_def(&fan) || !list_push_front(&fans, &fan, sizeof(fan))) {
             list_free(fans, fan_free);
             fan_load_free(&fan);
-            logger_log(LOG_L_DEBUG, "Unable to load defaults of fan %d", fan.id);
+            log_log(LOG_L_DEBUG, "Unable to load defaults of fan %d", fan.id);
             return NULL;
         }
     }
 
     if (closedir(dir) < 0)
-        logger_log(LOG_L_DEBUG, "Unable to close system fans directory");
+        log_log(LOG_L_DEBUG, "Unable to close system fans directory");
     return fans;
 }
 
@@ -282,19 +282,19 @@ int fans_write_mod(const t_node *fans, const enum fan_mode mod) {
 
         file = fopen(fan->path.mod, "w+");
         if (!file) {
-            logger_log(LOG_L_DEBUG, "Unable to open mode file of fan %d", fan->id);
+            log_log(LOG_L_DEBUG, "Unable to open mode file of fan %d", fan->id);
             state = 0;
             fans = fans->next;
             continue;
         }
 
         if (fprintf(file, "%d\n", mod) < 0) {
-            logger_log(LOG_L_DEBUG, "Unable to write mode of fan %d", fan->id);
+            log_log(LOG_L_DEBUG, "Unable to write mode of fan %d", fan->id);
             state = 0;
         }
 
         if (fclose(file) == EOF) {
-            logger_log(LOG_L_DEBUG, "Unable to close mode file of fan %d", fan->id);
+            log_log(LOG_L_DEBUG, "Unable to close mode file of fan %d", fan->id);
             state = 0;
         }
 
@@ -313,7 +313,7 @@ int fan_write_spd(t_fan *const fan) {
 
     // Check current fan speed
     if (!fan_read_spd(fan, FAN_PATH_RD)) {
-        logger_log(LOG_L_DEBUG, "Unable to read speed of fan %d", fan->id);
+        log_log(LOG_L_DEBUG, "Unable to read speed of fan %d", fan->id);
         return 0;
     }
 
@@ -323,20 +323,20 @@ int fan_write_spd(t_fan *const fan) {
 
     file = fopen(fan->path.wr, "w+");
     if (!file) {
-        logger_log(LOG_L_DEBUG, "Unable to open output speed file of fan %d", fan->id);
+        log_log(LOG_L_DEBUG, "Unable to open output speed file of fan %d", fan->id);
         return 0;
     }
 
     // Write new fan speed
     if (fprintf(file, "%d\n", fan->spd.tgt) < 0) {
-        logger_log(LOG_L_DEBUG, "Unable to write speed of fan %d", fan->id);
+        log_log(LOG_L_DEBUG, "Unable to write speed of fan %d", fan->id);
         if (fclose(file) == EOF)
-            logger_log(LOG_L_DEBUG, "Unable to close output speed file of fan %d", fan->id);
+            log_log(LOG_L_DEBUG, "Unable to close output speed file of fan %d", fan->id);
         return 0;
     }
 
     if (fclose(file) == EOF) {
-        logger_log(LOG_L_DEBUG, "Unable to close output speed file of fan %d", fan->id);
+        log_log(LOG_L_DEBUG, "Unable to close output speed file of fan %d", fan->id);
         return 0;
     }
 

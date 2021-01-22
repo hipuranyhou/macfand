@@ -56,17 +56,17 @@ volatile sig_atomic_t reload_flag = 0;
 static int ctrl_rld_conf(void) {
 
     if (!conf_load(settings_get_value_string(SET_CONFIG_FILE_PATH))) {
-        logger_log(LOG_L_ERROR, "Unable to load configuration file");
+        log_log(LOG_L_ERROR, "Unable to load configuration file");
         return 0;
     }
 
     if (!settings_check()) {
-        logger_log(LOG_L_ERROR, "Settings are invalid");
+        log_log(LOG_L_ERROR, "Settings are invalid");
         return 0;
     }
 
     if (!logger_set_type(settings_get_value(SET_LOG_TYPE), settings_get_value_string(SET_LOG_FILE_PATH))) {
-        logger_log(LOG_L_ERROR, "Unable to set logger to configured mode");
+        log_log(LOG_L_ERROR, "Unable to set logger to configured mode");
         return 0;
     }
 
@@ -139,10 +139,10 @@ int ctrl_start(const t_node *mons, t_node *fans) {
         // SIGHUP catched for reloading of config
         if (reload_flag) {
             if (!ctrl_rld_conf()) {
-                logger_log(LOG_L_ERROR, "Unable to reload configuration file");
+                log_log(LOG_L_ERROR, "Unable to reload configuration file");
                 return 0;
             }
-            logger_log(LOG_L_INFO, "Configuration file reloaded");
+            log_log(LOG_L_INFO, "Configuration file reloaded");
             reload_flag = 0;
         }
 
@@ -159,7 +159,7 @@ int ctrl_start(const t_node *mons, t_node *fans) {
             fan = fans->data;
             ctrl_calc_spd(&temps, fan);
             if (!fan_write_spd(fan))
-                logger_log(LOG_L_DEBUG, "Unable to set speed of fan %d", fan->id);
+                log_log(LOG_L_DEBUG, "Unable to set speed of fan %d", fan->id);
             fans = fans->next;
         }
 
