@@ -72,17 +72,17 @@ static void fan_load_free(t_fan *const fan);
 
 
 static int fan_load_lbl(t_fan *const fan) {
-    char   *path      = NULL;
-    FILE   *file      = NULL;
-    int    get_ret    = 0;
-    size_t lbl_size = 0;
+    char    *path    = NULL;
+    FILE    *file    = NULL;
+    ssize_t get_ret  = 0;
+    size_t  lbl_size = 0;
 
     if (!fan)
         return 0;
 
     fan->lbl = NULL;
 
-    path = concatenate_format(FAN_PATH_FMT, fan->id, FAN_PATH_LABEL);
+    path = concat_fmt(FAN_PATH_FMT, fan->id, FAN_PATH_LABEL);
     if (!path)
         return 0;
 
@@ -129,18 +129,18 @@ static int fan_sel_spd_dest(t_fan *const fan, int **const dest, const char *cons
 
 
 static int fan_read_spd(t_fan *const fan, const char *const suff) {
-    char   *path    = NULL;
-    char   *str     = NULL;
-    size_t str_size = 0;
-    int    get_ret  = 0;
-    FILE   *file    = NULL;
-    int    *dest    = NULL;
+    char    *path    = NULL;
+    char    *str     = NULL;
+    size_t  str_size = 0;
+    ssize_t get_ret  = 0;
+    FILE    *file    = NULL;
+    int     *dest    = NULL;
 
     if (!fan || !suff || !fan_sel_spd_dest(fan, &dest, suff))
         return 0;
 
     // Prepare path to file
-    path = concatenate_format(FAN_PATH_FMT, fan->id, suff);
+    path = concat_fmt(FAN_PATH_FMT, fan->id, suff);
     if (!path)
         return 0;
 
@@ -197,9 +197,9 @@ static int fan_load_def(t_fan *const fan) {
     fan->spd.step = (fan->spd.max - fan->spd.min) / ((temp_max - temp_high) * (temp_max - temp_high + 1) / 2);
 
     // Load all paths of given fan
-    fan->path.rd = concatenate_format(FAN_PATH_FMT, fan->id, FAN_PATH_RD);
-    fan->path.wr = concatenate_format(FAN_PATH_FMT, fan->id, FAN_PATH_WR);
-    fan->path.mod = concatenate_format(FAN_PATH_FMT, fan->id, FAN_PATH_MOD);
+    fan->path.rd = concat_fmt(FAN_PATH_FMT, fan->id, FAN_PATH_RD);
+    fan->path.wr = concat_fmt(FAN_PATH_FMT, fan->id, FAN_PATH_WR);
+    fan->path.mod = concat_fmt(FAN_PATH_FMT, fan->id, FAN_PATH_MOD);
     if (!fan->path.rd || !fan->path.wr || !fan->path.mod) {
         logger_log(LOG_L_DEBUG, "Unable to load read, write or mode path of fan %d", fan->id);
         return 0;
