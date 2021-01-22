@@ -19,7 +19,7 @@
  * @param[in] ... Values to be concatenated into a string.
  * @return char* NULL on error, pointer to concatenated string otherwise (has to be freed!)
  */
-char* concat_fmt(const char* fmt, ...);
+char* concat_fmt(const char *const fmt, ...);
 
 /**
  * @brief Extracts word until delimeter (not including), newline or null byte.

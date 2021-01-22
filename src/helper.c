@@ -22,10 +22,10 @@
  * @param[in] ap  Values to be concatenated into a string.
  * @return char* NULL on error, pointer to concatenated string otherwise (has to be freed!)
  */
-static char* v_concat_fmt(const char* fmt, va_list ap);
+static char* v_concat_fmt(const char *const fmt, va_list ap);
 
 
-static char* v_concat_fmt(const char* fmt, va_list ap) {
+static char* v_concat_fmt(const char *const fmt, va_list ap) {
     va_list ap_len;
     int     len     = 0;
     int     vsn_ret = 0;
@@ -56,7 +56,7 @@ static char* v_concat_fmt(const char* fmt, va_list ap) {
 }
 
 
-char* concat_fmt(const char* fmt, ...) {
+char* concat_fmt(const char *const fmt, ...) {
     va_list ap;
     char    *str = NULL;
 
