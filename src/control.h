@@ -1,5 +1,5 @@
 /**
- * macfand - hipuranyhou - 20.01.2021
+ * macfand - hipuranyhou - 22.01.2021
  * 
  * Daemon for controlling fans on Linux systems using
  * applesmc and coretemp.
@@ -13,25 +13,25 @@
 #include "linked.h"
 
 /**
- * @brief Holds values needed for adjusting fans.
- * Struct used in main control loop holding all three temperatures (previous, current and delta of these two),
- * number of fan speed adjust steps and current set speed (one of fan.min, fan.max, fan.min + fan.step * steps)
- * which are all used for adjusting fan speed.
+ * @brief Struct holding temperatures needed for adjusting fans.
+ * Struct used in main control loop holding all temperatures (previous, real (current), delta of these two
+ * and high, low and max from settings).
  */
-typedef struct ctrl {
-    int temp_prev;
-    int temp_now;
-    int temp_dlt;
-    int speed;
-    int steps;
-} t_ctrl;
+struct ctrl_temps {
+    int prev;
+    int real;
+    int dlt;
+    int high;
+    int low;
+    int max;
+};
 
 /**
  * @brief Infinite loop adjusting fan speed based on current temperature.
  * Starts infinite loop which loads temperatures using control_set_temps(), calculates and sets new speed of every fan
  * in fans using control_calculate_speed() and fan_set_speed(). In case registered signal is catched, returns.
- * @param[in] fans Pointer to head of linked list of system fans.
- * @param[in] mons Pointer to head of linked list of temperature monitors.
+ * @param[in] mons Pointer to head of generic linked list of temperature monitors.
+ * @param[in] fans Pointer to head of generic linked list of system fans.
  * @return int 0 on error, 1 on success
  */
 int ctrl_start(const t_node *mons, t_node *fans);

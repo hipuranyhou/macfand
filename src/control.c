@@ -1,5 +1,5 @@
 /**
- * macfand - hipuranyhou - 20.01.2021
+ * macfand - hipuranyhou - 22.01.2021
  * 
  * Daemon for controlling fans on Linux systems using
  * applesmc and coretemp.
@@ -27,33 +27,33 @@
  * Reloads settings from configuration file, check its validity and reloads logger.
  * @return int 0 on error, 1 on success.
  */
-static int ctrl_reload_conf(void);
+static int ctrl_rld_conf(void);
 
 /**
- * @brief Calculates new fan speed.
- * Calculates new fan speed based on temperatures stored in control which will be fan->min if current temperature is 
+ * @brief Calculates fan target speed.
+ * Calculates new fan speed based on temperatures stored in temps which will be fan->min if current temperature is 
  * under settings->temp_low, fan->max if current temperature is over settings->temp_max, or one of
  * (fan->min + fan->step * steps) and (fan->max - fan->step * steps) if fans need to cool more or less, respectively.
- * @param[in,out] ctrl Pointer to struct holding control values.
- * @param[in]     fan  Pointer to current adjusted fan.
+ * @param[in,out] temps Pointer to struct holding control temperature values.
+ * @param[in]     fan   Pointer to current adjusted fan.
  */
-static void ctrl_calc_speed(t_ctrl *ctrl, const t_fan *fan);
+static void ctrl_calc_spd(struct ctrl_temps *const temps, t_fan *const fan);
 
 /**
  * @brief Adjusts temperatures in control.
  * Sets temp_previous to temp_current, updates temp_current using monitors_get_temp() and calculates temp_delta
  * based on these two updated values.
- * @param[in,out] ctrl Pointer to struct holding control values.
- * @param[in]     mons Pointer to head of linked list of temperature monitors.
+ * @param[in,out] temps Pointer to struct holding control temperature values.
+ * @param[in]     mons  Pointer to head of generic linked list of temperature monitors.
  */
-static void ctrl_set_temps(t_ctrl *ctrl, const t_node *mons);
+static void ctrl_set_temps(struct ctrl_temps *const temps, const t_node *mons);
 
 
 volatile sig_atomic_t term_flag = 0;
 volatile sig_atomic_t reload_flag = 0;
 
 
-static int ctrl_reload_conf(void) {
+static int ctrl_rld_conf(void) {
 
     if (!conf_load(settings_get_value_string(SET_CONFIG_FILE_PATH))) {
         logger_log(LOG_L_ERROR, "Unable to load configuration file");
@@ -74,53 +74,52 @@ static int ctrl_reload_conf(void) {
 }
 
 
-static void ctrl_calc_speed(t_ctrl *ctrl, const t_fan *fan) {
-    int set_temp_high = 0;
-    int set_temp_low  = settings_get_value(SET_TEMP_LOW);
+static void ctrl_calc_speed(struct ctrl_temps *const temps, t_fan *const fan) {
+    int steps = 0;
 
-    ctrl->speed = fan->speed;
+    fan->spd.tgt = fan->spd.real;
 
     // Extremes
-    if (ctrl->temp_now >= settings_get_value(SET_TEMP_MAX)) {
-        ctrl->speed = fan->max;
+    if (temps->real >= temps->max) {
+        fan->spd.tgt = fan->spd.max;
         return;
     }
 
-    if (ctrl->temp_now <= set_temp_low) {
-        ctrl->speed = fan->min;
+    if (temps->real <= temps->low) {
+        fan->spd.tgt = fan->spd.min;
         return;
     }
 
     // Set higher or lower speed
-    set_temp_high = settings_get_value(SET_TEMP_HIGH);
-    if (ctrl->temp_dlt > 0 && ctrl->temp_now > set_temp_high) {
-        ctrl->steps = (ctrl->temp_now - set_temp_high) * (ctrl->temp_now - set_temp_high + 1) / 2;
-        ctrl->speed = max(ctrl->speed, (fan->min + (ctrl->steps * fan->step)));
+    if (temps->dlt > 0 && temps->real > temps->high) {
+        steps = (temps->real - temps->high) * (temps->real - temps->high + 1) / 2;
+        fan->spd.tgt = max(fan->spd.tgt, (fan->spd.min + (steps * fan->spd.step)));
         return;
     }
 
-    if (ctrl->temp_dlt < 0 && ctrl->temp_now > set_temp_low) {
-        ctrl->steps = (set_temp_low - ctrl->temp_now) * (set_temp_low - ctrl->temp_now + 1) / 2;
-        ctrl->speed = min(ctrl->speed, (fan->max - (ctrl->steps * fan->step)));
+    if (temps->dlt < 0 && temps->real > temps->low) {
+        steps = (temps->low - temps->real) * (temps->low - temps->real + 1) / 2;
+        fan->spd.tgt = min(fan->spd.tgt, (fan->spd.max - (steps * fan->spd.step)));
         return;
     }
 }
 
 
-static void ctrl_set_temps(t_ctrl *ctrl, const t_node *mons) {
-    ctrl->temp_prev = ctrl->temp_now;
-    ctrl->temp_now = monitors_get_temp(mons);
-    ctrl->temp_dlt = ctrl->temp_now - ctrl->temp_prev;
+static void ctrl_set_temps(struct ctrl_temps *const temps, const t_node *mons) {
+    temps->prev = temps->real;
+    temps->real = monitors_get_temp(mons);
+    temps->dlt = temps->real - temps->prev;
 }
 
 
 int ctrl_start(const t_node *mons, t_node *fans) {
-    t_ctrl ctrl = {
-        .temp_prev = 0, 
-        .temp_now = 0, 
-        .temp_dlt = 0, 
-        .speed = 0, 
-        .steps = 0
+    struct ctrl_temps temps = {
+        .prev = 0,
+        .real = 0,
+        .dlt = 0,
+        .high = settings_get_value(SET_TEMP_HIGH),
+        .low = settings_get_value(SET_TEMP_LOW),
+        .max = settings_get_value(SET_TEMP_MAX),
     };
     struct timespec ts = {
         .tv_sec = settings_get_value(SET_TIME_POLL),
@@ -139,7 +138,7 @@ int ctrl_start(const t_node *mons, t_node *fans) {
 
         // SIGHUP catched for reloading of config
         if (reload_flag) {
-            if (!ctrl_reload_conf()) {
+            if (!ctrl_rld_conf()) {
                 logger_log(LOG_L_ERROR, "Unable to reload configuration file");
                 return 0;
             }
@@ -149,7 +148,7 @@ int ctrl_start(const t_node *mons, t_node *fans) {
 
         // Prepare next fan loop
         fans = fans_head;
-        ctrl_set_temps(&ctrl, mons);
+        ctrl_set_temps(&temps, mons);
 
         // Write widget file
         if (settings_get_value(SET_WIDGET))
@@ -158,8 +157,8 @@ int ctrl_start(const t_node *mons, t_node *fans) {
         // Set speed of each fan
         while (fans) {
             fan = fans->data;
-            ctrl_calc_speed(&ctrl, fan);
-            if (!fan_set_speed(fan, ctrl.speed))
+            ctrl_calc_spd(&temps, fan);
+            if (!fan_write_spd(fan))
                 logger_log(LOG_L_DEBUG, "Unable to set speed of fan %d", fan->id);
             fans = fans->next;
         }
