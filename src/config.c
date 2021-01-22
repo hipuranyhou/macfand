@@ -68,35 +68,25 @@ static int conf_assign_int(const char *key, const int val) {
     if (strcmp(key, "temp_low") == 0) {
         if (!settings_set_value(SET_TEMP_LOW, val))
             return 0;
-        return 1;
-    }
-    if (strcmp(key, "temp_high") == 0) {
+    } else if (strcmp(key, "temp_high") == 0) {
         if (!settings_set_value(SET_TEMP_HIGH, val))
             return 0;
-        return 1;
-    }
-    if (strcmp(key, "time_poll") == 0) {
+    } else if (strcmp(key, "time_poll") == 0) {
         if (!settings_set_value(SET_TIME_POLL, val))
             return 0;
-        return 1;
-    }
-    if (strcmp(key, "daemon") == 0) {
+    } else if (strcmp(key, "daemon") == 0) {
         if (!settings_set_value(SET_DAEMON, val))
             return 0;
-        return 1;
-    }
-    if (strcmp(key, "verbose") == 0) {
+    } else if (strcmp(key, "verbose") == 0) {
         if (!settings_set_value(SET_VERBOSE, val))
             return 0;
-        return 1;
-    }
-    if (strcmp(key, "widget") == 0) {
+    } else if (strcmp(key, "widget") == 0) {
         if (!settings_set_value(SET_WIDGET, val))
             return 0;
-        return 1;
-    }
+    } else
+        return 0;
 
-    return 0;
+    return 1;
 }
 
 
@@ -108,36 +98,25 @@ static int conf_assign_str(const char *key, const char *val) {
         if (strcmp(val, "std") == 0) {
             if (!settings_set_value(SET_LOG_TYPE, LOG_T_STD))
                 return 0;
-            return 1;
-        }
-        if (strcmp(val, "sys") == 0) {
+        } else if (strcmp(val, "sys") == 0) {
             if (!settings_set_value(SET_LOG_TYPE, LOG_T_SYS))
                 return 0;
-            return 1;
-        }
-        if (strcmp(val, "file") == 0) {
+        } else if (strcmp(val, "file") == 0) {
             if (!settings_set_value(SET_LOG_TYPE, LOG_T_FILE))
                 return 0;
-            return 1;
-        }
+        } else
+            return 0;
 
-    }
-
-    // Log file path
-    if (strcmp(key, "log_file_path") == 0) {
+    } else if (strcmp(key, "log_file_path") == 0) {
         if (!settings_set_value_string(SET_LOG_FILE_PATH, val))
             return 0;
-        return 1;
-    }
-
-    // Widget file path
-    if (strcmp(key, "widget_file_path") == 0) {
+    } else if (strcmp(key, "widget_file_path") == 0) {
         if (!settings_set_value_string(SET_WIDGET_FILE_PATH, val))
             return 0;
-        return 1;
-    }
+    } else
+        return 0;
 
-    return 0;
+    return 1;
 }
 
 
@@ -149,8 +128,7 @@ static int conf_assign_set(const char *key, const char *val) {
     if (strcmp(val, "yes") == 0 || strcmp(val, "true") == 0) {
         is_bool = 1;
         val_int = 1;
-    }
-    if (strcmp(val, "no") == 0 || strcmp(val, "false") == 0) {
+    } else if (strcmp(val, "no") == 0 || strcmp(val, "false") == 0) {
         is_bool = 1;
         val_int = 0;
     }
@@ -237,9 +215,10 @@ static int conf_parse_file(FILE *fp) {
 
     if (errno != 0)
         return -1;
-    if (parse_ret == 0)
+    else if (parse_ret == 0)
         return line_cnt;
-    return 0;
+    else
+        return 0;
 }
 
 
@@ -259,8 +238,7 @@ int conf_load(const char *path) {
     if (parse_ret < 0) {
         logger_log(LOG_L_DEBUG, "Unknown error encoutered while parsing configuration file");
         return 0;
-    }
-    if (parse_ret > 0) {
+    } else if (parse_ret > 0) {
         logger_log(LOG_L_DEBUG, "Unable to parse line %d of configuraton file", parse_ret);
         return 0;
     }
