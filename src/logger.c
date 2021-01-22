@@ -1,5 +1,5 @@
 /**
- * macfand - hipuranyhou - 18.01.2021
+ * macfand - hipuranyhou - 22.01.2021
  * 
  * Daemon for controlling fans on Linux systems using
  * applesmc and coretemp.
@@ -18,56 +18,63 @@
 #include "helper.h"
 #include "settings.h"
 
-#define LOGGER_DATE_FORMAT "%b %d %H:%M:%S"
-#define LOGGER_DATE_LENGTH 16
+#define LOG_TIME_FMT "%b %d %H:%M:%S"
+#define LOG_TIME_LEN 16
 
 /**
  * @brief Constructs time string for logging.
  * Constructs time string with format given in LOGGER_DATE_FORMAT into destination.
- * @param[in]   destination_size  Size of buffer for time string.
- * @param[out]  destination       Pointer to destination of time string.
+ * @param[in]  dest      Pointer to destination of time string.
+ * @param[out] dest_size Size of buffer for time string.
  * @return int 0 on error, 1 on success.
  */
-static int logger_get_time(int destination_size, char *destination);
+static int log_get_time(char *const dest, int dest_size);
 
 /**
  * @brief Prints given string to std.
  * Prints given string to stderr for level LOG_L_ERROR and to stdout for other levels.
- * @param[in]  level        Level of message priority (one of enum log_level).
- * @param[in]  full_string  String to be logged.
+ * @param[in] lvl Level of message priority (one of enum log_level).
+ * @param[in] msg String to be logged.
  */
-static void logger_print_std(int level, char *full_string);
+static void log_print_std(int lvl, const char *const msg);
 
 /**
  * @brief Prints given string to log file.
  * Prints given string to log file.
- * @param[in]  full_string  String to be logged.
+ * @param[in] msg String to be logged.
  */
-static void logger_print_file(char *full_string);
+static void log_print_file(const char *const msg);
 
 /**
  * @brief Construct full logged string.
  * Constructs full logged string by getting current time, level string and message with given format
  * and concatenates these together. Allocates memory which has to be freed by caller.
- * @param[in]  level   Level of message priority (one of enum log_level).
- * @param[in]  format  Format of constructed message.
- * @param[in]  ap      Values to be concatenated into a string.
+ * @param[in] lvl Level of message priority (one of enum log_level).
+ * @param[in] fmt Format of constructed message.
+ * @param[in] ap  Values to be concatenated into a string.
  * @return char* NULL on error, pointer to full log string otherwise (has to be free by caller).
  */
-static char* logger_construct_full_string(int level, const char *format, va_list ap);
+static char* log_get_full_msg(int lvl, const char *const fmt, va_list ap);
 
 
-// Default logger settings
+/**
+ * @brief Struct holding logger info.
+ * Struct holding logger info with defaults set.
+ */
 static struct {
-    int type;
-    FILE *log_file;
+    int  type;
+    FILE *file;
 } logger = {
     .type = LOG_T_STD,
-    .log_file = NULL
+    .file = NULL
 };
 
 
-static const char* logger_level_strings[4] = {
+/**
+ * @brief Message level strings.
+ * Array holding all message level strings prepended to logged message.
+ */
+static const char* log_lvl_str[4] = {
     "ERROR",
     "WARNING",
     "INFO",
@@ -75,8 +82,11 @@ static const char* logger_level_strings[4] = {
 };
 
 
-// TODO: what to use when unknown level
-static const int logger_level_syslog[4] = {
+/**
+ * @brief Syslog level types
+ * Array mapping logger levels to syslog levels.
+ */
+static const int log_lvl_sys[4] = {
     LOG_ERR,
     LOG_WARNING,
     LOG_INFO,
@@ -84,78 +94,80 @@ static const int logger_level_syslog[4] = {
 };
 
 
-static int logger_get_time(int destination_size, char *destination) {
-    time_t raw_time = 0;
-    struct tm *time_info = NULL;
+static int log_get_time(char *const dest, int dest_size) {
+    time_t    raw_time = 0;
+    struct tm *tm      = NULL;
 
     errno = 0;
     raw_time = time(NULL);
     if (errno != 0)
         return 0;
 
-    time_info = localtime(&raw_time);
-    if (!time_info)
+    tm = localtime(&raw_time);
+    if (!tm)
         return 0;
 
-    if (strftime(destination, destination_size, LOGGER_DATE_FORMAT, time_info) == 0)
+    if (strftime(dest, dest_size, LOG_TIME_FMT, tm) == 0)
         return 0;
 
     return 1;
 }
 
 
-static void logger_print_std(int level, char *full_string) {
+static void log_print_std(int lvl, const char *const msg) {
     // Here, as logger, we cannot really do much with I/O errors
-    switch (level) {
+    switch (lvl) {
         case LOG_L_ERROR:
-            fprintf(stderr, "%s\n", (full_string) ? full_string : "ERROR LOGGING MESSAGE");
+            fprintf(stderr, "%s\n", (msg) ? msg : "ERROR LOGGING MESSAGE");
             fflush(stderr);
             break;
         default:
-            fprintf(stdout, "%s\n", (full_string) ? full_string : "ERROR LOGGING MESSAGE");
+            fprintf(stdout, "%s\n", (msg) ? msg : "ERROR LOGGING MESSAGE");
             fflush(stdout);
             break;
     }
 }
 
 
-static void logger_print_file(char *full_string) {
+static void log_print_file(const char *const msg) {
     // Here, as logger, we cannot really do much with I/O errors
-    fprintf(logger.log_file, "%s\n", (full_string) ? full_string : "ERROR LOGGING MESSAGE");
-    fflush(logger.log_file);
+    fprintf(logger.file, "%s\n", (msg) ? msg : "ERROR LOGGING MESSAGE");
+    fflush(logger.file);
 }
 
 
-static char* logger_construct_full_string(int level, const char *format, va_list ap) {
-    char *message = NULL, *full_string = NULL, time_buffer[LOGGER_DATE_LENGTH];
+static char* log_get_full_msg(int lvl, const char *const fmt, va_list ap) {
+    char *msg                = NULL;
+    char *full_msg           = NULL;
+    char time[LOG_TIME_LEN];
 
     // Get log message time
-    if (!logger_get_time(sizeof(time_buffer), time_buffer))
-        strncpy(time_buffer, "??? ?? ??:??:??", sizeof(time_buffer));
+    if (!log_get_time(time, sizeof(*time) * LOG_TIME_LEN))
+        strncpy(time, "??? ?? ??:??:??", sizeof(*time) * LOG_TIME_LEN);
 
     // Construct logged message
-    message = concatenate_format_v(format, ap);
-    if (!message)
+    msg = v_concat_fmt(fmt, ap);
+    if (!msg)
         return NULL;
 
     // Construct full log message including time, level and message
-    full_string = concatenate_format("[%s] %-7s: %s", time_buffer, logger_level_strings[level], message);
+    full_msg = concat_fmt("[%s] %-7s: %s", time, log_lvl_str[lvl], msg);
 
-    free(message);
-    return full_string;
+    free(msg);
+    return full_msg;
 }
 
 
-int logger_set_type(int type, char* file_path) {
+int log_set_type(int type, const char *const path) {
     if (type < LOG_T_STD || type > LOG_T_FILE)
         return 0;
 
     // Close previous log
     switch (logger.type) {
         case LOG_T_FILE:
-            if (logger.log_file) {
-                fclose(logger.log_file);
-                logger.log_file = NULL;
+            if (logger.file) {
+                fclose(logger.file);
+                logger.file = NULL;
             }
             break;
         case LOG_T_SYS:
@@ -165,12 +177,14 @@ int logger_set_type(int type, char* file_path) {
             break;
     }
 
+    logger.type = type;
+
     // Setup log file
     if (type == LOG_T_FILE) {
-        if (file_path == NULL)
+        if (!path)
             return 0;
-        logger.log_file = fopen(file_path, "a");
-        if (!logger.log_file)
+        logger.file = fopen(path, "a");
+        if (!logger.file)
             return 0;
     }
 
@@ -178,77 +192,77 @@ int logger_set_type(int type, char* file_path) {
     if (type == LOG_T_SYS)
         openlog("macfand", LOG_PID, LOG_DAEMON);
 
-    logger.type = type;
-
     return 1;
 }
 
 
-void logger_log(int level, const char *format, ...) {
+void log_log(int lvl, const char *const fmt, ...) {
     va_list ap;
-    char *full_string = NULL;
+    char    *msg = NULL;
 
     // We log only errors when not in verbose mode
-    if (level != LOG_L_ERROR && !settings_get_value(SET_VERBOSE))
+    if (lvl != LOG_L_ERROR && !settings_get_value(SET_VERBOSE))
         return;
 
-    va_start(ap, format);
+    va_start(ap, fmt);
 
-    if (level < LOG_L_ERROR || level > LOG_L_DEBUG)
-        level = LOG_L_ERROR;
+    if (lvl < LOG_L_ERROR)
+        lvl = LOG_L_ERROR;
+    else if (lvl > LOG_L_DEBUG)
+        lvl = LOG_L_DEBUG;
+    
 
     if (logger.type == LOG_T_SYS) {
-        vsyslog(logger_level_syslog[level], format, ap);
+        vsyslog(log_lvl_sys[lvl], fmt, ap);
         va_end(ap);
         return;
     }
     
-    full_string = logger_construct_full_string(level, format, ap);
+    msg = log_get_full_msg(lvl, fmt, ap);
     va_end(ap);
 
     switch (logger.type) {
         case LOG_T_STD:
-            logger_print_std(level, full_string);
+            log_print_std(lvl, msg);
             break;
         case LOG_T_FILE:
-            logger_print_file(full_string);
+            log_print_file(msg);
             break;
     }
 
-    if (full_string)
-        free(full_string);
+    if (msg)
+        free(msg);
 }
 
 
-void logger_log_list(const char *name, const t_node *head, void (*node_print)(const void *, FILE *)) {
-    FILE *stream = NULL;
+void log_log_list(const char *const name, const t_node *head, void (*node_print)(const void *const, FILE *const)) {
+    FILE *file = NULL;
 
-    logger_log(LOG_L_INFO, "Currently loaded %s ->\n", name);
+    log_log(LOG_L_INFO, "Currently loaded %s ->\n", name);
 
     switch (logger.type) {
         case LOG_T_STD:
-            stream = stdout;
+            file = stdout;
             break;
         case LOG_T_SYS:
             return;
         case LOG_T_FILE:
-            stream = logger.log_file;
+            file = logger.file;
             break;
         default:
             return;
     }
 
-    list_print(head, stream, node_print);
-    
-    fflush(stream);
+    list_print(head, file, node_print);
+    fflush(file);
 }
 
 
-void logger_exit(void) {
-    logger_log(LOG_L_INFO, "%s", "Shutting down");
+void log_exit(void) {
+    log_log(LOG_L_INFO, "Shutting down");
     // Here, as logger, we cannot really do much with I/O errors
-    if (logger.log_file)
-        fclose(logger.log_file);
+    if (logger.file)
+        fclose(logger.file);
     if (logger.type == LOG_T_SYS)
         closelog();
 }
