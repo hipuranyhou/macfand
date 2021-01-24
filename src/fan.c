@@ -43,7 +43,7 @@ static int fan_load_lbl(t_fan *const fan);
  * @param suff Suffix of speed file from which we read speed.
  * @return int 0 on erro, 1 on success.
  */
-static int fan_sel_spd_dest(t_fan *const fan, int **const dest, const char *const suff);
+static int fan_sel_spd_dest(const t_fan *const fan, int **const dest, const char *const suff);
 
 /**
  * @brief Loads given speed of fan.
@@ -111,7 +111,7 @@ static int fan_load_lbl(t_fan *const fan) {
 }
 
 
-static int fan_sel_spd_dest(t_fan *const fan, int **const dest, const char *const suff) {
+static int fan_sel_spd_dest(const t_fan *const fan, int **const dest, const char *const suff) {
     if (!fan || !dest || !suff)
         return 0;
 
