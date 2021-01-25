@@ -58,10 +58,10 @@ ssize_t get_str_until(const char *str, const char delim, char **dest, size_t *co
 int str_to_int(const char *const str, int *const dest, int base, char *const inv);
 
 /**
- * @brief 
- * 
- * @param names 
- * @param n 
+ * @brief Frees all remaining member returned by scandir().
+ * Frees all remaining member returned by scandir().
+ * @param[in] names Names returned by scandir().
+ * @param[in] n     Number of names entries.
  */
 void free_dirent_names(struct dirent **names, int n);
 
