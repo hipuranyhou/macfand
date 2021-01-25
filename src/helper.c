@@ -1,5 +1,5 @@
 /**
- * macfand - hipuranyhou - 18.01.2021
+ * macfand - hipuranyhou - 25.01.2021
  * 
  * Daemon for controlling fans on Linux systems using
  * applesmc and coretemp.
@@ -11,104 +11,129 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <limits.h>
+#include <ctype.h>
 
 #include "helper.h"
 
 
-char* concatenate_format_v(const char* format, va_list ap) {
+char* v_concat_fmt(const char *const fmt, va_list ap) {
     va_list ap_len;
-    int len = 0, vsn_ret = 0;
-    char *string = NULL;
+    int     len     = 0;
+    int     vsn_ret = 0;
+    char    *str    = NULL;
 
     // Get length of string
     va_copy(ap_len, ap);
-    len = vsnprintf(NULL, 0, format, ap_len);
+    len = vsnprintf(NULL, 0, fmt, ap_len);
     va_end(ap_len);
     if (len < 0)
         return NULL;
+    len++;
 
     // Prepare memory for string
-    string = (char*)malloc(len + 1);
-    if (!string)
+    str = (char*)malloc(len);
+    if (!str)
         return NULL;
 
     // Concatenate
-    vsn_ret = vsnprintf(string, len + 1, format, ap);
+    vsn_ret = vsnprintf(str, len, fmt, ap);
     if (vsn_ret > len) {
-        if (string)
-            free(string);
+        if (str)
+            free(str);
         return NULL;
     }
 
-    return string;
+    return str;
 }
 
 
-char* concatenate_format(const char* format, ...) {
+char* concat_fmt(const char *const fmt, ...) {
     va_list ap;
-    char *string = NULL;
+    char    *str = NULL;
 
-    va_start(ap, format);
-    string = concatenate_format_v(format, ap);
+    va_start(ap, fmt);
+    str = v_concat_fmt(fmt, ap);
     va_end(ap);
 
-    return string;
+    return str;
 }
 
 
-size_t get_line_until(const char *line, const char delimeter, char **destination, size_t *destination_size) {
-    size_t cnt = 0;
+ssize_t get_str_until(const char *str, const char delim, char **dest, size_t *const dest_size) {
+    size_t len = 0;
 
-    if (!line || (*destination && *destination_size == 0))
+    if (!str || (*dest && *dest_size == 0) || (!(*dest) && *dest_size != 0))
         return -1;
 
     // Prepare buffer
-    if (*destination_size == 0) 
-        *destination_size = 32;
-    if (!(*destination)) {
-        *destination = (char*)malloc(*destination_size * sizeof(*destination));
-        if (!(*destination))
+    if (!(*dest) && *dest_size == 0) {
+        *dest_size = 32;
+        *dest = (char*)malloc(*dest_size * sizeof(*dest));
+        if (!(*dest))
             return -1;
     }
 
-    while (*line) {
+    while (*str) {
+
+        if (*str == delim || *str == '\n')
+            break;
 
         // Resize buffer
-        if (cnt == *destination_size - 1) {
-            *destination_size <<= 1;
-            if (*destination_size > 4096)
+        if (len == *dest_size - 1) {
+            *dest_size <<= 1;
+            if (*dest_size > 4096)
                 return -1;
-            *destination = (char*)realloc(*destination, *destination_size * sizeof(*destination));
-            if (!(*destination))
+            *dest = (char*)realloc(*dest, *dest_size * sizeof(*dest));
+            if (!(*dest))
                 return -1;
         }
-
-        if (*line == delimeter || *line == '\n')
-            break;
             
-        (*destination)[cnt++] = *line;
-        line++;
-
+        (*dest)[len] = *str;
+        len++;
+        str++;
     }
 
-    (*destination)[cnt] = '\0';
+    (*dest)[len] = '\0';
 
-    return cnt;
+    return len;
 }
 
 
-int get_int_from_string(const char *string, int *destination) {
-    char *tmp_str;
-    long int tmp_val = 0;
+int str_to_int(const char *const str, int *const dest, int base, char *const inv) {
+    long l    = 0;
+    char *end = NULL;
+
+    if (!str || !isdigit(*str) || !dest || base < 2 || base > 36)
+        return -1;
 
     errno = 0;
-    tmp_val = strtol(string, &tmp_str, 10);
+    l = strtol(str, &end, base);
 
-    if (tmp_str == string || *tmp_str != '\0' || tmp_val < INT_MIN || tmp_val > INT_MAX)
+    if (l > INT_MAX || (errno == ERANGE && l == LONG_MAX))
+        return -1;
+    if (l > INT_MAX || (errno == ERANGE && l == LONG_MAX))
+        return -1;
+
+    *dest = l;
+
+    if (inv)
+        *inv = *end;
+
+    if (*end != '\0')
         return 0;
+    else
+        return 1;
+}
 
-    *destination = (int)tmp_val;
-    return 1;
+
+void free_dirent_names(struct dirent **names, int n) {
+    if (!names)
+        return;
+
+    while (n--)
+        free(names[n]);
+        
+    free(names);
 }
 
 

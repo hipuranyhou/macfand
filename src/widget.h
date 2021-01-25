@@ -17,6 +17,6 @@
  * Writes speed of each system fan to widget file.
  * @param[in]  fans  Pointer to head of linked list of system fans.
  */
-void widget_write(const t_node *fans);
+void wgt_write(const t_node *fans);
 
 #endif //MACFAND_WIDGET_H_weqeurhqiu

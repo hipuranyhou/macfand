@@ -1,5 +1,5 @@
 /**
- * macfand - hipuranyhou - 18.01.2021
+ * macfand - hipuranyhou - 20.01.2021
  * 
  * Daemon for controlling fans on Linux systems using
  * applesmc and coretemp.
@@ -14,9 +14,9 @@
  * @brief Parses configuration file at given location.
  * Parses configuration file at given location and based on this updates 
  * appropriate settings. Does not check validity of settings.
- * @param[in]  config_path  Path to macfand configuration file.
+ * @param[in] path Path to macfand configuration file.
  * @return int 0 on error, 1 on success.
  */
-int config_load(const char *config_path);
+int conf_load(const char *path);
 
 #endif //MACFAND_CONTROL_H_fsdfdsfsdf

@@ -1,5 +1,5 @@
 /**
- * macfand - hipuranyhou - 18.01.2021
+ * macfand - hipuranyhou - 25.01.2021
  * 
  * Daemon for controlling fans on Linux systems using
  * applesmc and coretemp.
@@ -27,46 +27,46 @@
  * Reloads settings from configuration file, check its validity and reloads logger.
  * @return int 0 on error, 1 on success.
  */
-static int control_reload_config(void);
+static int ctrl_rld_conf(void);
 
 /**
- * @brief Calculates new fan speed.
- * Calculates new fan speed based on temperatures stored in control which will be fan->min if current temperature is 
+ * @brief Calculates fan target speed.
+ * Calculates new fan speed based on temperatures stored in temps which will be fan->min if current temperature is 
  * under settings->temp_low, fan->max if current temperature is over settings->temp_max, or one of
  * (fan->min + fan->step * steps) and (fan->max - fan->step * steps) if fans need to cool more or less, respectively.
- * @param[in,out]  control   Pointer to struct holding control values.
- * @param[in]      fan       Pointer to current adjusted fan.
+ * @param[in,out] temps Pointer to struct holding control temperature values.
+ * @param[in]     fan   Pointer to current adjusted fan.
  */
-static void control_calculate_speed(t_control *control, const t_fan *fan);
+static void ctrl_calc_spd(struct ctrl_temps *const temps, t_fan *const fan);
 
 /**
  * @brief Adjusts temperatures in control.
  * Sets temp_previous to temp_current, updates temp_current using monitors_get_temp() and calculates temp_delta
  * based on these two updated values.
- * @param[in,out]  control   Pointer to struct holding control values.
- * @param[in]      monitors  Pointer to head of linked list of temperature monitors.
+ * @param[in,out] temps Pointer to struct holding control temperature values.
+ * @param[in]     mons  Pointer to head of generic linked list of temperature monitors.
  */
-static void control_set_temps(t_control *control, const t_node *monitors);
+static void ctrl_set_temps(struct ctrl_temps *const temps, t_node *mons);
 
 
-volatile sig_atomic_t termination_flag = 0;
-volatile sig_atomic_t reload_config_flag = 0;
+volatile sig_atomic_t term_flag = 0;
+volatile sig_atomic_t rld_flag = 0;
 
 
-static int control_reload_config(void) {
+static int ctrl_rld_conf(void) {
 
-    if (!config_load(settings_get_value_string(SET_CONFIG_FILE_PATH))) {
-        logger_log(LOG_L_ERROR, "%s", "Unable to load configuration file");
+    if (!conf_load(set_get_str(SET_CONFIG_FILE_PATH))) {
+        log_log(LOG_L_ERROR, "Unable to load configuration file");
         return 0;
     }
 
-    if (!settings_check()) {
-        logger_log(LOG_L_ERROR, "%s", "Settings are invalid");
+    if (!set_check()) {
+        log_log(LOG_L_ERROR, "Settings are invalid");
         return 0;
     }
 
-    if (!logger_set_type(settings_get_value(SET_LOG_TYPE), settings_get_value_string(SET_LOG_FILE_PATH))) {
-        logger_log(LOG_L_ERROR, "%s", "Unable to set logger to configured mode");
+    if (!log_set_type(set_get_int(SET_LOG_TYPE), set_get_str(SET_LOG_FILE_PATH))) {
+        log_log(LOG_L_ERROR, "Unable to set logger to configured mode");
         return 0;
     }
 
@@ -74,86 +74,92 @@ static int control_reload_config(void) {
 }
 
 
-static void control_calculate_speed(t_control *control, const t_fan *fan) {
-    control->speed = fan->speed;
+static void ctrl_calc_spd(struct ctrl_temps *const temps, t_fan *const fan) {
+    int steps = 0;
+
+    fan->spd.tgt = fan->spd.real;
 
     // Extremes
-    if (control->temp_current >= settings_get_value(SET_TEMP_MAX)) {
-        control->speed = fan->max;
+    if (temps->real >= temps->max) {
+        fan->spd.tgt = fan->spd.max;
         return;
     }
 
-    if (control->temp_current <= settings_get_value(SET_TEMP_LOW)) {
-        control->speed = fan->min;
+    if (temps->real <= temps->low) {
+        fan->spd.tgt = fan->spd.min;
         return;
     }
 
     // Set higher or lower speed
-    if (control->temp_delta > 0 && control->temp_current > settings_get_value(SET_TEMP_HIGH)) {
-        control->steps = (control->temp_current - settings_get_value(SET_TEMP_HIGH)) * (control->temp_current - settings_get_value(SET_TEMP_HIGH) + 1) / 2;
-        control->speed = max(control->speed, (fan->min + (control->steps * fan->step)));
+    if (temps->dlt > 0 && temps->real > temps->high) {
+        steps = (temps->real - temps->high) * (temps->real - temps->high + 1) / 2;
+        fan->spd.tgt = max(fan->spd.tgt, (fan->spd.min + (steps * fan->spd.step)));
         return;
     }
 
-    if (control->temp_delta < 0 && control->temp_current > settings_get_value(SET_TEMP_LOW)) {
-        control->steps = (settings_get_value(SET_TEMP_LOW) - control->temp_current) * (settings_get_value(SET_TEMP_LOW) - control->temp_current + 1) / 2;
-        control->speed = min(control->speed, (fan->max - (control->steps * fan->step)));
+    if (temps->dlt < 0 && temps->real > temps->low) {
+        steps = (temps->low - temps->real) * (temps->low - temps->real + 1) / 2;
+        fan->spd.tgt = min(fan->spd.tgt, (fan->spd.max - (steps * fan->spd.step)));
         return;
     }
 }
 
 
-static void control_set_temps(t_control *control, const t_node *monitors) {
-    control->temp_previous = control->temp_current;
-    control->temp_current = monitors_get_temp(monitors);
-    control->temp_delta = control->temp_current - control->temp_previous;
+static void ctrl_set_temps(struct ctrl_temps *const temps, t_node *mons) {
+    temps->prev = temps->real;
+    temps->real = mons_read_temp(mons);
+    temps->dlt = temps->real - temps->prev;
 }
 
 
-int control_start(const t_node *monitors, t_node *fans) {
-    t_control control = {
-        .temp_previous = 0, 
-        .temp_current = 0, 
-        .temp_delta = 0, 
-        .speed = 0, 
-        .steps = 0
+int ctrl_start(t_node *mons, t_node *fans) {
+    struct ctrl_temps temps = {
+        .prev = 0,
+        .real = 0,
+        .dlt = 0,
+        .high = set_get_int(SET_TEMP_HIGH),
+        .low = set_get_int(SET_TEMP_LOW),
+        .max = set_get_int(SET_TEMP_MAX),
     };
-    t_fan *fan = NULL;
+    struct timespec ts = {
+        .tv_sec = set_get_int(SET_TIME_POLL),
+        .tv_nsec = 0
+    };
+    t_fan  *fan       = NULL;
     t_node *fans_head = fans;
-    struct timespec ts;
+    
 
-    if (!fans || !monitors)
+    if (!fans || !mons)
         return 0;
 
-    ts.tv_sec = settings_get_value(SET_TIME_POLL);
-    ts.tv_nsec = 0;
-
     for(;;) {
-        if (termination_flag)
+        if (term_flag)
             return 1;
-        if (reload_config_flag) {
-            if (!control_reload_config()) {
-                logger_log(LOG_L_ERROR, "%s", "Unable to reload configuration file");
+
+        // SIGHUP catched for reloading of config
+        if (rld_flag) {
+            if (!ctrl_rld_conf()) {
+                log_log(LOG_L_ERROR, "Unable to reload configuration file");
                 return 0;
             }
-            logger_log(LOG_L_INFO, "%s", "Configuration file reloaded");
-            reload_config_flag = 0;
+            log_log(LOG_L_INFO, "Configuration file reloaded");
+            rld_flag = 0;
         }
 
         // Prepare next fan loop
         fans = fans_head;
-        control_set_temps(&control, monitors);
+        ctrl_set_temps(&temps, mons);
 
         // Write widget file
-        if (settings_get_value(SET_WIDGET))
-            widget_write(fans);
+        if (set_get_int(SET_WIDGET))
+            wgt_write(fans);
 
         // Set speed of each fan
         while (fans) {
             fan = fans->data;
-            control_calculate_speed(&control, fan);
-            if (!fan_set_speed(fan, control.speed))
-                logger_log(LOG_L_DEBUG, "%s %d", "Unable to set speed of fan", fan->id);
+            ctrl_calc_spd(&temps, fan);
+            if (!fan_write_spd(fan))
+                log_log(LOG_L_DEBUG, "Unable to set speed of fan %d", fan->id);
             fans = fans->next;
         }
 

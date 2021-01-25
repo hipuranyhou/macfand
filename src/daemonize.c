@@ -1,5 +1,5 @@
 /**
- * macfand - hipuranyhou - 18.01.2021
+ * macfand - hipuranyhou - 20.01.2021
  * 
  * Daemon for controlling fans on Linux systems using
  * applesmc and coretemp.
@@ -71,11 +71,11 @@ void daemonize(void) {
     // Write PID file
     pid_file = fopen("/run/macfand.pid", "w+");
     if (!pid_file) {
-        logger_log(LOG_L_DEBUG, "%s", "Unable to open PID file");
+        log_log(LOG_L_DEBUG, "Unable to open PID file");
         return;
     }
     if (fprintf(pid_file, "%d\n", getpid()) < 0)
-        logger_log(LOG_L_DEBUG, "%s", "Unable to write PID file");
+        log_log(LOG_L_DEBUG, "Unable to write PID file");
     if (fclose(pid_file) == EOF)
-        logger_log(LOG_L_DEBUG, "%s", "Unable to close PID file");
+        log_log(LOG_L_DEBUG, "Unable to close PID file");
 }
