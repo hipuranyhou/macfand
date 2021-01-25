@@ -50,7 +50,7 @@ static void ctrl_set_temps(struct ctrl_temps *const temps, const t_node *mons);
 
 
 volatile sig_atomic_t term_flag = 0;
-volatile sig_atomic_t reload_flag = 0;
+volatile sig_atomic_t rld_flag = 0;
 
 
 static int ctrl_rld_conf(void) {
@@ -137,13 +137,13 @@ int ctrl_start(const t_node *mons, t_node *fans) {
             return 1;
 
         // SIGHUP catched for reloading of config
-        if (reload_flag) {
+        if (rld_flag) {
             if (!ctrl_rld_conf()) {
                 log_log(LOG_L_ERROR, "Unable to reload configuration file");
                 return 0;
             }
             log_log(LOG_L_INFO, "Configuration file reloaded");
-            reload_flag = 0;
+            rld_flag = 0;
         }
 
         // Prepare next fan loop
