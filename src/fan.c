@@ -38,12 +38,13 @@ static int fan_load_lbl(t_fan *const fan);
  * @brief Selects where should fan read speed end.
  * Changes *dest to proper location of where should be speed saved after reading
  * it for given fan based on path suffix.
- * @param fan  Pointer to fan which speed should be read.
- * @param dest Pointer where should be destination saved.
- * @param suff Suffix of speed file from which we read speed.
- * @return int 0 on erro, 1 on success.
+ * @param[in]  fan  Pointer to fan which speed should be read.
+ * @param[in]  suff Suffix of speed file from which we read speed.
+ * @param[out] dest Pointer where should be read value destination saved.
+ * @param[out] path Pointer where should be read path saved.
+ * @return int 0 on error, 1 on success.
  */
-static int fan_sel_spd_dest(const t_fan *const fan, int **const dest, const char *const suff);
+static int fan_sel_spd_dest(const t_fan *const fan, const char *const suff, int **const dest, char **const path);
 
 /**
  * @brief Loads given speed of fan.
@@ -111,42 +112,38 @@ static int fan_load_lbl(t_fan *const fan) {
 }
 
 
-static int fan_sel_spd_dest(const t_fan *const fan, int **const dest, const char *const suff) {
-    if (!fan || !dest || !suff)
+static int fan_sel_spd_dest(const t_fan *const fan, const char *const suff, int **const dest, char **const path) {
+    if (!fan || !suff || !dest || !path)
         return 0;
 
-    if (strcmp(FAN_PATH_MIN, suff) == 0)
+    if (strcmp(FAN_PATH_MIN, suff) == 0) {
         *dest = &(fan->spd.min);
-    else if (strcmp(FAN_PATH_MAX, suff) == 0)
+        *path = concat_fmt(FAN_PATH_FMT, fan->id, FAN_PATH_MIN);
+    } else if (strcmp(FAN_PATH_MAX, suff) == 0) {
         *dest = &(fan->spd.max);
-    else if (strcmp(FAN_PATH_RD, suff) == 0)
-        *dest = &(fan->spd.real);
-    else
+        *path = concat_fmt(FAN_PATH_FMT, fan->id, FAN_PATH_MIN);
+    } else
         return 0;
 
+    if (!(*path))
+        return 0;
     return 1;
 }
 
 
 static int fan_read_spd(t_fan *const fan, const char *const suff) {
-    char    *path    = NULL;
     char    *str     = NULL;
     size_t  str_size = 0;
     ssize_t get_ret  = 0;
     FILE    *file    = NULL;
-    int     *dest    = NULL;
+    int     *rd_dest = &(fan->spd.real);
+    char    *rd_path = fan->path.rd;
 
-    if (!fan || !suff || !fan_sel_spd_dest(fan, &dest, suff))
-        return 0;
-
-    // Prepare path to file
-    path = concat_fmt(FAN_PATH_FMT, fan->id, suff);
-    if (!path)
+    if (!fan || (suff && !fan_sel_spd_dest(fan, suff, &rd_dest, &rd_path)))
         return 0;
 
     // Open file for reading
-    file = fopen(path, "r");
-    free(path);
+    file = fopen(rd_path, "r");
     if (!file) {
         log_log(LOG_L_DEBUG, "Unable to open speed file of fan %d", fan->id);
         return 0;
@@ -164,7 +161,7 @@ static int fan_read_spd(t_fan *const fan, const char *const suff) {
     str[get_ret-1] = '\0';
 
     // Convert read line to integer
-    if (str_to_int(str, dest, 10, NULL) < 1) {
+    if (str_to_int(str, rd_dest, 10, NULL) < 1) {
         log_log(LOG_L_DEBUG, "Invalid speed of fan %d", fan->id);
         if (fclose(file) == EOF)
             log_log(LOG_L_DEBUG, "Unable to close speed file of fan %d", fan->id);
@@ -184,6 +181,15 @@ static int fan_load_def(t_fan *const fan) {
     if (!fan)
         return 0;
 
+    // Load all paths of given fan
+    fan->path.rd = concat_fmt(FAN_PATH_FMT, fan->id, FAN_PATH_RD);
+    fan->path.wr = concat_fmt(FAN_PATH_FMT, fan->id, FAN_PATH_WR);
+    fan->path.mod = concat_fmt(FAN_PATH_FMT, fan->id, FAN_PATH_MOD);
+    if (!fan->path.rd || !fan->path.wr || !fan->path.mod) {
+        log_log(LOG_L_DEBUG, "Unable to load read, write or mode path of fan %d", fan->id);
+        return 0;
+    }
+
     // Load min and max speed of given fan
     if (!fan_read_spd(fan, FAN_PATH_MIN) || !fan_read_spd(fan, FAN_PATH_MAX)) {
         log_log(LOG_L_DEBUG, "Unable to load max or min speed of fan %d", fan->id);
@@ -195,15 +201,6 @@ static int fan_load_def(t_fan *const fan) {
 
     // Calculate size of one unit of fan speed change
     fan->spd.step = (fan->spd.max - fan->spd.min) / ((temp_max - temp_high) * (temp_max - temp_high + 1) / 2);
-
-    // Load all paths of given fan
-    fan->path.rd = concat_fmt(FAN_PATH_FMT, fan->id, FAN_PATH_RD);
-    fan->path.wr = concat_fmt(FAN_PATH_FMT, fan->id, FAN_PATH_WR);
-    fan->path.mod = concat_fmt(FAN_PATH_FMT, fan->id, FAN_PATH_MOD);
-    if (!fan->path.rd || !fan->path.wr || !fan->path.mod) {
-        log_log(LOG_L_DEBUG, "Unable to load read, write or mode path of fan %d", fan->id);
-        return 0;
-    }
 
     // Load fan label
     if (!fan_load_label(fan)) {
