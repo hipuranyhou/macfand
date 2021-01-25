@@ -55,7 +55,7 @@ volatile sig_atomic_t rld_flag = 0;
 
 static int ctrl_rld_conf(void) {
 
-    if (!conf_load(set_get_val_str(SET_CONFIG_FILE_PATH))) {
+    if (!conf_load(set_get_str(SET_CONFIG_FILE_PATH))) {
         log_log(LOG_L_ERROR, "Unable to load configuration file");
         return 0;
     }
@@ -65,7 +65,7 @@ static int ctrl_rld_conf(void) {
         return 0;
     }
 
-    if (!log_set_type(set_get_val(SET_LOG_TYPE), set_get_val_str(SET_LOG_FILE_PATH))) {
+    if (!log_set_type(set_get_int(SET_LOG_TYPE), set_get_str(SET_LOG_FILE_PATH))) {
         log_log(LOG_L_ERROR, "Unable to set logger to configured mode");
         return 0;
     }
@@ -107,7 +107,7 @@ static void ctrl_calc_spd(struct ctrl_temps *const temps, t_fan *const fan) {
 
 static void ctrl_set_temps(struct ctrl_temps *const temps, t_node *mons) {
     temps->prev = temps->real;
-    temps->real = mons_get_temp(mons);
+    temps->real = mons_read_temp(mons);
     temps->dlt = temps->real - temps->prev;
 }
 
@@ -117,12 +117,12 @@ int ctrl_start(t_node *mons, t_node *fans) {
         .prev = 0,
         .real = 0,
         .dlt = 0,
-        .high = set_get_val(SET_TEMP_HIGH),
-        .low = set_get_val(SET_TEMP_LOW),
-        .max = set_get_val(SET_TEMP_MAX),
+        .high = set_get_int(SET_TEMP_HIGH),
+        .low = set_get_int(SET_TEMP_LOW),
+        .max = set_get_int(SET_TEMP_MAX),
     };
     struct timespec ts = {
-        .tv_sec = set_get_val(SET_TIME_POLL),
+        .tv_sec = set_get_int(SET_TIME_POLL),
         .tv_nsec = 0
     };
     t_fan  *fan       = NULL;
@@ -151,7 +151,7 @@ int ctrl_start(t_node *mons, t_node *fans) {
         ctrl_set_temps(&temps, mons);
 
         // Write widget file
-        if (set_get_val(SET_WIDGET))
+        if (set_get_int(SET_WIDGET))
             wgt_write(fans);
 
         // Set speed of each fan

@@ -85,7 +85,7 @@ int set_check() {
         return 0;
     }
     if (set.log_type == LOG_T_FILE && !set.log_file_path) {
-        if (!set_set_val_str(SET_LOG_FILE_PATH, "/var/log/macfand.log")) {
+        if (!set_set_str(SET_LOG_FILE_PATH, "/var/log/macfand.log")) {
             log_log(LOG_L_DEBUG, "%s", "Unable to set default log file path to /var/log/macfand.log");
             return 0;
         }
@@ -96,7 +96,7 @@ int set_check() {
         return 0;
     }
     if (set.widget && !set.widget_file_path) {
-        if (!set_set_val_str(SET_WIDGET_FILE_PATH, "/tmp/macfand.widget")) {
+        if (!set_set_str(SET_WIDGET_FILE_PATH, "/tmp/macfand.widget")) {
             log_log(LOG_L_DEBUG, "%s", "Unable to set default widget file path to /tmp/macfand.widget");
             return 0;
         }
@@ -107,7 +107,7 @@ int set_check() {
 }
 
 
-int set_get_val(int choice) {
+int set_get_int(int choice) {
     switch (choice) {
         case SET_TEMP_LOW:
             return set.temp_low;
@@ -131,7 +131,7 @@ int set_get_val(int choice) {
 }
 
 
-char* set_get_val_str(int choice) {
+char* set_get_str(int choice) {
     switch (choice) {
         case SET_LOG_FILE_PATH:
             return set.log_file_path;
@@ -145,7 +145,7 @@ char* set_get_val_str(int choice) {
 }
 
 
-int set_set_val(int choice, int val) {
+int set_set_int(int choice, int val) {
 
     switch (choice) {
         case SET_TEMP_LOW:
@@ -180,7 +180,7 @@ int set_set_val(int choice, int val) {
 }
 
 
-int set_set_val_str(int choice, const char *const val) { 
+int set_set_str(int choice, const char *const val) { 
     if (!val)
         return 0;
 

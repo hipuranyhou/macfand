@@ -1,5 +1,5 @@
 /**
- * macfand - hipuranyhou - 22.01.2021
+ * macfand - hipuranyhou - 25.01.2021
  * 
  * Daemon for controlling fans on Linux systems using
  * applesmc and coretemp.
@@ -201,7 +201,7 @@ void log_log(int lvl, const char *const fmt, ...) {
     char    *msg = NULL;
 
     // We log only errors when not in verbose mode
-    if (lvl != LOG_L_ERROR && !set_get_val(SET_VERBOSE))
+    if (lvl != LOG_L_ERROR && !set_get_int(SET_VERBOSE))
         return;
 
     va_start(ap, fmt);

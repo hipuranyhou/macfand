@@ -36,6 +36,8 @@ struct fan_path {
     char *rd;
     char *wr;
     char *mod;
+    char *min;
+    char *max;
 };
 
 /**

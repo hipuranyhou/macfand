@@ -11,6 +11,7 @@
 #define MACFAND_HELPER_H_pifiohaods
 
 #include <stdarg.h>
+#include <dirent.h>
 
 /**
  * @brief Concatenates values into a string
@@ -55,6 +56,14 @@ ssize_t get_str_until(const char *str, const char delim, char **dest, size_t *co
  * @return int -1 on error, 0 on partly converted string, 1 on success
  */
 int str_to_int(const char *const str, int *const dest, int base, char *const inv);
+
+/**
+ * @brief 
+ * 
+ * @param names 
+ * @param n 
+ */
+void free_dirent_names(struct dirent **names, int n);
 
 /**
  * @brief Returns max of two given integers.

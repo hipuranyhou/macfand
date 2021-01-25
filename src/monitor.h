@@ -15,8 +15,8 @@
 #include "linked.h"
 
 /**
- * @brief 
- * 
+ * @brief Struct holding all monitor ids.
+ * Struct holding all monitor ids, which are monitor and hwmon.
  */
 struct mon_id {
     int mon;
@@ -24,12 +24,21 @@ struct mon_id {
 };
 
 /**
- * @brief 
- * 
+ * @brief Struct holding all monitor temperatures.
+ * Struct holding all monitor temperatures, which are real (current) and max.
  */
 struct mon_temp {
     int real;
     int max;
+};
+
+/**
+ * @brief Struct holding all monitor paths.
+ * Struct holding all monitor paths, which are read and max.
+ */
+struct mon_path {
+    char *rd;
+    char *max;
 };
 
 /**
@@ -39,7 +48,7 @@ struct mon_temp {
  */
 typedef struct mon {
     char            *lbl;
-    char            *path_rd;
+    struct mon_path path;
     struct mon_id   id;
     struct mon_temp temp;
 } t_mon;
@@ -60,7 +69,7 @@ t_node *mons_load(void);
  * @return int settings_get_value(SET_TEMP_HIGH) if reading at least one temperature failed, 
  * current system temperature otherwise.
  */
-int mons_get_temp(t_node *mons);
+int mons_read_temp(t_node *mons);
 
 /**
  * @brief Gets the system max allowed temperature
@@ -69,7 +78,7 @@ int mons_get_temp(t_node *mons);
  * @param[in] monitors Pointer to head of linked list of temperature monitors.
  * @return int -1 on error, system max temperature otherwise.
  */
-int mons_get_temp_max(const t_node *mons);
+int mons_read_temp_max(const t_node *mons);
 
 /**
  * @brief Frees memory for given monitor.
@@ -80,7 +89,7 @@ void mon_free(t_mon *mon, int self);
 
 /**
  * @brief Prints info about monitor.
- * Prints formated information (all values of t_monitor) about given monitor to stdout.
+ * Prints formated information (all values of t_mon) about given monitor to stdout.
  * @param[in] monitor Pointer to temperature monitor.
  */
 void mon_print(const t_mon *const mon, FILE *const file);

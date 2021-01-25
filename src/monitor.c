@@ -12,7 +12,6 @@
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
-#include <libgen.h>
 
 #include "monitor.h"
 #include "helper.h"
@@ -71,6 +70,14 @@ static int mon_load_def(t_mon *const mon);
  */
 static int mons_find_hw_id(void);
 
+/**
+ * @brief Filters out files not starting filename with "temp".
+ * Filters out files not starting filename with "temp" when using scandir().
+ * @param[in] dirent Pointer to dirent entry which filename we check.
+ * @return int 0 on not starting, 1 on starting.
+ */
+static int mons_load_filter(const struct dirent *dirent);
+
 
 static int mon_load_lbl(t_mon *const mon) {
     char    *path    = NULL;
@@ -118,7 +125,7 @@ static int mon_sel_temp_dest(t_mon *const mon, const char *const suff, int **con
 
     if (strcmp(MON_PATH_MAX, suff) == 0) {
         *dest = &(mon->temp.max);
-        *path = concat_fmt(MON_PATH_FMT, mon->id.hw, mon->id.mon, MON_PATH_MAX);
+        *path = mon->path.max;
     } else
         return 0;
 
@@ -134,7 +141,7 @@ static int mon_read_temp(t_mon *const mon, const char *const suff) {
     ssize_t get_ret  = 0;
     FILE    *file    = NULL;
     int     *rd_dest = &(mon->temp.real);
-    char    *rd_path = mon->path_rd;
+    char    *rd_path = mon->path.rd;
 
     if (!mon || (suff && !mon_sel_temp_dest(mon, suff, &rd_dest, &rd_path)))
         return 0;
@@ -151,6 +158,8 @@ static int mon_read_temp(t_mon *const mon, const char *const suff) {
     get_ret = getline(&str, &str_size, file);
     if (get_ret < 2 || errno != 0) {
         log_log(LOG_L_DEBUG, "Invalid temperature file of monitor %d", mon->id.mon);
+        if (str)
+            free(str);
         if (fclose(file) == EOF)
             log_log(LOG_L_DEBUG, "Unable to close temperature file of monitor %d", mon->id.mon);
         return 0;
@@ -160,11 +169,13 @@ static int mon_read_temp(t_mon *const mon, const char *const suff) {
     // Convert read line to integer
     if (str_to_int(str, rd_dest, 10, NULL) < 1) {
         log_log(LOG_L_DEBUG, "Invalid temperature of monitor %d", mon->id.mon);
+        free(str);
         if (fclose(file) == EOF)
             log_log(LOG_L_DEBUG, "Unable to close temperature file of monitor %d", mon->id.mon);
         return 0;
     }
 
+    free(str);
     if (fclose(file) == EOF)
         log_log(LOG_L_DEBUG, "Unable to close temperature file of monitor %d", mon->id.mon);
     return 1;
@@ -175,8 +186,9 @@ static int mon_load_def(t_mon *const mon) {
     if (!mon)
         return 0;
 
-    mon->path_rd = concat_fmt(MON_PATH_FMT, mon->id.hw, mon->id.mon, MON_PATH_RD);
-    if (!mon->path_rd)
+    mon->path.rd = concat_fmt(MON_PATH_FMT, mon->id.hw, mon->id.mon, MON_PATH_RD);
+    mon->path.max = concat_fmt(MON_PATH_FMT, mon->id.hw, mon->id.mon, MON_PATH_MAX);
+    if (!mon->path.rd || !mon->path.max)
         return 0;
 
     if (!mon_read_temp(mon, MON_PATH_MAX)) {
@@ -199,50 +211,68 @@ static int mons_find_hw_id(void) {
     int           id         = -1;
     struct dirent *dirent    = NULL;
     DIR           *dir       = NULL;
-    char          *fname     = NULL;
     char          *lpath     = NULL;
     ssize_t       llen       = 0;
     const size_t  ldest_size = 256;
     char          ldest[ldest_size];
 
-    dir = opendir(MON_PATH_BASE);
+    dir = opendir(MON_PATH_CLS);
     if (!dir)
         return -1;
 
     while ((dirent = readdir(dir))) {
-        fname = basename(dirent->d_name);
 
-        if (dirent->d_type != DT_LNK || !fname || strncmp(fname, "hwmon", 5) != 0)
+        if (dirent->d_type != DT_LNK || strncmp(dirent->d_name, "hwmon", 5) != 0)
             continue;
 
-        lpath = concat_fmt("%s/%s", MON_PATH_CLS, fname);
-        if (!lpath)
+        lpath = concat_fmt("%s/%s", MON_PATH_CLS, dirent->d_name);
+        if (!lpath) {
+            if (closedir(dir) < 0)
+                log_log(LOG_L_DEBUG, "Unable to close %s directory", MON_PATH_CLS);
             return -1;
+        }
 
         errno = 0;
         llen = readlink(lpath, ldest, ldest_size-1);
-        if (llen < 1 || errno != 0)
+        if (llen < 1 || errno != 0) {
+            free(lpath);
+            if (closedir(dir) < 0)
+                log_log(LOG_L_DEBUG, "Unable to close %s directory", MON_PATH_CLS);
             return -1;
+        }
         ldest[llen] = '\0';
 
-        if (!strstr(ldest, "coretemp.0"))
+        if (!strstr(ldest, "coretemp.0")) {
+            free(lpath);
             continue;
+        }
 
-        if (str_to_int(fname+5, &id, 10, NULL) < 1)
+        if (str_to_int(dirent->d_name+5, &id, 10, NULL) < 1) {
+            free(lpath);
+            if (closedir(dir) < 0)
+                log_log(LOG_L_DEBUG, "Unable to close %s directory", MON_PATH_CLS);
             return -1;
+        }
         
         break;
     }
 
+    free(lpath);
+    if (closedir(dir) < 0)
+        log_log(LOG_L_DEBUG, "Unable to close %s directory", MON_PATH_CLS);
     return id;
 }
 
 
+static int mons_load_filter(const struct dirent *dirent) {
+    return (strncmp(dirent->d_name, "temp", 4) == 0);
+}
+
+
 t_node* mons_load(void) {
-    struct dirent *dirent    = NULL;
-    DIR           *dir       = NULL;
+    struct dirent **names    = NULL;
+    int           names_size = 0;
     char          *hw_path   = NULL;
-    char          *fname     = NULL;
     char          inv        = 0;
     int           id_prev    = 0;
     int           to_int_ret = 0;
@@ -259,50 +289,52 @@ t_node* mons_load(void) {
     if (!hw_path)
         return NULL;
 
-    // Open fans directory
-    dir = opendir(hw_path);
-    if (!dir) {
-        log_log(LOG_L_DEBUG, "Unable to open system monitors directory");
+    errno = 0;
+    names_size = scandir(hw_path, &names, mons_load_filter, alphasort);
+    free(hw_path);
+    if (names_size < 0) {
+        log_log(LOG_L_DEBUG, "Unable to open system monitors directory.");
         return NULL;
     }
 
     // Walk through fans directory
-    while ((dirent = readdir(dir))) {
-        fname = basename(dirent->d_name);
-
-        if (!fname || strncmp(fname, "temp", 4) != 0)
-            continue;
-
-        // Get id of fan
-        to_int_ret = str_to_int(fname+4, &(mon.id.mon), 10, &inv);
+    while (names_size--) {
+        // Get id of monitor
+        to_int_ret = str_to_int(names[names_size]->d_name+4, &(mon.id.mon), 10, &inv);
         if (to_int_ret < 0 || inv != '_') {
             list_free(mons, (void (*)(void *, int))mon_free);
             mon_free(&mon, 0);
+            free_dirent_names(names, names_size);
             log_log(LOG_L_DEBUG, "Invalid monitor filename encountered.");
             return NULL;
         }
 
-        // Skip already finished fan
-        if (mon.id.mon == id_prev)
+        // Skip already finished monitor
+        if (mon.id.mon == id_prev) {
+            free(names[names_size]);
             continue;
+        }
         id_prev = mon.id.mon;
 
-        // Load fan defaults and append it to linked list of fans
+        // Load monitor defaults and append it to linked list of monitors
         if (!mon_load_def(&mon) || !list_push_front(&mons, &mon, sizeof(mon))) {
             list_free(mons, (void (*)(void *, int))mon_free);
             mon_free(&mon, 0);
+            free_dirent_names(names, names_size);
             log_log(LOG_L_DEBUG, "Unable to load defaults of monitor %d", mon.id.mon);
             return NULL;
         }
+
+        free(names[names_size]);
     }
 
-    if (closedir(dir) < 0)
-        log_log(LOG_L_DEBUG, "Unable to close system monitors directory");
+    if (names)
+        free(names);
     return mons;
 }
 
 
-int mons_get_temp(t_node *mons) {
+int mons_read_temp(t_node *mons) {
     int   temp  = -1;
     t_mon *mon  = NULL;
 
@@ -324,16 +356,16 @@ int mons_get_temp(t_node *mons) {
     // If failed to load at least one temperature, crank up the fans
     if (temp < 0) {
         log_log(LOG_L_ERROR, "Unable to read temperature from monitors.");
-        return set_get_val(SET_TEMP_HIGH);
+        return set_get_int(SET_TEMP_HIGH);
     }
 
     return (temp / 1000);
 }
 
 
-int mons_get_temp_max(const t_node *mons) {
-    int   temp = -1;
-    t_mon *mon = NULL;
+int mons_read_temp_max(const t_node *mons) {
+    t_mon *mon = mons->data;
+    int   temp = mon->temp.max;
 
     while (mons) {
         mon = mons->data;
@@ -344,11 +376,6 @@ int mons_get_temp_max(const t_node *mons) {
         mons = mons->next;
     }
 
-    if (temp < 0) {
-        log_log(LOG_L_ERROR, "Unable to read max temperature from monitors.");
-        return -1;
-    }
-
     return (temp / 1000);
 }
 
@@ -357,8 +384,10 @@ void mon_free(t_mon *mon, int self) {
     if (!mon)
         return;
 
-    if (mon->path_rd)
-        free(mon->path_rd);
+    if (mon->path.rd)
+        free(mon->path.rd);
+    if (mon->path.max)
+        free(mon->path.max);
     if (mon->lbl)
         free(mon->lbl);
     
@@ -372,6 +401,7 @@ void mon_print(const t_mon *const mon, FILE *const file) {
         return;
 
     fprintf(file, "Monitor %d - %s\n", mon->id.mon, mon->lbl);
-    fprintf(file, "Max temp: %d°C\n", mon->temp.max);
-    fprintf(file, "Read: %s\n", mon->path_rd);
+    fprintf(file, "Max temp: %d°C\n", mon->temp.max / 1000);
+    fprintf(file, "Read: %s\n", mon->path.rd);
+    fprintf(file, "Max: %s\n", mon->path.max);
 }

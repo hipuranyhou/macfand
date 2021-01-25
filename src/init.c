@@ -82,11 +82,11 @@ static void init_exit(t_node *mons, t_node *fans);
 static int init_set(const struct args *const args) {
     if (!args->no_conf) {
         // Load config
-        if (!conf_load(set_get_val_str(SET_CONFIG_FILE_PATH))) {
+        if (!conf_load(set_get_str(SET_CONFIG_FILE_PATH))) {
             log_log(LOG_L_ERROR, "Unable to load configuration file.");
             return 0;
         }
-        log_log(LOG_L_INFO, "Using configuration file %s", set_get_val_str(SET_CONFIG_FILE_PATH));
+        log_log(LOG_L_INFO, "Using configuration file %s", set_get_str(SET_CONFIG_FILE_PATH));
     } else
         log_log(LOG_L_INFO, "Using default settings without configuration file");
 
@@ -145,11 +145,11 @@ static int init_mons_fans(t_node **mons, t_node **fans) {
         log_log(LOG_L_ERROR, "Unable to load system temperature monitors");
         return 0;
     }
-    if (!set_set_val(SET_TEMP_MAX, mons_get_temp_max(*mons))) {
+    if (!set_set_int(SET_TEMP_MAX, mons_read_temp_max(*mons))) {
         log_log(LOG_L_ERROR, "Unable to load max temperature");
         return 0;
     }
-    if (set_get_val(SET_VERBOSE))
+    if (set_get_int(SET_VERBOSE))
         log_log_list("monitors", *mons, (void (*)(const void *, FILE *const))mon_print);
 
     // Fans
@@ -158,7 +158,7 @@ static int init_mons_fans(t_node **mons, t_node **fans) {
         log_log(LOG_L_ERROR, "Unable to load system fans");
         return 0;
     }
-    if (set_get_val(SET_VERBOSE))
+    if (set_get_int(SET_VERBOSE))
         log_log_list("fans", *fans, (void (*)(const void *, FILE *const))fan_print);
     if (!fans_write_mod(*fans, FAN_M_MAN)) {
         log_log(LOG_L_ERROR, "Unable to set fans to manual mode");
@@ -204,11 +204,11 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
                 args->no_conf = 1;
                 break;
             }
-            if (!set_set_val_str(SET_CONFIG_FILE_PATH, arg))
+            if (!set_set_str(SET_CONFIG_FILE_PATH, arg))
                 argp_failure(state, 1, 0, "Unknown error encoutered while setting config file path.");
             break;
         case 'v':
-            set_set_val(SET_VERBOSE, 1);
+            set_set_int(SET_VERBOSE, 1);
             break;
     }
 
@@ -244,11 +244,11 @@ int init_load(int argc, char **argv) {
     }
 
     // Daemonize
-    if (set_get_val(SET_DAEMON))
+    if (set_get_int(SET_DAEMON))
         daemonize();
 
     // Set logger to configured type
-    if (!log_set_type(set_get_val(SET_LOG_TYPE), set_get_val_str(SET_LOG_FILE_PATH))) {
+    if (!log_set_type(set_get_int(SET_LOG_TYPE), set_get_str(SET_LOG_FILE_PATH))) {
         log_log(LOG_L_ERROR, "Unable to set logger to configured mode");
         init_exit(mons, fans);
         return 0;

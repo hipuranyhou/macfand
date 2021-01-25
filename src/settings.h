@@ -51,7 +51,7 @@ int set_check();
  * @param[in]  setting  Setting which value we want to get (one of enum setting).
  * @return int -1 on error, value of given settings otherwise.
  */
-int set_get_val(int choice);
+int set_get_int(int choice);
 
 /**
  * @brief Gets setting string value.
@@ -59,7 +59,7 @@ int set_get_val(int choice);
  * @param[in]  setting  Setting which value we want to get (one of enum setting).
  * @return char* NULL on error, string otherwise
  */
-char* set_get_val_str(int choice);
+char* set_get_str(int choice);
 
 /**
  * @brief Sets setting integer value.
@@ -68,7 +68,7 @@ char* set_get_val_str(int choice);
  * @param[in]  value    Value to be set.
  * @return int 0 on error, 1 on success.
  */
-int set_set_val(int choice, int val);
+int set_set_int(int choice, int val);
 
 /**
  * @brief Set the tings set value object
@@ -78,6 +78,6 @@ int set_set_val(int choice, int val);
  * @param[in]  value    Value to be set.
  * @return int 0 on error, 1 on success.
  */
-int set_set_val_str(int choice, const char *const val);
+int set_set_str(int choice, const char *const val);
 
 #endif //MACFAND_SETTINGS_H_jkdhfasjkf

@@ -19,7 +19,7 @@ void wgt_write(const t_node *fans) {
     FILE  *file = NULL;
     t_fan *fan  = NULL;
 
-    file = fopen(set_get_val_str(SET_WIDGET_FILE_PATH), "w");
+    file = fopen(set_get_str(SET_WIDGET_FILE_PATH), "w");
     if (!file) {
         log_log(LOG_L_ERROR, "%s", "Unable to open widget file");
         return;

@@ -126,6 +126,17 @@ int str_to_int(const char *const str, int *const dest, int base, char *const inv
 }
 
 
+void free_dirent_names(struct dirent **names, int n) {
+    if (!names)
+        return;
+
+    while (n--)
+        free(names[n]);
+        
+    free(names);
+}
+
+
 int max(const int a, const int b) {
     return (a > b) ? a : b;
 }

@@ -66,22 +66,22 @@ static int conf_parse_file(FILE *fp);
 static int conf_assign_int(const char *key, const int val) {
     
     if (strcmp(key, "temp_low") == 0) {
-        if (!set_set_val(SET_TEMP_LOW, val))
+        if (!set_set_int(SET_TEMP_LOW, val))
             return 0;
     } else if (strcmp(key, "temp_high") == 0) {
-        if (!set_set_val(SET_TEMP_HIGH, val))
+        if (!set_set_int(SET_TEMP_HIGH, val))
             return 0;
     } else if (strcmp(key, "time_poll") == 0) {
-        if (!set_set_val(SET_TIME_POLL, val))
+        if (!set_set_int(SET_TIME_POLL, val))
             return 0;
     } else if (strcmp(key, "daemon") == 0) {
-        if (!set_set_val(SET_DAEMON, val))
+        if (!set_set_int(SET_DAEMON, val))
             return 0;
     } else if (strcmp(key, "verbose") == 0) {
-        if (!set_set_val(SET_VERBOSE, val))
+        if (!set_set_int(SET_VERBOSE, val))
             return 0;
     } else if (strcmp(key, "widget") == 0) {
-        if (!set_set_val(SET_WIDGET, val))
+        if (!set_set_int(SET_WIDGET, val))
             return 0;
     } else
         return 0;
@@ -96,22 +96,22 @@ static int conf_assign_str(const char *key, const char *val) {
     if (strcmp(key, "log_type") == 0) {
 
         if (strcmp(val, "std") == 0) {
-            if (!set_set_val(SET_LOG_TYPE, LOG_T_STD))
+            if (!set_set_int(SET_LOG_TYPE, LOG_T_STD))
                 return 0;
         } else if (strcmp(val, "sys") == 0) {
-            if (!set_set_val(SET_LOG_TYPE, LOG_T_SYS))
+            if (!set_set_int(SET_LOG_TYPE, LOG_T_SYS))
                 return 0;
         } else if (strcmp(val, "file") == 0) {
-            if (!set_set_val(SET_LOG_TYPE, LOG_T_FILE))
+            if (!set_set_int(SET_LOG_TYPE, LOG_T_FILE))
                 return 0;
         } else
             return 0;
 
     } else if (strcmp(key, "log_file_path") == 0) {
-        if (!set_set_val_str(SET_LOG_FILE_PATH, val))
+        if (!set_set_str(SET_LOG_FILE_PATH, val))
             return 0;
     } else if (strcmp(key, "widget_file_path") == 0) {
-        if (!set_set_val_str(SET_WIDGET_FILE_PATH, val))
+        if (!set_set_str(SET_WIDGET_FILE_PATH, val))
             return 0;
     } else
         return 0;
@@ -134,7 +134,7 @@ static int conf_assign_set(const char *key, const char *val) {
     }
 
     // String settings
-    if (str_to_int(val, &val_int, 10, NULL) > 0 && !is_bool)
+    if (str_to_int(val, &val_int, 10, NULL) < 1 && !is_bool)
         return conf_assign_str(key, val);
     
     // Integer settings
@@ -225,6 +225,8 @@ static int conf_parse_file(FILE *fp) {
 int conf_load(const char *path) {
     FILE *fp       = NULL;
     int  parse_ret = 0;
+
+    //printf("%s\n", path);
     
     fp = fopen((path) ? path : "/etc/macfand.conf", "r");
     if (!fp)
