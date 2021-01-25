@@ -308,7 +308,7 @@ int fan_write_spd(t_fan *const fan) {
         return 0;
 
     // Check current fan speed
-    if (!fan_read_spd(fan, FAN_PATH_RD)) {
+    if (!fan_read_spd(fan, NULL)) {
         log_log(LOG_L_DEBUG, "Unable to read speed of fan %d", fan->id);
         return 0;
     }
