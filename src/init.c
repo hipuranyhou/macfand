@@ -86,15 +86,18 @@ static int init_set(const struct args *const args) {
             log_log(LOG_L_ERROR, "Unable to load configuration file.");
             return 0;
         }
-        log_log(LOG_L_INFO, "Using configuration file %s", set_get_str(SET_CONFIG_FILE_PATH));
-    } else
-        log_log(LOG_L_INFO, "Using default settings without configuration file");
+    }
 
     // Load default paths and check validity of settings
     if (!set_check()) {
         log_log(LOG_L_ERROR, "Settings are invalid");
         return 0;
     }
+
+    if (!args->no_conf)
+        log_log(LOG_L_INFO, "Using configuration file %s", set_get_str(SET_CONFIG_FILE_PATH));
+    else
+        log_log(LOG_L_INFO, "Using default settings without configuration file");
 
     return 1;
 }
