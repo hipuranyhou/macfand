@@ -1,5 +1,5 @@
 /**
- * macfand - hipuranyhou - 22.01.2021
+ * macfand - hipuranyhou - 25.01.2021
  * 
  * Daemon for controlling fans on Linux systems using
  * applesmc and coretemp.
@@ -134,7 +134,7 @@ static int conf_assign_set(const char *key, const char *val) {
     }
 
     // String settings
-    if (!get_int_from_string(val, &val_int) && !is_bool)
+    if (str_to_int(val, &val_int, 10, NULL) > 0 && !is_bool)
         return conf_assign_str(key, val);
     
     // Integer settings
@@ -162,7 +162,7 @@ static int conf_parse_line(const char *line) {
         return 1;
 
     // Load key
-    get_ret = get_word_until(line, ':', &key, &key_size);
+    get_ret = get_str_until(line, ':', &key, &key_size);
     if (get_ret < 1) {
         if (key)
             free(key);
@@ -175,7 +175,7 @@ static int conf_parse_line(const char *line) {
         line++;
 
     // Load value
-    get_ret = get_word_until(line, '"', &val, &val_size);
+    get_ret = get_str_until(line, '"', &val, &val_size);
     if (get_ret < 1) {
         free(key);
         if (val)
