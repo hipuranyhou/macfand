@@ -240,7 +240,7 @@ t_node* fans_load(void) {
         to_int_ret = str_to_int(fname+3, &(fan.id), 10, &inv);
         if (to_int_ret < 0 || inv != '_') {
             list_free(fans, fan_free);
-            fan_load_free(&fan);
+            fan_free(&fan, 0);
             log_log(LOG_L_DEBUG, "Invalid fan filename encountered.");
             return NULL;
         }
@@ -253,7 +253,7 @@ t_node* fans_load(void) {
         // Load fan defaults and append it to linked list of fans
         if (!fan_load_def(&fan) || !list_push_front(&fans, &fan, sizeof(fan))) {
             list_free(fans, fan_free);
-            fan_load_free(&fan);
+            fan_free(&fan, 0);
             log_log(LOG_L_DEBUG, "Unable to load defaults of fan %d", fan.id);
             return NULL;
         }
@@ -340,22 +340,7 @@ int fan_write_spd(t_fan *const fan) {
 }
 
 
-static void fan_load_free(t_fan *const fan) {
-    if (!fan)
-        return;
-
-    if (fan->path.wr)
-        free(fan->path.wr);
-    if (fan->path.mod)
-        free(fan->path.mod);
-    if (fan->path.rd)
-        free(fan->path.rd);
-    if (fan->lbl)
-        free(fan->lbl);
-}
-
-
-void fan_free(t_fan *fan) {
+void fan_free(t_fan *fan, int self) {
     if (!fan)
         return;
 
@@ -367,7 +352,9 @@ void fan_free(t_fan *fan) {
         free(fan->path.wr);
     if (fan->path.mod)
         free(fan->path.mod);
-    free(fan);
+
+    if (self)
+        free(fan);
 }
 
 

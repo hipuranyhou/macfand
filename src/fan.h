@@ -1,5 +1,5 @@
 /**
- * macfand - hipuranyhou - 22.01.2021
+ * macfand - hipuranyhou - 25.01.2021
  * 
  * Daemon for controlling fans on Linux systems using
  * applesmc and coretemp.
@@ -86,15 +86,17 @@ int fan_write_spd(t_fan *const fan);
 
 /**
  * @brief Frees memory for given fan.
- * Calls free() on all allocated members of given fan if they are not NULL and fan itself.
- * @param[in]  fan  Pointer to fan.
+ * Calls free() on all allocated members of given fan if they are not NULL and fan itself 
+ * if self is not 0.
+ * @param[in] fan  Pointer to fan.
+ * @param[in] self Boolean if the fan itself should be freed.
  */
-void fan_free(t_fan *fan);
+void fan_free(t_fan *fan, int self);
 
 /**
  * @brief Prints info about fan.
  * Prints formatted information (all members of t_fan) about given fan to stdout.
- * @param[in]  fan  Pointer to fan. 
+ * @param[in] fan Pointer to fan. 
  */
 void fan_print(const t_fan *const fan, FILE *const file);
 
