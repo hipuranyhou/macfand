@@ -35,9 +35,9 @@
 static int fan_load_lbl(t_fan *const fan);
 
 /**
- * @brief Selects where should fan read speed end.
- * Changes *dest to proper location of where should be speed saved after reading
- * it for given fan based on path suffix.
+ * @brief Selects where should fan read speed end and from where should be read.
+ * Changes *dest to proper location of where should be speed saved after reading and *path 
+ * to from where should be speed read for given fan based on path suffix.
  * @param[in]  fan  Pointer to fan which speed should be read.
  * @param[in]  suff Suffix of speed file from which we read speed.
  * @param[out] dest Pointer where should be read value destination saved.
