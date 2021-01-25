@@ -201,7 +201,7 @@ void log_log(int lvl, const char *const fmt, ...) {
     char    *msg = NULL;
 
     // We log only errors when not in verbose mode
-    if (lvl != LOG_L_ERROR && !settings_get_value(SET_VERBOSE))
+    if (lvl != LOG_L_ERROR && !set_get_val(SET_VERBOSE))
         return;
 
     va_start(ap, fmt);

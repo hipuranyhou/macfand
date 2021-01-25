@@ -34,6 +34,6 @@ struct ctrl_temps {
  * @param[in] fans Pointer to head of generic linked list of system fans.
  * @return int 0 on error, 1 on success
  */
-int ctrl_start(const t_node *mons, t_node *fans);
+int ctrl_start(t_node *mons, t_node *fans);
 
 #endif //MACFAND_CONTROL_H_fsdfdsfsdf

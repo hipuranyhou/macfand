@@ -12,6 +12,7 @@
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
+#include <libgen.h>
 
 #include "monitor.h"
 #include "helper.h"
@@ -43,7 +44,7 @@ static int mon_load_lbl(t_mon *const mon);
  * @param[out] path Pointer where should be read path saved.
  * @return int 0 on error, 1 on success
  */
-static int mon_sel_temp_dest(const t_mon *const mon, const char *const suff, int **const dest, char **const path);
+static int mon_sel_temp_dest(t_mon *const mon, const char *const suff, int **const dest, char **const path);
 
 /**
  * @brief Loads temperature of given monitor.
@@ -111,7 +112,7 @@ static int mon_load_lbl(t_mon *const mon) {
 }
 
 
-static int mon_sel_temp_dest(const t_mon *const mon, const char *const suff, int **const dest, char **const path) {
+static int mon_sel_temp_dest(t_mon *const mon, const char *const suff, int **const dest, char **const path) {
     if (!mon || !suff || !dest || !path)
         return 0;
 
@@ -135,7 +136,7 @@ static int mon_read_temp(t_mon *const mon, const char *const suff) {
     int     *rd_dest = &(mon->temp.real);
     char    *rd_path = mon->path_rd;
 
-    if (!mon || (suff && !mon_sel_spd_dest(mon, suff, &rd_dest, &rd_path)))
+    if (!mon || (suff && !mon_sel_temp_dest(mon, suff, &rd_dest, &rd_path)))
         return 0;
 
     // Open file for reading
@@ -178,7 +179,7 @@ static int mon_load_def(t_mon *const mon) {
     if (!mon->path_rd)
         return 0;
 
-    if (!mon_read_temp(&mon, MON_PATH_MAX)) {
+    if (!mon_read_temp(mon, MON_PATH_MAX)) {
         log_log(LOG_L_DEBUG, "Unable to load max temperature of monitor %d", mon->id.mon);
         return 0;
     }
@@ -208,7 +209,7 @@ static int mons_find_hw_id(void) {
     if (!dir)
         return -1;
 
-    while (dirent = readdir(dir)) {
+    while ((dirent = readdir(dir))) {
         fname = basename(dirent->d_name);
 
         if (dirent->d_type != DT_LNK || !fname || strncmp(fname, "hwmon", 5) != 0)
@@ -266,7 +267,7 @@ t_node* mons_load(void) {
     }
 
     // Walk through fans directory
-    while (dirent = readdir(dir)) {
+    while ((dirent = readdir(dir))) {
         fname = basename(dirent->d_name);
 
         if (!fname || strncmp(fname, "temp", 4) != 0)
@@ -275,7 +276,7 @@ t_node* mons_load(void) {
         // Get id of fan
         to_int_ret = str_to_int(fname+4, &(mon.id.mon), 10, &inv);
         if (to_int_ret < 0 || inv != '_') {
-            list_free(mons, mon_free);
+            list_free(mons, (void (*)(void *, int))mon_free);
             mon_free(&mon, 0);
             log_log(LOG_L_DEBUG, "Invalid monitor filename encountered.");
             return NULL;
@@ -288,7 +289,7 @@ t_node* mons_load(void) {
 
         // Load fan defaults and append it to linked list of fans
         if (!mon_load_def(&mon) || !list_push_front(&mons, &mon, sizeof(mon))) {
-            list_free(mons, mon_free);
+            list_free(mons, (void (*)(void *, int))mon_free);
             mon_free(&mon, 0);
             log_log(LOG_L_DEBUG, "Unable to load defaults of monitor %d", mon.id.mon);
             return NULL;
@@ -303,7 +304,6 @@ t_node* mons_load(void) {
 
 int mons_get_temp(t_node *mons) {
     int   temp  = -1;
-    FILE  *file = NULL;
     t_mon *mon  = NULL;
 
     while (mons) {
@@ -324,7 +324,7 @@ int mons_get_temp(t_node *mons) {
     // If failed to load at least one temperature, crank up the fans
     if (temp < 0) {
         log_log(LOG_L_ERROR, "Unable to read temperature from monitors.");
-        return settings_get_value(SET_TEMP_HIGH);
+        return set_get_val(SET_TEMP_HIGH);
     }
 
     return (temp / 1000);
@@ -367,7 +367,7 @@ void mon_free(t_mon *mon, int self) {
 }
 
 
-void monitor_print(const t_mon *const mon, FILE *const file) {
+void mon_print(const t_mon *const mon, FILE *const file) {
     if (!mon)
         return;
 

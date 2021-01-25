@@ -13,6 +13,15 @@
 #include <stdarg.h>
 
 /**
+ * @brief Concatenates values into a string
+ * Concatenates values in ap into a string with given format. Allocates memory which has to be freed by caller.
+ * @param[in] fmt Format of constructed string.
+ * @param[in] ap  Values to be concatenated into a string.
+ * @return char* NULL on error, pointer to concatenated string otherwise (has to be freed!)
+ */
+char* v_concat_fmt(const char *const fmt, va_list ap);
+
+/**
  * @brief Wrapper for v_concat_fmt(). Concatenates values into a string.
  * Wrapper for v_concat_fmt(). Concatenates values into a string.
  * @param[in] fmt Format of constructed string.

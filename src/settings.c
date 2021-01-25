@@ -57,50 +57,50 @@ void set_free() {
 int set_check() {
 
     if (set.temp_low < 1) {
-        logger_log(LOG_L_DEBUG, "%s", "Value of temp_low must be >= 1");
+        log_log(LOG_L_DEBUG, "%s", "Value of temp_low must be >= 1");
         return 0;
     }
     if (set.temp_high <= set.temp_low) {
-        logger_log(LOG_L_DEBUG, "%s", "Value of temp_high is invalid (must be > temp_low)");
+        log_log(LOG_L_DEBUG, "%s", "Value of temp_high is invalid (must be > temp_low)");
         return 0;
     }
     if (set.temp_max <= set.temp_high) {
-        logger_log(LOG_L_DEBUG, "%s", "Value of temp_max is invalid (must be > temp_high");
+        log_log(LOG_L_DEBUG, "%s", "Value of temp_max is invalid (must be > temp_high");
         return 0;
     }
     if (set.time_poll < 1) {
-        logger_log(LOG_L_DEBUG, "%s", "Value of time_poll must be >= 1");
+        log_log(LOG_L_DEBUG, "%s", "Value of time_poll must be >= 1");
         return 0;
     }
     if (set.daemon != 0 && set.daemon != 1) {
-        logger_log(LOG_L_DEBUG, "%s", "Value of daemon must be 0 or 1");
+        log_log(LOG_L_DEBUG, "%s", "Value of daemon must be 0 or 1");
         return 0;
     }
     if (set.verbose != 0 && set.verbose != 1) {
-        logger_log(LOG_L_DEBUG, "%s", "Value of verbose must be 0 or 1");
+        log_log(LOG_L_DEBUG, "%s", "Value of verbose must be 0 or 1");
         return 0;
     }
     if (set.log_type < LOG_T_STD || set.log_type > LOG_T_FILE) {
-        logger_log(LOG_L_DEBUG, "%s", "Value of log_type must be one of std, sys and file");
+        log_log(LOG_L_DEBUG, "%s", "Value of log_type must be one of std, sys and file");
         return 0;
     }
     if (set.log_type == LOG_T_FILE && !set.log_file_path) {
-        if (!settings_set_value_string(SET_LOG_FILE_PATH, "/var/log/macfand.log")) {
-            logger_log(LOG_L_DEBUG, "%s", "Unable to set default log file path to /var/log/macfand.log");
+        if (!set_set_val_str(SET_LOG_FILE_PATH, "/var/log/macfand.log")) {
+            log_log(LOG_L_DEBUG, "%s", "Unable to set default log file path to /var/log/macfand.log");
             return 0;
         }
-        logger_log(LOG_L_INFO, "%s", "Using default log file path /var/log/macfand.log");
+        log_log(LOG_L_INFO, "%s", "Using default log file path /var/log/macfand.log");
     }
     if (set.widget != 0 && set.widget != 1) {
-        logger_log(LOG_L_DEBUG, "%s", "Value of widget must be 0 or 1");
+        log_log(LOG_L_DEBUG, "%s", "Value of widget must be 0 or 1");
         return 0;
     }
     if (set.widget && !set.widget_file_path) {
-        if (!settings_set_value_string(SET_WIDGET_FILE_PATH, "/tmp/macfand.widget")) {
-            logger_log(LOG_L_DEBUG, "%s", "Unable to set default widget file path to /tmp/macfand.widget");
+        if (!set_set_val_str(SET_WIDGET_FILE_PATH, "/tmp/macfand.widget")) {
+            log_log(LOG_L_DEBUG, "%s", "Unable to set default widget file path to /tmp/macfand.widget");
             return 0;
         }
-        logger_log(LOG_L_INFO, "%s", "Using default widget file path /tmp/macfand.widget");
+        log_log(LOG_L_INFO, "%s", "Using default widget file path /tmp/macfand.widget");
     }
 
     return 1;

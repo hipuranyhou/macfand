@@ -11,6 +11,7 @@
 #include <dirent.h>
 #include <string.h>
 #include <errno.h>
+#include <libgen.h>
 
 #include "fan.h"
 #include "helper.h"
@@ -44,7 +45,7 @@ static int fan_load_lbl(t_fan *const fan);
  * @param[out] path Pointer where should be read path saved.
  * @return int 0 on error, 1 on success.
  */
-static int fan_sel_spd_dest(const t_fan *const fan, const char *const suff, int **const dest, char **const path);
+static int fan_sel_spd_dest(t_fan *const fan, const char *const suff, int **const dest, char **const path);
 
 /**
  * @brief Loads given speed of fan.
@@ -63,13 +64,6 @@ static int fan_read_spd(t_fan *const fan, const char *const suff);
  * @return int 0 on error, 1 on success.
  */
 static int fan_load_def(t_fan *const fan);
-
-/**
- * @brief Frees members of fan.
- * Calls free() on all allocated members of fan, but not fan itself.
- * @param[in] fan Pointer to fan which members should be freed.
- */
-static void fan_load_free(t_fan *const fan);
 
 
 static int fan_load_lbl(t_fan *const fan) {
@@ -112,7 +106,7 @@ static int fan_load_lbl(t_fan *const fan) {
 }
 
 
-static int fan_sel_spd_dest(const t_fan *const fan, const char *const suff, int **const dest, char **const path) {
+static int fan_sel_spd_dest(t_fan *const fan, const char *const suff, int **const dest, char **const path) {
     if (!fan || !suff || !dest || !path)
         return 0;
 
@@ -175,8 +169,8 @@ static int fan_read_spd(t_fan *const fan, const char *const suff) {
 
 
 static int fan_load_def(t_fan *const fan) {
-    int temp_max  = settings_get_value(SET_TEMP_MAX);
-    int temp_high = settings_get_value(SET_TEMP_HIGH);
+    int temp_max  = set_get_val(SET_TEMP_MAX);
+    int temp_high = set_get_val(SET_TEMP_HIGH);
 
     if (!fan)
         return 0;
@@ -203,7 +197,7 @@ static int fan_load_def(t_fan *const fan) {
     fan->spd.step = (fan->spd.max - fan->spd.min) / ((temp_max - temp_high) * (temp_max - temp_high + 1) / 2);
 
     // Load fan label
-    if (!fan_load_label(fan)) {
+    if (!fan_load_lbl(fan)) {
         log_log(LOG_L_DEBUG, "Unable to load label of fan %d", fan->id);
         return 0;
     }
@@ -230,7 +224,7 @@ t_node* fans_load(void) {
     }
 
     // Walk through fans directory
-    while (dirent = readdir(dir)) {
+    while ((dirent = readdir(dir))) {
         fname = basename(dirent->d_name);
 
         if (!fname || strncmp(fname, "fan", 3) != 0)
@@ -239,7 +233,7 @@ t_node* fans_load(void) {
         // Get id of fan
         to_int_ret = str_to_int(fname+3, &(fan.id), 10, &inv);
         if (to_int_ret < 0 || inv != '_') {
-            list_free(fans, fan_free);
+            list_free(fans, (void (*)(void *, int))fan_free);
             fan_free(&fan, 0);
             log_log(LOG_L_DEBUG, "Invalid fan filename encountered.");
             return NULL;
@@ -252,7 +246,7 @@ t_node* fans_load(void) {
 
         // Load fan defaults and append it to linked list of fans
         if (!fan_load_def(&fan) || !list_push_front(&fans, &fan, sizeof(fan))) {
-            list_free(fans, fan_free);
+            list_free(fans, (void (*)(void *, int))fan_free);
             fan_free(&fan, 0);
             log_log(LOG_L_DEBUG, "Unable to load defaults of fan %d", fan.id);
             return NULL;

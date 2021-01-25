@@ -15,17 +15,8 @@
 
 #include "helper.h"
 
-/**
- * @brief Concatenates values into a string
- * Concatenates values in ap into a string with given format. Allocates memory which has to be freed by caller.
- * @param[in] fmt Format of constructed string.
- * @param[in] ap  Values to be concatenated into a string.
- * @return char* NULL on error, pointer to concatenated string otherwise (has to be freed!)
- */
-static char* v_concat_fmt(const char *const fmt, va_list ap);
 
-
-static char* v_concat_fmt(const char *const fmt, va_list ap) {
+char* v_concat_fmt(const char *const fmt, va_list ap) {
     va_list ap_len;
     int     len     = 0;
     int     vsn_ret = 0;

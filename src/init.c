@@ -9,6 +9,7 @@
 
 #include <argp.h>
 #include <signal.h>
+#include <string.h>
 
 #include "init.h"
 #include "linked.h"
@@ -87,11 +88,11 @@ static int init_set(const struct args *const args) {
         }
         log_log(LOG_L_INFO, "Using configuration file %s", set_get_val_str(SET_CONFIG_FILE_PATH));
     } else
-        logger_log(LOG_L_INFO, "Using default settings without configuration file");
+        log_log(LOG_L_INFO, "Using default settings without configuration file");
 
     // Load default paths and check validity of settings
     if (!set_check()) {
-        logger_log(LOG_L_ERROR, "Settings are invalid");
+        log_log(LOG_L_ERROR, "Settings are invalid");
         return 0;
     }
 
@@ -149,7 +150,7 @@ static int init_mons_fans(t_node **mons, t_node **fans) {
         return 0;
     }
     if (set_get_val(SET_VERBOSE))
-        log_log_list("monitors", *mons, mon_print);
+        log_log_list("monitors", *mons, (void (*)(const void *, FILE *const))mon_print);
 
     // Fans
     *fans = fans_load();
@@ -158,8 +159,8 @@ static int init_mons_fans(t_node **mons, t_node **fans) {
         return 0;
     }
     if (set_get_val(SET_VERBOSE))
-        log_log_list("fans", *fans, fan_print);
-    if (!fans_write_mode(*fans, FAN_M_MAN)) {
+        log_log_list("fans", *fans, (void (*)(const void *, FILE *const))fan_print);
+    if (!fans_write_mod(*fans, FAN_M_MAN)) {
         log_log(LOG_L_ERROR, "Unable to set fans to manual mode");
         return 0;
     }
@@ -170,12 +171,12 @@ static int init_mons_fans(t_node **mons, t_node **fans) {
 
 void init_exit(t_node *mons, t_node *fans) {
     if (mons)
-        list_free(mons, mon_free);
+        list_free(mons, (void (*)(void *, int))mon_free);
 
     if (fans) {
         if (!fans_write_mod(fans, FAN_M_AUTO))
             log_log(LOG_L_ERROR, "Unable to reset fans to automatic mode.");
-        list_free(fans, fan_free);
+        list_free(fans, (void (*)(void *, int))fan_free);
     }
 
     set_free();
@@ -248,7 +249,7 @@ int init_load(int argc, char **argv) {
 
     // Set logger to configured type
     if (!log_set_type(set_get_val(SET_LOG_TYPE), set_get_val_str(SET_LOG_FILE_PATH))) {
-        logger_log(LOG_L_ERROR, "Unable to set logger to configured mode");
+        log_log(LOG_L_ERROR, "Unable to set logger to configured mode");
         init_exit(mons, fans);
         return 0;
     }
@@ -261,7 +262,7 @@ int init_load(int argc, char **argv) {
 
     // Start main control loop
     if (!ctrl_start(mons, fans)) {
-        logger_log(LOG_L_ERROR, "Main control loop failed.");
+        log_log(LOG_L_ERROR, "Main control loop failed.");
         init_exit(mons, fans);
         return 0;
     }

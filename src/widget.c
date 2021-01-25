@@ -21,20 +21,17 @@ void wgt_write(const t_node *fans) {
 
     file = fopen(set_get_val_str(SET_WIDGET_FILE_PATH), "w");
     if (!file) {
-        logger_log(LOG_L_ERROR, "%s", "Unable to open widget file");
+        log_log(LOG_L_ERROR, "%s", "Unable to open widget file");
         return;
     }
 
     while (fans) {
         fan = fans->data;
         if (fprintf(file, "%d(f%d)%c", fan->spd.real, fan->id, (fans->next) ? ' ' : '\0') < 0)
-            logger_log(LOG_L_ERROR, "%s %d %s", "Unable to write speed of fan", fan->id, "to widget file");
+            log_log(LOG_L_ERROR, "%s %d %s", "Unable to write speed of fan", fan->id, "to widget file");
         fans = fans->next;
     }
 
-    if (fclose(file) == EOF) {
-        logger_log(LOG_L_ERROR, "%s", "Unable to close widget file");
-        return;
-    }
-
+    if (fclose(file) == EOF)
+        log_log(LOG_L_ERROR, "%s", "Unable to close widget file");
 }

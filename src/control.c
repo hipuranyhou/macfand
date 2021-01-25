@@ -46,7 +46,7 @@ static void ctrl_calc_spd(struct ctrl_temps *const temps, t_fan *const fan);
  * @param[in,out] temps Pointer to struct holding control temperature values.
  * @param[in]     mons  Pointer to head of generic linked list of temperature monitors.
  */
-static void ctrl_set_temps(struct ctrl_temps *const temps, const t_node *mons);
+static void ctrl_set_temps(struct ctrl_temps *const temps, t_node *mons);
 
 
 volatile sig_atomic_t term_flag = 0;
@@ -65,7 +65,7 @@ static int ctrl_rld_conf(void) {
         return 0;
     }
 
-    if (!logger_set_type(set_get_val(SET_LOG_TYPE), set_get_val_str(SET_LOG_FILE_PATH))) {
+    if (!log_set_type(set_get_val(SET_LOG_TYPE), set_get_val_str(SET_LOG_FILE_PATH))) {
         log_log(LOG_L_ERROR, "Unable to set logger to configured mode");
         return 0;
     }
@@ -74,7 +74,7 @@ static int ctrl_rld_conf(void) {
 }
 
 
-static void ctrl_calc_speed(struct ctrl_temps *const temps, t_fan *const fan) {
+static void ctrl_calc_spd(struct ctrl_temps *const temps, t_fan *const fan) {
     int steps = 0;
 
     fan->spd.tgt = fan->spd.real;
@@ -105,14 +105,14 @@ static void ctrl_calc_speed(struct ctrl_temps *const temps, t_fan *const fan) {
 }
 
 
-static void ctrl_set_temps(struct ctrl_temps *const temps, const t_node *mons) {
+static void ctrl_set_temps(struct ctrl_temps *const temps, t_node *mons) {
     temps->prev = temps->real;
     temps->real = mons_get_temp(mons);
     temps->dlt = temps->real - temps->prev;
 }
 
 
-int ctrl_start(const t_node *mons, t_node *fans) {
+int ctrl_start(t_node *mons, t_node *fans) {
     struct ctrl_temps temps = {
         .prev = 0,
         .real = 0,
