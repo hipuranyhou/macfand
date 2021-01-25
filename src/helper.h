@@ -1,5 +1,5 @@
 /**
- * macfand - hipuranyhou - 22.01.2021
+ * macfand - hipuranyhou - 25.01.2021
  * 
  * Daemon for controlling fans on Linux systems using
  * applesmc and coretemp.
@@ -33,7 +33,7 @@ char* concat_fmt(const char *const fmt, ...);
  * @param[in,out] dest_size Address of destination buffer size. 
  * @return ssize_t -1 on error, number of extracted characters not including terminating null byte otherwise.
  */
-ssize_t get_word_until(const char *str, const char delim, char **dest, size_t *const dest_size);
+ssize_t get_str_until(const char *str, const char delim, char **dest, size_t *const dest_size);
 
 /**
  * @brief Converts string to integer

@@ -1,5 +1,5 @@
 /**
- * macfand - hipuranyhou - 22.01.2021
+ * macfand - hipuranyhou - 25.01.2021
  * 
  * Daemon for controlling fans on Linux systems using
  * applesmc and coretemp.
@@ -68,7 +68,7 @@ char* concat_fmt(const char *const fmt, ...) {
 }
 
 
-ssize_t get_word_until(const char *str, const char delim, char **dest, size_t *const dest_size) {
+ssize_t get_str_until(const char *str, const char delim, char **dest, size_t *const dest_size) {
     size_t len = 0;
 
     if (!str || (*dest && *dest_size == 0) || (!(*dest) && *dest_size != 0))
@@ -84,6 +84,9 @@ ssize_t get_word_until(const char *str, const char delim, char **dest, size_t *c
 
     while (*str) {
 
+        if (*str == delim || *str == '\n')
+            break;
+
         // Resize buffer
         if (len == *dest_size - 1) {
             *dest_size <<= 1;
@@ -93,9 +96,6 @@ ssize_t get_word_until(const char *str, const char delim, char **dest, size_t *c
             if (!(*dest))
                 return -1;
         }
-
-        if (*str == delim || *str == '\n')
-            break;
             
         (*dest)[len] = *str;
         len++;
