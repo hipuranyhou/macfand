@@ -1,5 +1,5 @@
 /**
- * macfand - hipuranyhou - 18.01.2021
+ * macfand - hipuranyhou - 25.01.2021
  * 
  * Daemon for controlling fans on Linux systems using
  * applesmc and coretemp.
@@ -15,11 +15,11 @@
 #include "fan.h"
 
 
-void widget_write(const t_node *fans) {
+void wgt_write(const t_node *fans) {
     FILE *widget_file = NULL;
     t_fan *fan = NULL;
 
-    widget_file = fopen(settings_get_value_string(SET_WIDGET_FILE_PATH), "w");
+    widget_file = fopen(set_get_val_str(SET_WIDGET_FILE_PATH), "w");
     if (!widget_file) {
         logger_log(LOG_L_ERROR, "%s", "Unable to open widget file");
         return;
@@ -27,7 +27,7 @@ void widget_write(const t_node *fans) {
 
     while (fans) {
         fan = fans->data;
-        if (fprintf(widget_file, "%d(f%d)%c", fan->speed, fan->id, (fans->next) ? ' ' : '\0') < 0)
+        if (fprintf(widget_file, "%d(f%d)%c", fan->spd.real, fan->id, (fans->next) ? ' ' : '\0') < 0)
             logger_log(LOG_L_ERROR, "%s %d %s", "Unable to write speed of fan", fan->id, "to widget file");
         fans = fans->next;
     }

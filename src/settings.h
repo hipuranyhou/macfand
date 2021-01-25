@@ -1,5 +1,5 @@
 /**
- * macfand - hipuranyhou - 18.01.2021
+ * macfand - hipuranyhou - 25.01.2021
  * 
  * Daemon for controlling fans on Linux systems using
  * applesmc and coretemp.
@@ -35,7 +35,7 @@ enum setting {
  * @brief Frees memory used by settings.
  * Frees memory used by settings.
  */
-void settings_free();
+void set_free();
 
 /**
  * @brief Checks validity of settings.
@@ -43,7 +43,7 @@ void settings_free();
  * are NULL (log file, i3 widget, ...).
  * @return int 0 on error, 1 on success
  */
-int settings_check();
+int set_check();
 
 /**
  * @brief Gets setting integer value.
@@ -51,7 +51,7 @@ int settings_check();
  * @param[in]  setting  Setting which value we want to get (one of enum setting).
  * @return int -1 on error, value of given settings otherwise.
  */
-int settings_get_value(const int setting);
+int set_get_val(int choice);
 
 /**
  * @brief Gets setting string value.
@@ -59,7 +59,7 @@ int settings_get_value(const int setting);
  * @param[in]  setting  Setting which value we want to get (one of enum setting).
  * @return char* NULL on error, string otherwise
  */
-char* settings_get_value_string(const int setting);
+char* set_get_val_str(int choice);
 
 /**
  * @brief Sets setting integer value.
@@ -68,7 +68,7 @@ char* settings_get_value_string(const int setting);
  * @param[in]  value    Value to be set.
  * @return int 0 on error, 1 on success.
  */
-int settings_set_value(const int setting, const int value);
+int set_set_val(int choice, int val);
 
 /**
  * @brief Set the tings set value object
@@ -78,6 +78,6 @@ int settings_set_value(const int setting, const int value);
  * @param[in]  value    Value to be set.
  * @return int 0 on error, 1 on success.
  */
-int settings_set_value_string(const int setting, const char *value);
+int set_set_val_str(int choice, const char *const val);
 
 #endif //MACFAND_SETTINGS_H_jkdhfasjkf

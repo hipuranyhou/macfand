@@ -1,5 +1,5 @@
 /**
- * macfand - hipuranyhou - 18.01.2021
+ * macfand - hipuranyhou - 25.01.2021
  * 
  * Daemon for controlling fans on Linux systems using
  * applesmc and coretemp.
@@ -13,7 +13,10 @@
 #include "settings.h"
 #include "logger.h"
 
-
+/**
+ * @brief Struct holding all settings.
+ * Struct holding all settings with set defaults.
+ */
 static struct {
     int temp_low;
     int temp_high;
@@ -26,7 +29,7 @@ static struct {
     int widget;
     char *widget_file_path;
     char *config_file_path;
-} settings = {
+} set = {
     .temp_low = 63,
     .temp_high = 66,
     .temp_max = 84,
@@ -41,67 +44,58 @@ static struct {
 };
 
 
-void settings_free() {
-    if (settings.log_file_path)
-        free(settings.log_file_path);
-    if (settings.widget_file_path)
-        free(settings.widget_file_path);
-    if (settings.config_file_path)
-        free(settings.config_file_path);
+void set_free() {
+    if (set.log_file_path)
+        free(set.log_file_path);
+    if (set.widget_file_path)
+        free(set.widget_file_path);
+    if (set.config_file_path)
+        free(set.config_file_path);
 }
 
 
-int settings_check() {
+int set_check() {
 
-    if (settings.temp_low < 1) {
+    if (set.temp_low < 1) {
         logger_log(LOG_L_DEBUG, "%s", "Value of temp_low must be >= 1");
         return 0;
     }
-
-    if (settings.temp_high <= settings.temp_low) {
+    if (set.temp_high <= set.temp_low) {
         logger_log(LOG_L_DEBUG, "%s", "Value of temp_high is invalid (must be > temp_low)");
         return 0;
     }
-
-    if (settings.temp_max <= settings.temp_high) {
+    if (set.temp_max <= set.temp_high) {
         logger_log(LOG_L_DEBUG, "%s", "Value of temp_max is invalid (must be > temp_high");
         return 0;
     }
-
-    if (settings.time_poll < 1) {
+    if (set.time_poll < 1) {
         logger_log(LOG_L_DEBUG, "%s", "Value of time_poll must be >= 1");
         return 0;
     }
-
-    if (settings.daemon != 0 && settings.daemon != 1) {
+    if (set.daemon != 0 && set.daemon != 1) {
         logger_log(LOG_L_DEBUG, "%s", "Value of daemon must be 0 or 1");
         return 0;
     }
-
-    if (settings.verbose != 0 && settings.verbose != 1) {
+    if (set.verbose != 0 && set.verbose != 1) {
         logger_log(LOG_L_DEBUG, "%s", "Value of verbose must be 0 or 1");
         return 0;
     }
-
-    if (settings.log_type < LOG_T_STD || settings.log_type > LOG_T_FILE) {
+    if (set.log_type < LOG_T_STD || set.log_type > LOG_T_FILE) {
         logger_log(LOG_L_DEBUG, "%s", "Value of log_type must be one of std, sys and file");
         return 0;
     }
-
-    if (settings.log_type == LOG_T_FILE && !settings.log_file_path) {
+    if (set.log_type == LOG_T_FILE && !set.log_file_path) {
         if (!settings_set_value_string(SET_LOG_FILE_PATH, "/var/log/macfand.log")) {
             logger_log(LOG_L_DEBUG, "%s", "Unable to set default log file path to /var/log/macfand.log");
             return 0;
         }
         logger_log(LOG_L_INFO, "%s", "Using default log file path /var/log/macfand.log");
     }
-
-    if (settings.widget != 0 && settings.widget != 1) {
+    if (set.widget != 0 && set.widget != 1) {
         logger_log(LOG_L_DEBUG, "%s", "Value of widget must be 0 or 1");
         return 0;
     }
-
-    if (settings.widget && !settings.widget_file_path) {
+    if (set.widget && !set.widget_file_path) {
         if (!settings_set_value_string(SET_WIDGET_FILE_PATH, "/tmp/macfand.widget")) {
             logger_log(LOG_L_DEBUG, "%s", "Unable to set default widget file path to /tmp/macfand.widget");
             return 0;
@@ -113,70 +107,70 @@ int settings_check() {
 }
 
 
-int settings_get_value(const int setting) {
-    switch (setting) {
+int set_get_val(int choice) {
+    switch (choice) {
         case SET_TEMP_LOW:
-            return settings.temp_low;
+            return set.temp_low;
         case SET_TEMP_HIGH:
-            return settings.temp_high;
+            return set.temp_high;
         case SET_TEMP_MAX:
-            return settings.temp_max;
+            return set.temp_max;
         case SET_TIME_POLL:
-            return settings.time_poll;
+            return set.time_poll;
         case SET_DAEMON:
-            return settings.daemon;
+            return set.daemon;
         case SET_VERBOSE:
-            return settings.verbose;
+            return set.verbose;
         case SET_LOG_TYPE:
-            return settings.log_type;
+            return set.log_type;
         case SET_WIDGET:
-            return settings.widget;
+            return set.widget;
         default:
             return -1;
     }
 }
 
 
-char* settings_get_value_string(const int setting) {
-    switch (setting) {
+char* set_get_val_str(int choice) {
+    switch (choice) {
         case SET_LOG_FILE_PATH:
-            return settings.log_file_path;
+            return set.log_file_path;
         case SET_WIDGET_FILE_PATH:
-            return settings.widget_file_path;
+            return set.widget_file_path;
         case SET_CONFIG_FILE_PATH:
-            return settings.config_file_path;
+            return set.config_file_path;
         default:
             return NULL;
     }
 }
 
 
-int settings_set_value(const int setting, const int value) {
+int set_set_val(int choice, int val) {
 
-    switch (setting) {
+    switch (choice) {
         case SET_TEMP_LOW:
-            settings.temp_low = value;
+            set.temp_low = val;
             break;
         case SET_TEMP_HIGH:
-            settings.temp_high = value;
+            set.temp_high = val;
             break;
         case SET_TEMP_MAX:
-            settings.temp_max = value;
+            set.temp_max = val;
             break;
         case SET_TIME_POLL:
-            settings.time_poll = value;
+            set.time_poll = val;
             break;
         case SET_DAEMON:
-            settings.daemon = value;
+            set.daemon = val;
             break;
         case SET_VERBOSE:
-            settings.verbose = value;
+            set.verbose = val;
             break;
         case SET_LOG_TYPE:
-            settings.log_type = value;
+            set.log_type = val;
             break;
         case SET_WIDGET:
-            settings.widget = value;
+            set.widget = val;
             break;
         default:
             return 0;
@@ -186,37 +180,37 @@ int settings_set_value(const int setting, const int value) {
 }
 
 
-int settings_set_value_string(const int setting, const char *value) { 
-    if (!value)
+int set_set_val_str(int choice, const char *const val) { 
+    if (!val)
         return 0;
 
-    switch (setting) {
+    switch (choice) {
 
         case SET_LOG_FILE_PATH:
-            if (settings.log_file_path)
-                free(settings.log_file_path);
-            settings.log_file_path = (char*)malloc(strlen(value)+1);
-            if (!settings.log_file_path)
+            if (set.log_file_path)
+                free(set.log_file_path);
+            set.log_file_path = (char*)malloc(strlen(val)+1);
+            if (!set.log_file_path)
                 return 0;
-            strcpy(settings.log_file_path, value);
+            strcpy(set.log_file_path, val);
             break;
 
         case SET_WIDGET_FILE_PATH:
-            if (settings.widget_file_path)
-                free(settings.widget_file_path);
-            settings.widget_file_path = (char*)malloc(strlen(value)+1);
-            if (!settings.widget_file_path)
+            if (set.widget_file_path)
+                free(set.widget_file_path);
+            set.widget_file_path = (char*)malloc(strlen(val)+1);
+            if (!set.widget_file_path)
                 return 0;
-            strcpy(settings.widget_file_path, value);
+            strcpy(set.widget_file_path, val);
             break;
 
         case SET_CONFIG_FILE_PATH:
-            if (settings.config_file_path)
-                free(settings.config_file_path);
-            settings.config_file_path = (char*)malloc(strlen(value)+1);
-            if (!settings.config_file_path)
+            if (set.config_file_path)
+                free(set.config_file_path);
+            set.config_file_path = (char*)malloc(strlen(val)+1);
+            if (!set.config_file_path)
                 return 0;
-            strcpy(settings.config_file_path, value);
+            strcpy(set.config_file_path, val);
             break;
 
         default:

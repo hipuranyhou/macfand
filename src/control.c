@@ -1,5 +1,5 @@
 /**
- * macfand - hipuranyhou - 22.01.2021
+ * macfand - hipuranyhou - 25.01.2021
  * 
  * Daemon for controlling fans on Linux systems using
  * applesmc and coretemp.
@@ -55,17 +55,17 @@ volatile sig_atomic_t reload_flag = 0;
 
 static int ctrl_rld_conf(void) {
 
-    if (!conf_load(settings_get_value_string(SET_CONFIG_FILE_PATH))) {
+    if (!conf_load(set_get_val_str(SET_CONFIG_FILE_PATH))) {
         log_log(LOG_L_ERROR, "Unable to load configuration file");
         return 0;
     }
 
-    if (!settings_check()) {
+    if (!set_check()) {
         log_log(LOG_L_ERROR, "Settings are invalid");
         return 0;
     }
 
-    if (!logger_set_type(settings_get_value(SET_LOG_TYPE), settings_get_value_string(SET_LOG_FILE_PATH))) {
+    if (!logger_set_type(set_get_val(SET_LOG_TYPE), set_get_val_str(SET_LOG_FILE_PATH))) {
         log_log(LOG_L_ERROR, "Unable to set logger to configured mode");
         return 0;
     }
@@ -107,7 +107,7 @@ static void ctrl_calc_speed(struct ctrl_temps *const temps, t_fan *const fan) {
 
 static void ctrl_set_temps(struct ctrl_temps *const temps, const t_node *mons) {
     temps->prev = temps->real;
-    temps->real = monitors_get_temp(mons);
+    temps->real = mons_get_temp(mons);
     temps->dlt = temps->real - temps->prev;
 }
 
@@ -117,12 +117,12 @@ int ctrl_start(const t_node *mons, t_node *fans) {
         .prev = 0,
         .real = 0,
         .dlt = 0,
-        .high = settings_get_value(SET_TEMP_HIGH),
-        .low = settings_get_value(SET_TEMP_LOW),
-        .max = settings_get_value(SET_TEMP_MAX),
+        .high = set_get_val(SET_TEMP_HIGH),
+        .low = set_get_val(SET_TEMP_LOW),
+        .max = set_get_val(SET_TEMP_MAX),
     };
     struct timespec ts = {
-        .tv_sec = settings_get_value(SET_TIME_POLL),
+        .tv_sec = set_get_val(SET_TIME_POLL),
         .tv_nsec = 0
     };
     t_fan  *fan       = NULL;
@@ -151,8 +151,8 @@ int ctrl_start(const t_node *mons, t_node *fans) {
         ctrl_set_temps(&temps, mons);
 
         // Write widget file
-        if (settings_get_value(SET_WIDGET))
-            widget_write(fans);
+        if (set_get_val(SET_WIDGET))
+            wgt_write(fans);
 
         // Set speed of each fan
         while (fans) {

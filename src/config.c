@@ -66,22 +66,22 @@ static int conf_parse_file(FILE *fp);
 static int conf_assign_int(const char *key, const int val) {
     
     if (strcmp(key, "temp_low") == 0) {
-        if (!settings_set_value(SET_TEMP_LOW, val))
+        if (!set_set_val(SET_TEMP_LOW, val))
             return 0;
     } else if (strcmp(key, "temp_high") == 0) {
-        if (!settings_set_value(SET_TEMP_HIGH, val))
+        if (!set_set_val(SET_TEMP_HIGH, val))
             return 0;
     } else if (strcmp(key, "time_poll") == 0) {
-        if (!settings_set_value(SET_TIME_POLL, val))
+        if (!set_set_val(SET_TIME_POLL, val))
             return 0;
     } else if (strcmp(key, "daemon") == 0) {
-        if (!settings_set_value(SET_DAEMON, val))
+        if (!set_set_val(SET_DAEMON, val))
             return 0;
     } else if (strcmp(key, "verbose") == 0) {
-        if (!settings_set_value(SET_VERBOSE, val))
+        if (!set_set_val(SET_VERBOSE, val))
             return 0;
     } else if (strcmp(key, "widget") == 0) {
-        if (!settings_set_value(SET_WIDGET, val))
+        if (!set_set_val(SET_WIDGET, val))
             return 0;
     } else
         return 0;
@@ -96,22 +96,22 @@ static int conf_assign_str(const char *key, const char *val) {
     if (strcmp(key, "log_type") == 0) {
 
         if (strcmp(val, "std") == 0) {
-            if (!settings_set_value(SET_LOG_TYPE, LOG_T_STD))
+            if (!set_set_val(SET_LOG_TYPE, LOG_T_STD))
                 return 0;
         } else if (strcmp(val, "sys") == 0) {
-            if (!settings_set_value(SET_LOG_TYPE, LOG_T_SYS))
+            if (!set_set_val(SET_LOG_TYPE, LOG_T_SYS))
                 return 0;
         } else if (strcmp(val, "file") == 0) {
-            if (!settings_set_value(SET_LOG_TYPE, LOG_T_FILE))
+            if (!set_set_val(SET_LOG_TYPE, LOG_T_FILE))
                 return 0;
         } else
             return 0;
 
     } else if (strcmp(key, "log_file_path") == 0) {
-        if (!settings_set_value_string(SET_LOG_FILE_PATH, val))
+        if (!set_set_val_str(SET_LOG_FILE_PATH, val))
             return 0;
     } else if (strcmp(key, "widget_file_path") == 0) {
-        if (!settings_set_value_string(SET_WIDGET_FILE_PATH, val))
+        if (!set_set_val_str(SET_WIDGET_FILE_PATH, val))
             return 0;
     } else
         return 0;
