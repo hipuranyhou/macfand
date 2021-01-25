@@ -236,8 +236,7 @@ t_node* fans_load(void) {
     while (dirent = readdir(dir)) {
         fname = basename(dirent->d_name);
 
-        // !fname[5] because fan file always has "fan%d_*\0"
-        if (!fname || strncmp(fname, "fan", 3) != 0 || !fname[5])
+        if (!fname || strncmp(fname, "fan", 3) != 0)
             continue;
 
         // Get id of fan
