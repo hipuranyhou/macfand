@@ -1,5 +1,5 @@
 /**
- * macfand - hipuranyhou - 22.01.2021
+ * macfand - hipuranyhou - 25.01.2021
  * 
  * Daemon for controlling fans on Linux systems using
  * applesmc and coretemp.
@@ -41,7 +41,7 @@ int list_push_front(t_node **head, const void *const data, const size_t data_siz
  * @param[in] head      Pointer to head of generic linked list.
  * @param[in] node_free Pointer to free function for data type saved in generic linked list.
  */
-void list_free(t_node *head, void (*node_free)(void *));
+void list_free(t_node *head, void (*node_free)(void *, int));
 
 /**
  * @brief Prints given generic linked list.

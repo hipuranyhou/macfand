@@ -1,5 +1,5 @@
 /**
- * macfand - hipuranyhou - 22.01.2021
+ * macfand - hipuranyhou - 25.01.2021
  * 
  * Daemon for controlling fans on Linux systems using
  * applesmc and coretemp.
@@ -32,11 +32,11 @@ int list_push_front(t_node **head, const void *const data, const size_t data_siz
 }
 
 
-void list_free(t_node *head, void (*node_free)(void *)) {
+void list_free(t_node *head, void (*node_free)(void *, int)) {
     t_node *next = NULL;
     while (head) {
         next = head->next;
-        node_free(head->data);
+        node_free(head->data, 1);
         free(head);
         head = next;
     }
