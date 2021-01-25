@@ -17,14 +17,14 @@
 #include "logger.h"
 #include "settings.h"
 
-#define FAN_PATH_BASE  "/sys/devices/platform/applesmc.768"
-#define FAN_PATH_RD    "input"
-#define FAN_PATH_WR    "output"
-#define FAN_PATH_MAX   "max"
-#define FAN_PATH_MIN   "min"
-#define FAN_PATH_MOD   "manual"
-#define FAN_PATH_LABEL "label"
-#define FAN_PATH_FMT   FAN_PATH_BASE "/fan%d_%s"
+#define FAN_PATH_BASE "/sys/devices/platform/applesmc.768"
+#define FAN_PATH_RD   "input"
+#define FAN_PATH_WR   "output"
+#define FAN_PATH_MAX  "max"
+#define FAN_PATH_MIN  "min"
+#define FAN_PATH_MOD  "manual"
+#define FAN_PATH_LBL  "label"
+#define FAN_PATH_FMT  FAN_PATH_BASE "/fan%d_%s"
 
 /**
  * @brief Loads label of fan.
@@ -83,7 +83,7 @@ static int fan_load_lbl(t_fan *const fan) {
 
     fan->lbl = NULL;
 
-    path = concat_fmt(FAN_PATH_FMT, fan->id, FAN_PATH_LABEL);
+    path = concat_fmt(FAN_PATH_FMT, fan->id, FAN_PATH_LBL);
     if (!path)
         return 0;
 
